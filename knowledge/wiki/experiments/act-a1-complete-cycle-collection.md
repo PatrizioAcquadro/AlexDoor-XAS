@@ -6135,16 +6135,48 @@ newly fitted controller gain is justified.
 
 An isolated successor keeps the same lexicographic pose/motor objective and
 four nominal gap inequalities, adding the affine acceleration response of every
-arm joint at all four native steps within the unchanged calibrated domain. It
-retains original quantization and full six-axis extra reference payment, with
-original-proposal fallback for an empty nominal polytope. Nominal constraints do
-not certify actual motion or stopping. One CUDA screen on the three complete
-archived histories is running on elab3; four algebra controls, inactive branches,
-all solver outcomes and quantized faces are to be reviewed before caller/native
-qualification. No source, calibration, threshold, gain or maintained controller
-is adopted. Contact, posture/future support, variable load, transitions and full
-movement remain coupled unresolved requirements; related native variants stay
-suspended. Collection remains 17/36, with 17 sources, 100,295 overlapping windows
-and zero optimizer updates. Evidence is
-`D4-pose-aware-recontact-N-native-closeout-20261108.json` and
-`D4-acceleration-aware-recontact-model-family-elab3-20261108-plan.json`.
+arm joint at all four native steps within the unchanged calibrated domain.
+The complete three-history CUDA screen evaluates 330 new pose-aware inputs,
+157 whole-interval inputs and 609 earlier endpoint inputs: 1,096 eligible inputs
+in total. No quantized target leaves the original predicted acceleration domain.
+Four nominal, boundary, perturbed and infeasible algebra controls and all four
+loaded/missing/nonpositive branches pass for every history. Nineteen inputs
+have a feasible original LP and a passing pose stage, but the second energy QP
+fails its accepted status or numerical contract. Their original-proposal
+fallbacks remain, including six on the new native history. They are numerical
+failures, not physical infeasibility or qualified changed motion.
+
+After fixing six task axes, the seven-motor energy problem has one remaining
+coordinate. The next isolated solver intersects its scalar inequality interval
+and minimizes that quadratic directly, independently checking the original
+primal, equality and stationarity accuracy. Five further scalar energy controls
+pass. Its full 1,096-input screen retains five crossed intervals from first-stage
+primal imprecision: two on the new native history and three on the whole-interval
+history, with zero on the older endpoint path. Predicted quantized acceleration
+exits remain zero. Preserve both complete screens and every original fallback.
+The allocations charge 115.822105 and 113.657429 GPU seconds and release their
+known owned GPU contexts, process groups and canonical leases, closing accounting
+at 393 continuation allocations / 16.051969 GPU hours.
+
+A further isolated correction treats a crossed interval only through the SAME
+original full numerical certificate: an anchor error inside the existing
+accuracy can pass, while a material defect must reject. No solver tolerance,
+empirical domain, physical limit, force threshold or gain is enlarged. Eleven
+independent library-only controls pass on Blackwell's existing numerical runtime;
+this CPU algebra is separate from the CUDA dynamic-model screen. One new
+three-history CUDA screen is running on elab3. Its complete result remains
+pending. The actual constructor/recorder/propose/preview/pre/apply and full6
+reference-payment family is prepared on all three histories, explicitly including
+the earlier nineteen fallback fixtures. It receives acceleration bounds from the
+constructed original load model, with no inferred or default calibration. Its
+lifecycle and source binding still require execution and official preflight.
+
+Nominal constraints and archived fixtures do not certify actual motion or
+stopping. Original eleven finite nonpositive lower-force windows, four unavailable
+windows, 2,568 future empirical position exits and missing hold/release/stabilize
+remain unresolved native outcomes. Contact, posture, variable load, camera,
+perception, transitions and full movement remain coupled requirements. No source,
+maintained controller, calibration or teacher is adopted. Collection remains
+17/36, with 17 sources, 100,295 overlapping windows and zero optimizer updates.
+Evidence is `D4-acceleration-aware-model-software-closeout-20261108.json` and
+`D4-pose-aware-recontact-N-native-closeout-20261108.json`.

@@ -908,15 +908,32 @@ constraints alone therefore do not enforce the existing acceleration domain.
 An isolated successor adds all four predicted native-step acceleration faces
 from the original calibration to the same pose-aware allocation. No empirical
 limit, physical gate, force threshold, gain or reference-payment rule changes.
-One three-history archived-input model screen is running on elab3; solver,
-quantization, caller, complete native contact and stopping qualification remain
-pending. Related physical variants stay suspended.
+The first three-history CUDA model screen covers 1,096 eligible inputs. All
+quantized targets stay within the original predicted acceleration domain, but
+nineteen feasible inputs fall back because the second energy stage does not
+converge or return an accepted numerical status. These are numerical failures,
+not physical infeasibility. A direct bounded one-dimensional solve after fixing
+six task axes removes the iterative energy-stage problem. The second full screen
+retains five tiny crossed scalar intervals caused by the first stage's certified
+primal error; all other inputs solve and predicted acceleration exits remain
+zero. Both screens and every fallback remain preserved.
 
-All native and finished-review resources close; 391 continuation allocations
-total 15.988224 GPU hours, plus that one open model allocation. Collection
-remains 17/36. Evidence is
-`D4-pose-aware-recontact-N-native-closeout-20261108.json` and
-`D4-acceleration-aware-recontact-model-family-elab3-20261108-plan.json`.
+A further isolated numerical correction retains a candidate at such a crossing
+only if the same original independent primal, equality and stationarity contract
+passes. It adds no numerical tolerance or physical margin. Eleven library-only
+controls, including rejection of a material anchor defect, pass on Blackwell's
+existing runtime. Its full three-history CUDA screen is running on elab3. The
+actual constructor/recorder/preview/dispatch/apply family is prepared, including
+all nineteen earlier numerical fallback fixtures, and remains unlaunched until
+the model result qualifies. The caller receives the original constructed load
+model's acceleration calibration explicitly. Complete changing-trajectory,
+pressure/support, stopping, output-reader and observed-source qualification are
+still pending; related physical variants stay suspended.
+
+All completed model resources close; 393 continuation allocations total
+16.051969 GPU hours, plus that one open model allocation. Collection remains
+17/36. Evidence is `D4-acceleration-aware-model-software-closeout-20261108.json`
+and `D4-pose-aware-recontact-N-native-closeout-20261108.json`.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
