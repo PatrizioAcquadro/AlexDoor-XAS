@@ -6,8 +6,18 @@ learned behavior and physical qualification are separate claims.
 
 ## Current execution and measured outcomes
 
+The independent **D3 assignment is active** in
+`PatrizioAcquadro/d3-observed-cycles`, using the workstation, elab2 and elab5.
+D3 remains **0/9**. Three reviewed stationary acquisitions retain all requested
+views and pass original stops, but produce no selectable reference. The
+contact region is visible in measured depth yet excluded from the tested
+semantic masks. Whole-path ideal design and perception controls remain
+component evidence. See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]]
+for criterion classification, preserved failures and the next discriminator.
+The prior coordinator's pause below remains in force for that separate campaign.
+
 **Collection paused by direct human request on November 8, 2026**,
-in worktree `23f1` on `PatrizioAcquadro/b1-policy-pilot`, with this chat as the
+in worktree `23f1` on `PatrizioAcquadro/b1-policy-pilot`, with that chat as the
 sole coordinator and one agent. This closure supersedes the November 6 resume;
 no automatic restart is authorized. Further diagnosis and D4/D3 assignment belong
 to the user chat “Astra2”. The original 36-demonstration teacher scope is incomplete.
@@ -16,7 +26,7 @@ D2 9/9, D3 and D4 0/9 (13 ordinary cycles, 4 recoveries). Local, Blackwell and
 elab2–5 work requires fresh resource ownership and runtime checks. Original
 failures, masks, scientific criteria and charges remain preserved. Training,
 learned-policy evaluation and final-test access remain excluded. The existing
-heartbeat is paused; this coordinator has no further execution assignment.
+heartbeat is paused; that coordinator has no further execution assignment.
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside
 the latest measured current/future position support. Eight further independent

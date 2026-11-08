@@ -49,6 +49,7 @@ implemented boundaries from future requirements. Git retains ordinary edit histo
 
 ## Experiments and retained scientific results
 
+- [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]]
 - [[experiments/act-a1-complete-cycle-collection|ACT A1 Complete-Cycle Collection]]
 - [[experiments/act-a1-complete-cycle-pause-diagnosis|ACT A1 pause diagnosis — existing evidence only]]
 - [[experiments/act-a1-complete-demonstration-audit|ACT A1 complete-demonstration audit]]
