@@ -5119,3 +5119,55 @@ release and stabilization, historical 10 N tracking negatives and strict force
 failures remain. Before the two new native allocations, 333 continuation
 allocations close / 12.280223 GPU h. No maintained recipe, default calibration,
 source, teacher or matrix claim changes; collection remains 17/36.
+
+
+### Independently qualified combined N position support (November 8, 2026 UTC)
+
+The two changed-posture studies from `719f480` independently pass all eight
+original cases and 24 continuous same-latch stop segments. This includes wrist
+face0 at the original complete/prefix-derived requirement; the broader H− wrist
+transfer remains negative. Every original moving/stopped frozen residual,
+physical, speed, acceleration, effort, feedback and clock predicate passes, as do
+loaded boundary coverage and all fourteen-shape stop covers. Whole transfer is
+56 original files plus six sidecars / 29,896,047 bytes; all owned resources are
+released. The closeout is `D4-combined-N-scoped-support-closeout-20261108.json`.
+The two native jobs and two serialized GPU readers close once, bringing the
+continuation ledger to 337 allocations / 12.528750 GPU h.
+
+The separate `D4-combined-N-qualified-scoped-support-20261108/` artifact combines
+these eight cases with the independently qualified four-case elbow transfer.
+Twelve measured cases and 36 original stop segments support only the two saved N
+trajectories and exact coupled postures. The prior finite-only N support is
+retained; only wrist-lower and elbow-upper extents grow, and only the newly
+qualified elbow-upper side's force cap changes from 1 to 10 N. All other force
+caps, residual coefficients, physical limits and calibration fields stay identical.
+Boundary 10 N controls pass; 11 N and one original pulse outside each measured
+frontier still refuse. No arbitrary joint-product box or condition transfer is
+claimed.
+
+All 53,060 finite-only and 47,596 combined-prefix samples pass the original
+single-future seven-coordinate 10 N predicates. These checks do not replace
+current-state load admission: a zero-tolerance side can be outside the estimator's
+main domain without appearing in the motion-only side predicate. The frozen
+`700191d` load estimator is therefore independently recomputed on all 47,596
+combined-prefix current samples with the new qualified support. All estimates
+are available and stay within 10 N (peak 7.782284 N); all 45,436 original strict
+100 ms push/hold lower windows are positive, minimum 0.006122356 N. The four
+original estimator refusals and unavailable estimates remain in the original
+report. Original 4,004/3,556 future refusals, finite-only actual force gap and
+strict force failure, broad wrist-transfer failure and all four finite 10 N
+tracking negatives are preserved. Completing the remaining hold, release and
+stabilization is still unvalidated.
+
+One new nominal complete actual-contact component is dispatched once as
+`D4-qualified-support-contact-N-native-manifest-20261108.json`. Fresh source,
+runtime, UUID, owner and capacity preflight passes; the actual CUDA process and
+canonical lease are verified during initial inspection. It retains the
+exact previous combined `700191d` controller, held minimum-motor bundle,
+current-velocity material reference, initial setup, original materials, force and
+gap laws, physical limits and all original task/three-second hold/achieved release/
+stabilization/current/single-future/strict force/six-second fourteen-shape stop
+criteria. Only the independently measured N position support changes. All other
+conditions remain suspended until an informative complete independent review.
+This privileged component grants no observed geometry, source, global 10 N
+controller or teacher qualification; the matrix remains 17/36.

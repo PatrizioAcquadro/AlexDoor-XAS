@@ -856,7 +856,11 @@ A smaller domain derived independently from an entire recorded path's original
 future requirement may be screened for feasibility, but still needs fresh native
 motion, loaded coverage and continuous stop qualification. Static residual
 allowances are paid once in that screen and never replace dynamic validation or
-relax physical targets. See [[../experiments/act-a1-complete-cycle-collection|collection evidence]].
+relax physical targets. Future side-support predicates also do not replace the
+current-state residual-load estimator: a zero-tolerance side is still subject to
+its main position-domain check. Independently verify current load estimates and
+complete future intervals after preparing any qualified support update. See
+[[../experiments/act-a1-complete-cycle-collection|collection evidence]].
 
 The separate local recipe in
 `outputs/evidence/act-a1-calibration-stop-20261019/runtime-recipe.json` supports

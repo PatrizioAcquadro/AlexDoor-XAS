@@ -537,13 +537,22 @@ conditioning target identifies exhaustion of the unchanged 0.5 mrad target
 reserve; no limit is relaxed. A static screen of both entire saved N paths finds
 the smaller original future requirement feasible, with only about 0.065 mrad of
 wrist margin after one frozen stationary residual allowance. This is a planning
-screen, not native qualification. Fresh independent four-case shoulder and wrist
-studies now target the combined path's coupled postures: the shoulder transfers
-its prior N extent; the wrist tests the actual whole-path requirement. The elbow
-result is retained. No contact retry or calibration adoption is authorized by
-these components; dependent contact conditions remain suspended. Collection is
-still 17/36, with 333 continuation allocations closed / 12.280223 GPU h before
-the two new native allocations.
+screen, not native qualification. Fresh shoulder and wrist studies now independently pass all eight cases and 24
+original continuous stop segments. Together with the retained four-case elbow
+qualification, they support a prepared N-scoped calibration over the two saved
+paths and exact measured postures. All 53,060 completed finite-only samples and
+47,596 combined-prefix samples pass the original single-future seven-coordinate
+10 N check. The frozen load estimator also accepts every combined-prefix current
+sample; all 45,436 strict push/hold force-lower windows are positive, including
+the previously unavailable final four estimates. Original refusals and masks stay
+unchanged in their original reports. The broader wrist transfer remains negative,
+and hold completion, release, stabilization and observed source remain unqualified.
+One nominal complete-contact successor is running on Blackwell after fresh
+source/runtime/UUID/owner/capacity preflight, with only this independently
+measured position support changed; controller, setup, materials, gains, force,
+physical and original stop/task criteria are identical. Other conditions stay
+suspended. Collection is still 17/36; 337 continuation allocations close /
+12.528750 GPU h before that new native allocation.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
