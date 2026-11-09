@@ -3,6 +3,7 @@
 from dataclasses import replace
 
 import numpy as np
+import pytest
 
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.material_zone import MaterialCover
@@ -116,8 +117,6 @@ def test_dense_material_retains_measured_relief_and_rejects_separate_background(
 
 
 def test_complete_normal_slab_spends_local_parallax_and_keeps_inspection_clocks():
-    import pytest
-
     surface, sensor, cue = measured_surface()
     face = np.array([[0, y, z] for y in (-0.02, 0.02) for z in (-0.02, 0.02)])
     pose = ObjectFrame(np.array([1.0, 0.42, 1.0]), np.eye(3))
@@ -172,3 +171,34 @@ def test_material_clearance_already_spends_the_declared_geometry_tolerance():
         np.testing.assert_allclose(
             np.array(before.finger_clearance_m) - after.finger_clearance_m, 0.001, atol=1e-14
         )
+
+
+@pytest.mark.parametrize("cell_m", [0.001, 0.0005])
+def test_finer_inspection_grid_keeps_holes_depth_error_and_clocks(cell_m):
+    from perception_helpers import camera_sensor
+
+    sensor = camera_sensor()
+    # A bounded local pane keeps both resolutions below the existing grid cap.
+    sensor["intrinsics"][0, 0] *= 5
+    sensor["intrinsics"][1, 1] *= 5
+    surface, sensor, cue = measured_surface(sensor=sensor)
+    mask = surface.observations[0].mask()
+    mask[:, 115:126] = False
+    sensor["depth_m"][:, 115:126, 0] = 1.1
+    cue.update(ids=[7], shape=mask.shape, masks=[np.packbits(mask).tobytes()])
+    config = dict(recipe().config, material_depth_cover={"cell_m": cell_m})
+    view = dict(sensor, semantic=cue, available_s=float(sensor["time_s"]))
+    cover = MaterialCover.from_inspection(surface, [view], 7, config, generation=0)
+    face = np.array([[0, y, z] for y in (-0.005, 0.005) for z in (-0.005, 0.005)])
+
+    def supported(y, x=1.0):
+        return cover.query(ObjectFrame(np.array([x, y, 1.0]), np.eye(3)), (face, face)).supported
+
+    assert supported(-0.045) and supported(0.045)
+    assert not supported(0.0)  # The measured background strip is not material.
+    assert not supported(0.13)  # Neither resolution extends the measured perimeter.
+    assert not supported(0.045, x=1.02)
+    tolerance = config["plane_tolerance_m"]
+    assert cover.support.position_bound_m == tolerance
+    np.testing.assert_allclose(cover.normal_range_m, [-tolerance, tolerance], atol=1e-14)
+    assert cover.support.acquired_s == cover.support.available_s == float(sensor["time_s"])

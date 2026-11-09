@@ -599,3 +599,30 @@ observed coverage limit, not demonstrated collision or an evidenced controller
 error. The next CPU-only diagnosis concerns atlas discretization with the same
 frozen raw views and unchanged metric/uncertainty bounds; no further native retry
 is queued. Records are in `temporal-cycle-review/` under the D3 evidence directory.
+
+
+## Material atlas resolution
+
+The frozen 1 mm material grids reproduce exactly from their original RGB-D,
+semantic masks and inspection clocks. Rebuilding the same views at 0.5 mm
+recovers roughly 2.5% more certified area by reducing raster enclosure loss.
+The complete projected cells, semantic holes, missing depth, root perimeter,
+4 mm metric/depth error, normal slab and all pose/calibration/motion bounds remain
+unchanged. Grid spacing is a numerical approximation parameter, not a claim of
+0.5 mm sensor accuracy. No geometry or admission algorithm changes.
+
+All 4,336 ideal nominal intervals now pass separately on five saved observations,
+including the newest failed acquisition and interval-end aging: 21,680 intervals.
+The actual saved producer refusal also becomes admitted, with beginning, midpoint
+and endpoint receipts passing and independent robot-sweep support retained.
+These are prospective component/design reassessments; the five native/source
+outcomes and all original negative controls remain unchanged. Numerical regression
+covers both grid resolutions with disconnected material, a different-depth gap,
+outer-perimeter and normal-offset rejection, metric error and original clocks.
+
+Only `material_depth_cover.cell_m` changes prospectively from 1 to 0.5 mm relative
+to the latest attempt. Height 1.15 m, contact fraction 0.49, robot covering cutoff
+2.5 mm and all physical/contact/load/stop/task requirements remain fixed. One fresh
+D3-N may now test this configuration, with no other TRAIN collection. It must
+acquire and independently qualify its own complete observed cycle. Evidence and
+readers are in `fine-material-grid-review/` under the D3 evidence directory.

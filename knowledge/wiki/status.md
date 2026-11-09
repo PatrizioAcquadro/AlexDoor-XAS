@@ -23,10 +23,15 @@ relative to the previous acquisitions. Exact CPU reconstruction preserves that
 refusal; substituting ideal motor state changes the margin by less than 0.008 mm.
 This is observation-support evidence, not demonstrated physical collision.
 
-The next CPU-only diagnosis examines atlas discretization from the same frozen
-raw views with unchanged metric and uncertainty bounds. No native retry is queued.
-The other eight TRAIN conditions, training, final-test access and push remain
-excluded. See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
+The 1 mm material grids reproduce exactly from the frozen raw views. A 0.5 mm
+numerical grid, with unchanged 4 mm depth/model error and all other uncertainties,
+supports 21,680 complete ideal intervals across five observations and the actual
+saved producer/interval receipts. Holes, background, outer perimeter and invalid
+normal offsets remain rejected. One fresh nominal is prepared with only this
+atlas-resolution change; no GPU allocation is active. Saved-state and model
+passes do not qualify a native demonstration. The other eight TRAIN conditions,
+training, final-test access and push remain excluded. See
+[[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
 
 The prior coordinator's pause below remains in force for that separate campaign.
 
