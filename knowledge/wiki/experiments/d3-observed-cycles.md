@@ -800,3 +800,63 @@ wall time is 11,785.157 s and charged GPU time 12,005.157 s. The assignment
 remains 0/1, historical D3 remains 0/9, and the other eight conditions remain
 excluded. Complete material coverage under actual task variation is the next
 discriminator before setup or domain adoption.
+
+
+## Full-arc observation discriminator
+
+A separate diagnostic at `1924fad` parks the original robot/camera and prescribes
+the TRAIN door hinge motion through 47.770638 degrees, then holds it for 3 s.
+The unchanged observer receives native RGB-D, semantic and Point2Pose inputs;
+fixture coordinates and evaluator angle remain separate diagnostic data. This
+is externally driven observation coverage, not demonstrated manipulation or
+physical door dynamics. It adds zero cells and zero teacher-eligible commands.
+The inherited recorder/template labels do not change that scope.
+
+All 513 sampled local states remain available over the arc. Raw integrity,
+21,309 healthy native feedback samples, 888 recorded images, parked initial
+state and all eight original single-latch continuous-stop checks pass. The actual
+motion montage is reviewed. The allocation takes 998.293 s wall and 1,003.293
+charged GPU seconds, with complete process cleanup and lease release.
+
+The sum of published position primitives peaks at 23.125 mm near 10.4 degrees;
+it excludes lever-dependent rotation and later aging. The largest scalar
+rotation-source sum is 0.05044 rad. Thus available local identity/pose does not
+mean sufficient finite action support. Four saved ideal layouts (1.15/1.19 m at
+the original base, 1.25 m/back 4 cm, 1.31 m/back 6 cm) are checked at seven actual
+observations with ordinary observation age and original interval-end aging.
+All four pass the initial and first endpoint observation; all four retain
+negative finite-volume witnesses near 10/20/30/40 degrees and after the held
+endpoint. These 8/28 positive geometric samples are not a complete path or
+physical outcomes. No threshold or observed primitive changes.
+
+The pair audit uses the evaluator angle at the same native capture only in its
+independent reader. Measured inliers vary from 12 to 23 across the seven saved
+states, with transverse standard span ranging from 4.1 to 64.1 mm. The original
+native registration rotation bound is correspondingly 0.077–1.198 rad; its small
+position residual is not a stronger complete pose certificate. At the first
+endpoint, known-rigid-motion correspondence disagreement has a 17.4 mm mean
+vertical component. This does not identify a single root cause or justify
+replacing observed bounds with simulator truth. It motivates diagnosis of
+correspondence/geometry association and material choice before further source
+retries or expanded posture calibration.
+
+The initial material reader used the wrong contact-face representation; the
+next version paid an additional time interval after snapshots already one
+interval old. Both are preserved and excluded from ordinary-age conclusions.
+The final reader uses the production contact covers and actual publication
+clock. The first pair audit also used the snapshot angle rather than the older
+capture angle; its synchronized successor is authoritative. No native run was
+repeated for these reader corrections.
+
+Further placement controls retain the full 1.25 m/back 4 cm and 1.31 m/back 6 cm
+ideal material paths as positive against the preceding frozen observation.
+Rigidly translating the actual 1.19 m paths upward is a separate, nonkinematic
+stress: both 1.25 m translations fail in release; only the unloaded 1.31 m
+translation completes. These results do not overcome the new moving-observation
+negatives. All compact evidence and reader versions are in
+`observed-door-sweep-review/`; original HDF5 and snapshots remain on elab2.
+
+All 45 completed allocations have verified cleanup: 12,783.450 s total wall,
+13,008.450 charged GPU seconds. Assignment 0/1 and historical D3 0/9 are unchanged.
+The next minimal design discriminator is a larger opaque contact region, first
+using saved images and complete kinematics; no such setup or source is yet adopted.

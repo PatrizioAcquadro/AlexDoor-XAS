@@ -13,8 +13,9 @@ D3 remains **0/9**. The latest native at `410652b` delivers 360 approach,
 opens 1.333 degrees, then stops at 48.517 s on unsupported actual sweep/stop.
 All 11,645 expected native frames, raw integrity, declared inputs, actual images,
 all eight original continuing-stop criteria and GPU cleanup pass independently.
-Opening completion, hold, release and stabilization remain unqualified. No GPU
-job is active. The two robot-only 1.19 m controls complete, but actual-path
+Opening completion, hold, release and stabilization remain unqualified. No
+GPU allocation is active. The complete externally driven observation diagnostic
+retains 513/513 available sampled local states, but does not admit manipulation. The two robot-only 1.19 m controls complete, but actual-path
 material coverage and existing posture support remain incomplete. No calibration
 change or dependent observed retry is adopted.
 
@@ -29,17 +30,24 @@ observation controls are not proof of complete observed motion. The preceding
 constant-joint-offset stress remains preserved but is an artificial task drift,
 not a calibrated variation envelope.
 
-Seven complete ideal rigid-contact paths at 1.19 m pass frozen-observation
-material checks. Actual unloaded/0.3 N controls pass physical, residual and all
-original continuous-stop bounds, but both retain material negatives with a
-finer cutoff. Their whole-hold drift is 3.27/3.18 mm against the component
-2.5 mm bound; the final 0.5 s settles to 0.012/0.016 mm. Missing door/contact
-evidence prevents any task-hold inference. Actual future posture also needs
-35.1 mrad lower wrist-Z and 31.7 mrad upper wrist-X support beyond the existing
-10 N domain. The next design check must cover actual variation across the
-complete path before selecting another setup or qualifying a new domain. Every original physical, contact, load, task and measurement bound
-remains in force. Other eight TRAIN conditions, training, final-test access and
-push remain excluded. See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
+The original camera can track the parked-robot door sweep through 47.77 degrees
+and its final 3 s observation. All 21,309 native feedback samples, raw integrity,
+actual images and original continuous stops pass review. Position-source bounds
+reach 23.125 mm; all four modeled contact layouts retain finite-material
+negatives at the sampled intermediate angles and final held observation.
+Availability alone does not establish sufficient motion confidence. The
+correspondence audit also finds changing planar support and coherent tangential
+drift, not a validated replacement bound. Frozen observations and higher contact
+alone do not unlock another source attempt.
+
+The higher-contact robot-only controls remain separate: physical, residual and
+stop checks pass; whole-hold drift, empirical wrist support and finite material
+negatives stay preserved. No new domain or setup is adopted. Before adding
+perception complexity, the next discriminator is whether a larger opaque contact
+region can be measured and reached through the full frozen opening/release task.
+Every original physical, contact, load, task and measurement bound remains in
+force. Other eight TRAIN conditions, training, final-test access and push remain
+excluded. See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
 
 The prior coordinator's pause below remains in force for that separate campaign.
 
