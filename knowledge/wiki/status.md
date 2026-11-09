@@ -8,26 +8,25 @@ learned behavior and physical qualification are separate claims.
 
 The independent **D3 nominal-only assignment is active** in
 `PatrizioAcquadro/d3-observed-cycles`. The assignment remains **0/1** and historical
-D3 remains **0/9**. Its latest native at `992301d` delivers 259 approach commands,
-then stops on interval-receipt material support at 42.3167 s, before physical
-contact. Raw/native coverage, declared inputs, images, original continuing stops
-and GPU cleanup pass independently. Every later task phase remains unqualified.
+D3 remains **0/9**. The latest native at `767026d` delivers 360 approach and
+57 contact-ramp commands, then stops at 44.95 s on unsupported actual sweep/stop,
+before physical contact. Raw/native coverage, declared inputs, images, all eight
+original continuing-stop criteria and GPU cleanup pass independently. No GPU job
+is active and every later task phase remains unqualified.
 
-Directional measured-axis bounds, complete-cell raster coverage and consistent
-temporal pivot/normal-offset forecasts are implemented. The original nominal
-placement retains material-support negatives under the corrected temporal budget.
-The prospective 1.15 m height, 0.49 contact fraction and 2.5 mm numerical covering
-cutoff support all 4,336 ideal intervals on each of four saved observations,
-including interval-end receipts. Original physical, measurement, force, stop and
-task limits remain unchanged; the finer cutoff only refines enclosure geometry.
-The negative controls are preserved. No prototype geometry algorithm is adopted.
+Measured-axis transport, complete-cell coverage and consistent temporal forecasts
+are implemented. Before this attempt, four complete ideal paths passed with
+interval-end receipts at height 1.15 m, contact fraction 0.49 and 2.5 mm numerical
+covering cutoff. The new terminal snapshot confirms that the preceding receipt
+is valid, but its current finite box loses 2–4 mm of local observed coverage
+relative to the previous acquisitions. Exact CPU reconstruction preserves that
+refusal; substituting ideal motor state changes the margin by less than 0.008 mm.
+This is observation-support evidence, not demonstrated physical collision.
 
-One fresh D3-N is prepared; no GPU allocation is active. Model and saved-state
-support add no qualified demonstration. The other eight TRAIN conditions remain
-excluded from collection; no training, final-test access or push is authorized.
-The next gate is this candidate's own complete observed cycle and independent
-raw, task, load, image and continuing-stop review. See
-[[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
+The next CPU-only diagnosis examines atlas discretization from the same frozen
+raw views with unchanged metric and uncertainty bounds. No native retry is queued.
+The other eight TRAIN conditions, training, final-test access and push remain
+excluded. See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
 
 The prior coordinator's pause below remains in force for that separate campaign.
 

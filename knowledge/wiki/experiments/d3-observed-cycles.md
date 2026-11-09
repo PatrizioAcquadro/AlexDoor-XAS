@@ -573,10 +573,29 @@ withdrawal, physical/contact/load/stop/task limits and measured uncertainties st
 unchanged. The original height perturbation negatives and other eight excluded
 TRAIN conditions remain separate.
 
-One fresh nominal is prepared from the temporal correction, with a run-local
+The fresh nominal at `767026d` includes a run-local
 capture of the current safety estimate, preceding admission and actual robot state
 if execution raises. This closes the missing terminal-receipt diagnostic without
 changing admission. It still needs its own complete observed cycle and independent
 review. Evidence and readers are in
 `outputs/evidence/d3-observed-cycles-20261108/temporal-path-review/`; the original
 native and saved temporal witness remain in `axis-cell-cycle-review/`.
+
+
+The `767026d` native attempt remains negative at 44.95 s after 360 approach and
+57 contact-ramp commands, before physical contact. The detailed stop is
+`unsupported_actual_robot_sweep_and_stop`. Raw/native coverage, declared inputs,
+actual images, all eight original continuing-stop criteria and GPU cleanup pass;
+the observed force upper peak is 0.220 N within the unchanged 10 N model domain.
+The assignment remains 0/1 and historical D3 remains 0/9. No GPU job remains active.
+
+The new terminal snapshot confirms that the preceding command's receipt is valid.
+Exact CPU reconstruction reproduces the new producer refusal. Its complete finger
+box has -0.685 mm material margin on the new observation but positive margins on
+all four previous observations using the same actual robot state. The new grid
+provides 2–4 mm less local clearance. Replacing the actual motor state with the
+aligned ideal state changes these margins by less than 0.008 mm. This is an
+observed coverage limit, not demonstrated collision or an evidenced controller
+error. The next CPU-only diagnosis concerns atlas discretization with the same
+frozen raw views and unchanged metric/uncertainty bounds; no further native retry
+is queued. Records are in `temporal-cycle-review/` under the D3 evidence directory.
