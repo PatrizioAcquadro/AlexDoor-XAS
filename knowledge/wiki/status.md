@@ -8,29 +8,25 @@ learned behavior and physical qualification are separate claims.
 
 The independent **D3 nominal-only assignment is active** in
 `PatrizioAcquadro/d3-observed-cycles`. The assignment remains **0/1** and historical
-D3 remains **0/9**. The latest native at `767026d` delivers 360 approach and
-57 contact-ramp commands, then stops at 44.95 s on unsupported actual sweep/stop,
-before physical contact. Raw/native coverage, declared inputs, images, all eight
-original continuing-stop criteria and GPU cleanup pass independently. No GPU job
-is active and every later task phase remains unqualified.
+D3 remains **0/9**. The latest native at `12393c8` delivers 360 approach,
+180 contact-ramp and 37 opening commands. It establishes observed contact and
+opens 0.470 degrees, then stops at 47.617 s on unsupported actual sweep/stop.
+Raw/native coverage, declared inputs, actual images, all eight original
+continuing-stop criteria and GPU cleanup pass independently. Opening completion,
+hold, release and stabilization remain unqualified. No GPU job is active.
 
-Measured-axis transport, complete-cell coverage and consistent temporal forecasts
-are implemented. Before this attempt, four complete ideal paths passed with
-interval-end receipts at height 1.15 m, contact fraction 0.49 and 2.5 mm numerical
-covering cutoff. The new terminal snapshot confirms that the preceding receipt
-is valid, but its current finite box loses 2–4 mm of local observed coverage
-relative to the previous acquisitions. Exact CPU reconstruction preserves that
-refusal; substituting ideal motor state changes the margin by less than 0.008 mm.
-This is observation-support evidence, not demonstrated physical collision.
+The 0.5 mm material atlas preserves the original measurements and 4 mm metric
+error. Its five complete ideal paths passed before this native attempt, but the
+new moving observation increases registration uncertainty. Exact reconstruction
+retains the positive-finger volume refusal at -0.276 mm; the preceding command's
+receipt remains valid. Finer robot cutoffs of 1.25 and 0.625 mm do not resolve it.
+Rechecking the ideal design with the new uncertainty also fails; earlier frozen
+observation passes are not proof of complete observed execution.
 
-The 1 mm material grids reproduce exactly from the frozen raw views. A 0.5 mm
-numerical grid, with unchanged 4 mm depth/model error and all other uncertainties,
-supports 21,680 complete ideal intervals across five observations and the actual
-saved producer/interval receipts. Holes, background, outer perimeter and invalid
-normal offsets remain rejected. One fresh nominal is prepared with only this
-atlas-resolution change; no GPU allocation is active. Saved-state and model
-passes do not qualify a native demonstration. The other eight TRAIN conditions,
-training, final-test access and push remain excluded. See
+The next CPU-only diagnosis checks whether the same measured point constraints
+can use a better origin over the entire observed root, retaining every residual,
+rotation, metric and physical bound. No native retry is queued. Other eight TRAIN
+conditions, training, final-test access and push remain excluded. See
 [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
 
 The prior coordinator's pause below remains in force for that separate campaign.

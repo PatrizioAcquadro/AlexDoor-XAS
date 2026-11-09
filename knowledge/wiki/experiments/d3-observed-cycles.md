@@ -626,3 +626,34 @@ to the latest attempt. Height 1.15 m, contact fraction 0.49, robot covering cuto
 D3-N may now test this configuration, with no other TRAIN collection. It must
 acquire and independently qualify its own complete observed cycle. Evidence and
 readers are in `fine-material-grid-review/` under the D3 evidence directory.
+
+
+## Native opening support at `12393c8`
+
+The fresh nominal changes only material grid spacing from 1 to 0.5 mm. It
+completes 360 approach and 180 contact-ramp commands, then 37 opening commands
+before `unsupported_actual_robot_sweep_and_stop` at 47.6167 s. Observed indirect
+contact is supported throughout the recorded opening, reaching 0.469568 degrees;
+this partial result adds no qualified cycle. All 11,429 expected native feedback
+frames are healthy. Raw integrity, declared inputs, inspected acquisition/phase
+images, all eight original continuing-stop criteria and GPU cleanup pass. The
+peak observed force upper bound is 8.654 N within the unchanged 10 N model domain.
+The allocation uses 714.413 s wall time and 719.413 charged GPU seconds.
+
+Fresh-cache CPU reconstruction reproduces the refusal and confirms the previous
+receipt. Its positive-finger finite volume has -0.276 mm material margin; the
+aligned ideal motor state gives +0.237 mm for this one volume. The current local
+registration bound is 8.653 mm, including a 7.653 mm maximum native-pair residual,
+versus roughly 4 mm in the earlier stationary acquisitions. The residual is
+predominantly tangential. This does not demonstrate collision or justify removing
+measurement uncertainty. Robot cutoffs of 1.25 and 0.625 mm remain negative.
+
+A design reassessment normalizes the observed opening angle using evaluator truth
+only for the mathematical control and retains measured uncertainty. The ideal
+path already fails at interval 412; a constant measured joint-deviation stress
+with a 1.25 mm cutoff fails at interval 415. These are diagnostic negatives, not
+native continuations or altered historical results. No dependent native retry is
+queued. Evidence and readers are in `fine-grid-native-review/` under the D3
+evidence directory. The next question is whether the existing native point
+constraints admit a better registration origin over the complete observed root,
+without changing residual or rotation bounds, measured pose or physical criteria.
