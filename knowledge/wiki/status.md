@@ -14,7 +14,9 @@ opens 1.333 degrees, then stops at 48.517 s on unsupported actual sweep/stop.
 All 11,645 expected native frames, raw integrity, declared inputs, actual images,
 all eight original continuing-stop criteria and GPU cleanup pass independently.
 Opening completion, hold, release and stabilization remain unqualified. No GPU
-job is active and no dependent native retry is queued.
+job is active. The two robot-only 1.19 m controls complete, but actual-path
+material coverage and existing posture support remain incomplete. No calibration
+change or dependent observed retry is adopted.
 
 The measured-root registration origin preserves pose, all pair residuals,
 rotation bounds and clocks. It passed the preceding actual producer/receipts,
@@ -27,8 +29,15 @@ observation controls are not proof of complete observed motion. The preceding
 constant-joint-offset stress remains preserved but is an artificial task drift,
 not a calibrated variation envelope.
 
-CPU-only diagnosis now separates observed uncertainty from material coverage and
-placement. Every original physical, contact, load, task and measurement bound
+Seven complete ideal rigid-contact paths at 1.19 m pass frozen-observation
+material checks. Actual unloaded/0.3 N controls pass physical, residual and all
+original continuous-stop bounds, but both retain material negatives with a
+finer cutoff. Their whole-hold drift is 3.27/3.18 mm against the component
+2.5 mm bound; the final 0.5 s settles to 0.012/0.016 mm. Missing door/contact
+evidence prevents any task-hold inference. Actual future posture also needs
+35.1 mrad lower wrist-Z and 31.7 mrad upper wrist-X support beyond the existing
+10 N domain. The next design check must cover actual variation across the
+complete path before selecting another setup or qualifying a new domain. Every original physical, contact, load, task and measurement bound
 remains in force. Other eight TRAIN conditions, training, final-test access and
 push remain excluded. See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
 

@@ -745,3 +745,58 @@ The next diagnosis considers complete material support and placement under the
 new measured uncertainty before any further native attempt. Readers, raw review,
 images and exact-operands diagnostics are in `root-anchor-native-review/` under
 the D3 evidence directory; original scientific payloads remain on elab2.
+
+
+## Higher-contact design and actual robot paths
+
+A sampled rigid-translation screen identifies improved material clearance above
+1.19 m, without asserting kinematic reachability. A 76-path CUDA study compares
+heights 1.15/1.19/1.25/1.31 m and backward base offsets, original compression
+and a model-only rigid-contact cap. Higher candidates expose empirical posture
+support gaps; no empirical boundary, runtime compression or setup is adopted.
+Seven complete 1.19 m rigid-contact material controls pass 30,352 intervals
+across the saved observations. The compressed reference remains negative at
+its first opening tick. These frozen-observation results are design evidence,
+not future visibility or observed task qualification.
+
+Two nominal robot-only controls at 1.19 m execute all 4,336 path commands under
+the original controller, with zero and constant 0.3 N injected force. Door and
+camera are absent. Both reach the exact reference goal at the opening/hold
+transition, then execute 3 s hold, achieved-pose release and 6 s stabilization.
+All 36,608 motion feedback samples, original physical/current/future bounds,
+frozen load residuals, phase endpoint pose ranges, and six original single-latch
+2+4+2 s stop segments pass independent review. No 10 N qualification follows
+from these two small-load controls.
+
+The original whole-hold component drift criterion remains negative: 3.272 and
+3.185 mm exceed 2.5 mm. A separate acceptance audit finds 0.012 and 0.016 mm drift
+in the final 0.5 s. The maintained phase-settling logic evaluates a current
+sustained window, so the whole-hold component test is a stronger diagnostic;
+its negative is not erased or equated with demonstrated task instability.
+The missing door load, material support and actual opening prevent task-hold
+qualification. The first review's exact-goal assertion also incorrectly required
+the final opening-labelled sample to reach the endpoint; the first hold sample
+reaches it within the original one-control-step progress. That reader failure
+and its corrected phase-transition check are preserved separately.
+
+Actual future posture requires an additional 35.105 mrad on lower wrist-Z and
+31.705 mrad on upper wrist-X, including the existing single stop/acceleration/
+measured-velocity allowance. The ideal-model shoulder deficit does not describe
+these measured paths. Neither the frozen residual pass nor a geometric design
+pass expands the calibrated domain.
+
+Using the two actual saved robot trajectories with the latest frozen observation
+still gives material negatives: unloaded at 0.294 degrees, loaded during the
+contact ramp. A 1.25 mm cutoff retains both negatives (unloaded 0.307 degrees,
+loaded contact tick 438). Injected load before contact and reference-driven door
+transport are diagnostic assumptions, not native observed contact. Nevertheless,
+these controls do not supply the complete material support required for a retry;
+no new calibration or observed source is launched from this candidate.
+
+Evidence and readers are in `height-design-review/` and
+`height119-native-review/` under the D3 evidence directory. All 44 completed GPU
+allocations, including two reader failures, have verified cleanup; cumulative
+wall time is 11,785.157 s and charged GPU time 12,005.157 s. The assignment
+remains 0/1, historical D3 remains 0/9, and the other eight conditions remain
+excluded. Complete material coverage under actual task variation is the next
+discriminator before setup or domain adoption.
