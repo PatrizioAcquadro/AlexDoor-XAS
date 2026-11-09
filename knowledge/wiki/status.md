@@ -46,9 +46,13 @@ negatives stay preserved. The larger lower wood region also fails the bounded
 design screen: part segmentation is absent initially, whole-door ownership is
 unqualified, and none of 18 complete ideal paths meets the original pose limits.
 An independent necessary reach bound excludes eight of nine height/base layouts.
-No new domain or setup is adopted. All 47 GPU allocations have verified cleanup.
-The next audit concerns tangent-only transport of the existing rotation bounds;
-no such correction or new observed source is validated yet.
+No new domain or setup is adopted. All 48 GPU allocations have verified cleanup.
+An offline tangent-only rotation bound also retains 12.9–14.7 mm complete-finger
+coverage deficits at 10 degrees after finer subdivision; it is not adopted.
+A fixed 20 cm edge-span proxy hides a measured 16–19 cm lower pane boundary, but its
+cross-view identity, occlusion robustness and translation support are not yet
+qualified. Richer window-assembly prompts provide no masks. A causal observed
+pose/association correction remains necessary before another source attempt.
 Every original physical, contact, load, task and measurement bound remains in
 force. Other eight TRAIN conditions, training, final-test access and push remain
 excluded. See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].

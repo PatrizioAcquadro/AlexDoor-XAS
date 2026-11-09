@@ -901,3 +901,49 @@ partial depth review, complete model summaries and independent readers are in
 `lower-wood-review/`; full trajectory arrays remain on elab2. All 47 completed
 allocations total 12,809.621 s wall and 13,044.621 charged GPU seconds. Assignment
 0/1 and historical D3 0/9 remain unchanged.
+
+
+## Projected rotation and full-volume audit
+
+An offline-only quaternion bound projects the rotational displacement onto the
+material plane, while retaining the full finite-ball allowance, every measured
+position/rotation primitive, temporal growth and normal-model reserve. The
+triangle/column inequalities cover correlated initial/current basis errors.
+Independent CPU controls cover 1,200 zero, axis-aligned, correlated and random
+rotation cases, 6,000 centers and 300,000 finite-ball samples, including general
+projection norms. All are enclosed. The initial reader's overly strict exact
+orthonormality assertion is retained; its successor explicitly pays the existing
+mapping norm. This is not an adopted runtime change.
+
+At the saved 10.017-degree observation, all four prior ideal layouts still fail
+at both 2.5 and 1.25 mm robot subdivision. Completing every relevant finger
+subdivision, rather than stopping at the first witness, finds largest terminal
+coverage deficits of 12.882, 13.571, 13.383, 14.733 mm for the 1.15/1.19/1.25/1.31 m
+layouts. Small first witnesses therefore do not describe the full deficiency.
+The failures remain lack of sufficient bounded material support, not measured
+physical collision. No repeated native source or finer atlas follows this result.
+
+A separate saved-depth audit shows that the existing fixed 0.20 m edge-span
+proxy excludes the main pane's lower horizontal boundary in all seven snapshots.
+Removing only that proxy in the reader reveals measured spans of 0.161–0.191 m;
+mean heights range from 0.747064 to 0.748725 m. Depth discontinuity, image clipping,
+minimum point count and line-error checks remain. These are geometric candidates,
+not matched physical-edge identities or calibrated translation constraints.
+Occlusion, repeated-edge ambiguity and recovery still require validation before
+any observed-boundary correction could affect an actor. The initial reader's
+NumPy serialization failure is preserved separately.
+
+Three further fresh-image prompts for a glass-and-wood window assembly yield
+zero masks in all 12 controls, using unchanged native thresholds. They supply no
+richer Point2Pose reference and no identity or source evidence. Their GPU
+allocation closes in 10.064 s wall / 15.064 charged seconds with cleanup verified.
+Compact prototype scripts, corrected readers, full-volume records, measured
+edges and original failures are in `tangent-rotation-review/`.
+
+All 48 completed GPU allocations have verified cleanup: 12,819.686 s wall and
+13,059.686 charged GPU seconds. Production remains unchanged since `bf85c8d`;
+assignment 0/1 and historical D3 0/9 remain unchanged. The actionable unresolved
+mechanism is finite tangential pose/association support during door motion.
+A next intervention must first establish a stable observed boundary or richer
+native correspondence evidence, then cover complete volumes across the full
+arc before another independently reviewed nominal source attempt.
