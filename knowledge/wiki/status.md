@@ -8,34 +8,29 @@ learned behavior and physical qualification are separate claims.
 
 The independent **D3 nominal-only assignment is active** in
 `PatrizioAcquadro/d3-observed-cycles`. The assignment remains **0/1** and historical
-D3 remains **0/9**. The latest native at `12393c8` delivers 360 approach,
-180 contact-ramp and 37 opening commands. It establishes observed contact and
-opens 0.470 degrees, then stops at 47.617 s on unsupported actual sweep/stop.
-Raw/native coverage, declared inputs, actual images, all eight original
-continuing-stop criteria and GPU cleanup pass independently. Opening completion,
-hold, release and stabilization remain unqualified. The CUDA design controls are
-complete and the GPU is released.
+D3 remains **0/9**. The latest native at `410652b` delivers 360 approach,
+180 contact-ramp and 91 opening commands. It establishes observed contact and
+opens 1.333 degrees, then stops at 48.517 s on unsupported actual sweep/stop.
+All 11,645 expected native frames, raw integrity, declared inputs, actual images,
+all eight original continuing-stop criteria and GPU cleanup pass independently.
+Opening completion, hold, release and stabilization remain unqualified. No GPU
+job is active and no dependent native retry is queued.
 
-The 0.5 mm material atlas preserves the original measurements and 4 mm metric
-error. Its five complete ideal paths passed before this native attempt, but the
-new moving observation increases registration uncertainty. Exact reconstruction
-retains the positive-finger volume refusal at -0.276 mm; the preceding command's
-receipt remains valid. Finer robot cutoffs of 1.25 and 0.625 mm do not resolve it.
-Rechecking the ideal design with the new uncertainty also fails; earlier frozen
-observation passes are not proof of complete observed execution.
+The measured-root registration origin preserves pose, all pair residuals,
+rotation bounds and clocks. It passed the preceding actual producer/receipts,
+six ideal paths and 60,704 task-coordinate variation intervals before this native.
+The new observation increases its local position bound to 12.361 mm. Exact
+fresh-cache reconstruction reproduces a -0.162 mm finger-volume margin; the
+previous receipt still passes. The angle-aligned rigid-contact model also fails
+that volume, and a 1.25 mm robot cutoff does not resolve it. Earlier frozen
+observation controls are not proof of complete observed motion. The preceding
+constant-joint-offset stress remains preserved but is an artificial task drift,
+not a calibrated variation envelope.
 
-The local constraint now chooses its registration origin among the same measured
-pairs and their centroid to reduce the largest lever over the complete root.
-Pose, all error bounds and clocks remain unchanged. The saved producer/receipts
-and six complete ideal paths pass. A constant joint-offset stress creates
-artificial tangential drift beyond the task guard; it is preserved but cannot
-justify a setup change. Task-coordinate variation models pass original kinematic
-and posture bounds. Six complete observed-state model paths and eight tangential
-perturbations pass 60,704 material intervals including end aging. One fresh nominal
-is prepared with the original setup and controller; full observed qualification
-remains required. Other eight TRAIN
-conditions, training, final-test access and push remain excluded. See
-[[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
+CPU-only diagnosis now separates observed uncertainty from material coverage and
+placement. Every original physical, contact, load, task and measurement bound
+remains in force. Other eight TRAIN conditions, training, final-test access and
+push remain excluded. See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
 
 The prior coordinator's pause below remains in force for that separate campaign.
 

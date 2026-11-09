@@ -718,3 +718,30 @@ correction on one new nominal cycle. Runtime height, base, contact fraction,
 compression, controller, atlas and robot cutoffs remain identical to `12393c8`.
 The new attempt still requires independent complete task, observed, raw/native,
 image and continuing-stop review.
+
+
+## Native opening support at `410652b`
+
+The original-setup nominal with the measured-root registration origin completes
+360 approach, 180 contact-ramp and 91 opening commands. Of 632 admission calls,
+631 deliver motion; the next refuses `unsupported_actual_robot_sweep_and_stop`
+at 48.5167 s and 1.332558 degrees. Contact remains supported during recorded
+opening, but required opening, hold, release and stabilization are incomplete.
+All 11,645 expected native frames are healthy; raw integrity, declared inputs,
+actual acquisition/phase images and all eight original continuing-stop criteria
+pass independently. No physical-limit violation is recorded. The observed force
+upper peak remains 8.654 N inside the original 10 N domain. Owned GPU cleanup
+passes after 775.815 s wall and 780.815 charged GPU seconds. No source qualifies.
+
+Fresh-cache reconstruction reproduces the refusal and verifies the preceding
+receipt. The constrained 29-pair residual envelope grows to 11.361 mm, giving
+12.361 mm position uncertainty including the original point error. The actual
+positive-finger volume has -0.162 mm material margin; the rigid-contact model
+aligned to the same door angle gives -0.164 mm. This comparison uses evaluator
+angle only offline. A 1.25 mm numerical robot cutoff remains negative. At the
+native endpoint, evaluator material drift is 0.062 mm and contact is physically
+maintained; these diagnostics cannot substitute for missing observed coverage.
+The next diagnosis considers complete material support and placement under the
+new measured uncertainty before any further native attempt. Readers, raw review,
+images and exact-operands diagnostics are in `root-anchor-native-review/` under
+the D3 evidence directory; original scientific payloads remain on elab2.
