@@ -657,3 +657,33 @@ queued. Evidence and readers are in `fine-grid-native-review/` under the D3
 evidence directory. The next question is whether the existing native point
 constraints admit a better registration origin over the complete observed root,
 without changing residual or rotation bounds, measured pose or physical criteria.
+
+
+## Measured registration origin
+
+The same maximum native-pair residual plus the original metric point error bounds
+position at every measured pair; convexity gives the same bound at their centroid.
+The local constraint now chooses among those anchors by minimizing the maximum
+lever over the entire original observed root. It never scores the current action
+or selects a favorable residual subset. The complete measured pose, all pairs,
+maximum residual, scalar/axis rotation bounds, normal bounds and original support
+clocks stay identical in all six saved acquisitions. On the opening refusal, the
+maximum root lever decreases from 0.652 to 0.556 m. No new measurement, tolerance,
+controller or sensor precision is introduced.
+
+The saved complete producer and beginning/midpoint/end receipts pass at the
+original 2.5 mm robot cutoff. All six ideal material paths pass independently with
+interval-end aging, totaling 26,016 intervals. Numerical tests retain complete-root
+coverage under uneven native support, camera changes and bounded plane
+perturbations. These results do not retrospectively qualify any native attempt.
+
+A constant measured loaded joint-offset stress remains negative at 34.75 degrees
+with a 2.5 mm cutoff and 34.9 degrees with 1.25 mm; both negatives are preserved.
+All recorded approach/contact/opening states remain inside the original future
+posture support. Applying the loaded offset to the entire hypothetical path
+exceeds empirical support in 50 unloaded approach states, while every later phase
+is supported. This extrapolation is not a calibrated motion envelope or an actual
+approach failure. The next design control investigates small symmetric contact
+position changes, followed by actual kinematic paths if justified. No new native
+retry is queued. Evidence and readers are in `root-anchor-review/` under the D3
+evidence directory.

@@ -263,9 +263,16 @@ def constrained_surface_pose(
     residual = np.linalg.norm(source @ rotation.T + translation - current, axis=1)
     pose = np.eye(4)
     pose[:3, :3], pose[:3, 3] = rotation, translation
+    # The same maximum residual plus point error bounds translation at every
+    # measured pair, and by convexity at their centroid. Choose among those
+    # anchors by the COMPLETE observed root's largest lever, never by an action
+    # margin. Pose, residual envelope and rotation bounds remain unchanged.
+    reference = (initial_surface.points - cameras[0][:3, 3]) @ cameras[0][:3, :3]
+    anchors = np.vstack((source.mean(0), source))
+    origin = min(anchors, key=lambda point: np.linalg.norm(reference - point, axis=1).max())
     return SurfacePose(
         pose,
-        source.mean(0),
+        origin.copy(),
         float(residual.max() + point_error_m),
         min(np.pi, initial_error + current_error),
         normal_error,

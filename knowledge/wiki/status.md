@@ -23,9 +23,12 @@ receipt remains valid. Finer robot cutoffs of 1.25 and 0.625 mm do not resolve i
 Rechecking the ideal design with the new uncertainty also fails; earlier frozen
 observation passes are not proof of complete observed execution.
 
-The next CPU-only diagnosis checks whether the same measured point constraints
-can use a better origin over the entire observed root, retaining every residual,
-rotation, metric and physical bound. No native retry is queued. Other eight TRAIN
+The local constraint now chooses its registration origin among the same measured
+pairs and their centroid to reduce the largest lever over the complete root.
+Pose, all error bounds and clocks remain unchanged. The saved producer/receipts
+and six complete ideal paths pass, but a constant measured motor-offset stress
+still fails during opening. Small contact-position changes are under geometric
+design review before any new native retry. Other eight TRAIN
 conditions, training, final-test access and push remain excluded. See
 [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
 

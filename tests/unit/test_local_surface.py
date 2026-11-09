@@ -519,3 +519,48 @@ def test_measured_axis_bounds_cover_noisy_plane_edge_inverse_transport():
         error = true_initial @ true_current.T - bi @ bc.T
         for v in vectors:
             assert np.linalg.norm(error @ v) <= axes.displacement_bound([v], 0, ai + ac)
+
+
+@pytest.mark.parametrize("plane_tilt", [-0.002, 0.0, 0.002])
+def test_measured_registration_anchor_covers_complete_root_with_unchanged_errors(plane_tilt):
+    initial = surface(np.eye(3), np.array([1.0, 0.0, 0.0]))
+    rotation = Rotation.from_euler("z", 0.3).as_matrix()
+    shift = np.array([0.02, -0.03, 0.01])
+    measured_rotation = Rotation.from_euler("y", plane_tilt).as_matrix() @ rotation
+    current = surface(measured_rotation, np.array([1.0, 0.0, 0.0]) @ rotation.T + shift)
+    cameras = []
+    for angles, position in [
+        ([0.1, -0.2, 0.3], [0.2, -0.1, 0.4]),
+        ([-0.2, 0.1, -0.1], [-0.1, 0.2, 0.3]),
+    ]:
+        camera = np.eye(4)
+        camera[:3, :3] = Rotation.from_euler("xyz", angles).as_matrix()
+        camera[:3, 3] = position
+        cameras.append(camera)
+    # Uneven native coverage near the top; the whole material root stays present.
+    world = initial.points[initial.points[:, 2] > 0.55][::4]
+    world = np.vstack((world, [1.0, 0.0, 0.2]))
+    source = (world - cameras[0][:3, 3]) @ cameras[0][:3, :3]
+    true_current = world @ rotation.T + shift
+    target = (true_current - cameras[1][:3, 3]) @ cameras[1][:3, :3]
+    target[:, 1] += np.linspace(-0.0005, 0.0005, len(target))
+    anchor = (initial.points.mean(0) - cameras[0][:3, 3]) @ cameras[0][:3, :3]
+    result = constrained_surface_pose(
+        initial, current, *cameras, source, target, 0.004, map_anchor=anchor
+    )
+    transform = result.camera_from_map
+    residual = np.linalg.norm(source @ transform[:3, :3].T + transform[:3, 3] - target, axis=1)
+    assert result.position_bound_m == pytest.approx(residual.max() + 0.004)
+    assert result.pairs == len(source)
+    reference = (initial.points - cameras[0][:3, 3]) @ cameras[0][:3, :3]
+    old_radius = np.linalg.norm(reference - source.mean(0), axis=1).max()
+    radius = np.linalg.norm(reference - result.registration_origin_map, axis=1).max()
+    assert radius < old_radius
+    assert any(np.array_equal(result.registration_origin_map, p) for p in source)
+    estimated = reference @ transform[:3, :3].T + transform[:3, 3]
+    actual_world = initial.points @ rotation.T + shift
+    actual = (actual_world - cameras[1][:3, 3]) @ cameras[1][:3, :3]
+    bound = result.position_bound_m + 2 * np.linalg.norm(
+        reference - result.registration_origin_map, axis=1
+    ) * np.sin(result.rotation_bound_rad / 2)
+    assert np.all(np.linalg.norm(estimated - actual, axis=1) <= bound)

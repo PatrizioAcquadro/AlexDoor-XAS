@@ -584,7 +584,12 @@ see [[../experiments/b1-end-to-end-pilot-resume|the preserved numerical checks]]
 
 The pilot local constraint can combine current measured plane/edge orientation
 with native measured point correspondences without changing A3/A4 frames. Its
-metric point, model and conditioning errors stay explicit. A separately supported
+metric point, model and conditioning errors stay explicit. The shared maximum
+native-pair residual plus metric point error bounds position at each measured pair
+and at their centroid. Among those anchors, the constraint chooses the smallest
+maximum distance over the entire observed root. This changes only the reference
+origin of error propagation; pose, residual envelope, rotation bounds and clocks
+stay unchanged, with no action-dependent scoring. A separately supported
 normal-direction error can serve loaded alignment while the complete pose bound
 still erodes action footprints and swept space; missing direction evidence retains
 the full rotation bound. Qualification and contact/clearance tests remain open.
