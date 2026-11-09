@@ -42,9 +42,13 @@ alone do not unlock another source attempt.
 
 The higher-contact robot-only controls remain separate: physical, residual and
 stop checks pass; whole-hold drift, empirical wrist support and finite material
-negatives stay preserved. No new domain or setup is adopted. Before adding
-perception complexity, the next discriminator is whether a larger opaque contact
-region can be measured and reached through the full frozen opening/release task.
+negatives stay preserved. The larger lower wood region also fails the bounded
+design screen: part segmentation is absent initially, whole-door ownership is
+unqualified, and none of 18 complete ideal paths meets the original pose limits.
+An independent necessary reach bound excludes eight of nine height/base layouts.
+No new domain or setup is adopted. All 47 GPU allocations have verified cleanup.
+The next audit concerns tangent-only transport of the existing rotation bounds;
+no such correction or new observed source is validated yet.
 Every original physical, contact, load, task and measurement bound remains in
 force. Other eight TRAIN conditions, training, final-test access and push remain
 excluded. See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].

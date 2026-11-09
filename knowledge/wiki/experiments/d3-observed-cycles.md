@@ -860,3 +860,44 @@ All 45 completed allocations have verified cleanup: 12,783.450 s total wall,
 13,008.450 charged GPU seconds. Assignment 0/1 and historical D3 0/9 are unchanged.
 The next minimal design discriminator is a larger opaque contact region, first
 using saved images and complete kinematics; no such setup or source is yet adopted.
+
+
+## Lower opaque-region discriminator
+
+Fresh SAM3 controls on four retained nominal RGB screenshots keep the native
+thresholds. `lower wooden panel` produces no mask in the first three views and
+one only at the final angle; the longer bottom-panel description produces none.
+`wooden door` produces a broad mask in all four views but visually includes
+adjacent frame at the closed position. These are independent image starts, not
+continuous identity or ownership. The unchanged first RGB-D capture shows the
+large lower rectangular wood region around 0.17–0.45 m; the current contact is
+1.15 m. Its generous measured material clearance does not establish seed identity
+or physical reachability.
+
+The geometry reader stops when the next native screenshot has no exact recorded
+RGB match: its depth cannot be borrowed from a nearby capture. The original
+failure and the valid first-capture results are retained; later mask results are
+RGB-only. No approximate image/depth association or native rerun is used.
+
+A separate CUDA design checks nine height/base layouts: contact heights
+0.40/0.50/0.60 m and base-X advances of 0/0.10/0.20 m, with the original lateral
+position, yaw, fraction, posture and limits. Both existing-domain and physical
+interior target modes retain all 4,336 commands through the original opening,
+hold, release and stabilization references. None of the 18 paths meets the
+original pose requirement. The physical-mode maximum position residuals range
+from 0.338 to 0.692 m; all retain empirical-domain excess.
+
+An independent URDF triangle-inequality bound accounts for the desired tool
+orientation and original position/rotation tolerances once. It excludes the
+final reference for eight of nine base/height layouts, even before joint-limit,
+collision and dynamic constraints. The 0.60 m/+0.20 m layout passes only this
+necessary condition; its modeled trajectory remains negative. This finite screen
+does not prove global unreachability or prohibit a different hardware/setup.
+The lower wood is not adopted and supplies no new observed source candidate.
+
+Both GPU controls close with verified cleanup: 12.087 and 14.085 s wall,
+17.087 and 19.085 charged GPU seconds. Compact inputs, masks, reviewed overlays,
+partial depth review, complete model summaries and independent readers are in
+`lower-wood-review/`; full trajectory arrays remain on elab2. All 47 completed
+allocations total 12,809.621 s wall and 13,044.621 charged GPU seconds. Assignment
+0/1 and historical D3 0/9 remain unchanged.
