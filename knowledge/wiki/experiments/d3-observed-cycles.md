@@ -683,7 +683,38 @@ All recorded approach/contact/opening states remain inside the original future
 posture support. Applying the loaded offset to the entire hypothetical path
 exceeds empirical support in 50 unloaded approach states, while every later phase
 is supported. This extrapolation is not a calibrated motion envelope or an actual
-approach failure. The next design control investigates small symmetric contact
-position changes, followed by actual kinematic paths if justified. No new native
-retry is queued. Evidence and readers are in `root-anchor-review/` under the D3
-evidence directory.
+approach failure.
+
+Interpreting that offset in task coordinates exposes an invalid design inference:
+a constant joint offset creates 6.06 mm of tangential drift at its material refusal
+and 10.44 mm near the opening goal, already beyond the original 2.5 mm task guard.
+The actual state, compared at the same door angle, differs tangentially by only
+0.027 mm and lies 2.998 mm behind the compressed geometric reference. Evaluator
+angle is used only for this offline interpretation, never as actor observation.
+The stress negatives remain valid for that hypothetical path, but do not establish
+that the measured contact behavior needs a new contact position. The finite
+contact/base placement study and its material negatives remain preserved;
+none of its setup changes is adopted.
+
+The replacement CUDA design keeps the actual runtime setup intact. A separate
+model-only normal cap represents rigid contact at the surface, with eight
+1 mm tangential perturbations and the original compressed reference. The first
+input incorrectly put zero compression inside the validated runtime setup and
+failed before trajectory calculation; that allocation is preserved. The corrected
+20-path model uses the original valid setup and an explicit geometric cap.
+Independent reductions pass all ten physical-target cases against original
+physical, empirical posture, speed and pose bounds. Perfect tracking, a frozen
+observed uncertainty and a geometric cap do not establish native contact,
+future visibility, force control or a complete observed cycle. Evidence and
+readers are in `root-anchor-review/` and `task-frame-review/` under the D3 evidence
+directory.
+
+All six saved observations pass the complete rigid-contact material path, and
+all eight tangential perturbations pass on the moving observation: 60,704 finite
+intervals in total, including their complete interval-end aging. The full stopped
+volumes and original uncertainty reserves remain present; maximum subdivision
+queries are 16. These controls justify testing the shared registration-origin
+correction on one new nominal cycle. Runtime height, base, contact fraction,
+compression, controller, atlas and robot cutoffs remain identical to `12393c8`.
+The new attempt still requires independent complete task, observed, raw/native,
+image and continuing-stop review.

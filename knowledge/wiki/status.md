@@ -13,7 +13,8 @@ D3 remains **0/9**. The latest native at `12393c8` delivers 360 approach,
 opens 0.470 degrees, then stops at 47.617 s on unsupported actual sweep/stop.
 Raw/native coverage, declared inputs, actual images, all eight original
 continuing-stop criteria and GPU cleanup pass independently. Opening completion,
-hold, release and stabilization remain unqualified. No GPU job is active.
+hold, release and stabilization remain unqualified. The CUDA design controls are
+complete and the GPU is released.
 
 The 0.5 mm material atlas preserves the original measurements and 4 mm metric
 error. Its five complete ideal paths passed before this native attempt, but the
@@ -26,9 +27,13 @@ observation passes are not proof of complete observed execution.
 The local constraint now chooses its registration origin among the same measured
 pairs and their centroid to reduce the largest lever over the complete root.
 Pose, all error bounds and clocks remain unchanged. The saved producer/receipts
-and six complete ideal paths pass, but a constant measured motor-offset stress
-still fails during opening. Small contact-position changes are under geometric
-design review before any new native retry. Other eight TRAIN
+and six complete ideal paths pass. A constant joint-offset stress creates
+artificial tangential drift beyond the task guard; it is preserved but cannot
+justify a setup change. Task-coordinate variation models pass original kinematic
+and posture bounds. Six complete observed-state model paths and eight tangential
+perturbations pass 60,704 material intervals including end aging. One fresh nominal
+is prepared with the original setup and controller; full observed qualification
+remains required. Other eight TRAIN
 conditions, training, final-test access and push remain excluded. See
 [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
 
