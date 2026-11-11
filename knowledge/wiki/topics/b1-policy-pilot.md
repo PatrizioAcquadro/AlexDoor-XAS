@@ -151,8 +151,11 @@ observed separation bound can end unloading and permit ordinary stabilization.
 Decision records retain observed normal/support, requested/measured/previous/bounded
 poses, admitted proposal endpoints and before/after state. Original physical/load/stop, empirical support and
 numerical limits remain unchanged. Current and frozen-source numerical checks
-support this software contract; exact remote CUDA delivery and a changed complete
-observed nominal remain pending in the
+support this software contract. Purdue IO normalizes the binary32 quaternion in
+preview exactly as the setter does. This keeps the delivery comparison exact
+without changing tracking tolerances. The frozen controller and IO pass recorded
+CUDA release, clipping, contrary push and reference-memory checks. The changed
+complete observed nominal is tracked in the
 [[../experiments/act-a1-complete-cycle-collection|D4 continuation]].
 
 An optional `pause_aware_seek` clock distinguishes an unchanged submitted target

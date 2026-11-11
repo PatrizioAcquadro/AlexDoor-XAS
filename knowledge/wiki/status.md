@@ -47,13 +47,13 @@ separation. Current and frozen-source numerical checks pass, including contrary
 motion, clipping, stale evidence, missing history and the guarded dispatch path.
 Existing saved extrema bound all twelve release directions within the original
 normal cone; read-only remote algebra rejects both contrary push requests.
-Exact remote candidate execution/source staging was rejected by automatic
-approval review pending specific consent for source/data and destinations.
-All checked GPUs are idle but their persistent reservations do not list this
-chat; a valid assignment and actual CUDA/runtime checks remain required.
-No changed nominal is launched and no new GPU time is charged. This chat's scope
-ends with that nominal and its independent review; the other eight conditions
-remain unlaunched. D4 remains 0/9 pending complete nominal and data qualification.
+Explicit consent enabled exact recorded validation on Blackwell and the elab3
+GPU lease. The first CUDA delivery check exposed different float32 quaternion
+normalization in preview and dispatch. Matching the setter's normalization
+preserves exact delivery checking and the original bounds. The 14 recorded-state
+CUDA controller/IO cases pass; this is component evidence. The two CUDA leases
+are closed and accounted. This chat's scope ends with one changed nominal and
+its independent review; the other eight conditions remain unlaunched. D4 remains 0/9 pending complete nominal and data qualification.
 
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside

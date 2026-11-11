@@ -186,3 +186,29 @@ def test_early_intentional_unloading_cannot_supply_required_task_support(stage):
         )
         == "observed_contact_not_established"
     )
+
+
+def test_pose_preview_preserves_dispatch_quaternion_representation():
+    from alexdoor_xas.policies.rollout import Command
+
+    # This rotation's unit double quaternion rounds to a nonunit float32 vector.
+    rot = Rotation.from_euler("y", np.pi / 2).as_matrix()
+    goal = ObjectFrame(np.zeros(3), rot)
+    supplied = torch.tensor(Rotation.from_matrix(rot).as_quat(), dtype=torch.float32)
+    assert supplied.norm() != 1
+    goals = []
+
+    def preview_targets(*, world_goal, **_):
+        goals.append(world_goal)
+        return torch.zeros(1, 7), None, None
+
+    io = PurdueIO.__new__(PurdueIO)
+    io.env = S(
+        device="cpu",
+        preview_targets=preview_targets,
+        capture=S(sample=S(joint_position=torch.zeros(1, 9))),
+    )
+    io.calibration, io.tool_fk = {}, lambda *_: goal
+    io.preview(Command("pose", goal))
+    torch.testing.assert_close(goals[0][1].norm(dim=-1), torch.ones(1))
+    assert not torch.equal(goals[0][1][0], supplied)

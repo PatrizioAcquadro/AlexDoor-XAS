@@ -302,15 +302,17 @@ class PurdueIO:
             normal_options = (
                 {"normal_reference_only": True} if command.normal_reference_only else {}
             )
+            orientation = torch.as_tensor(
+                Rotation.from_matrix(goal.rot).as_quat(), device=env.device, dtype=torch.float32
+            )[None]
+            # Match command_pose: a unit quaternion in float64 need not remain
+            # unit after conversion to the controller's float32 representation.
+            orientation = orientation / orientation.norm(dim=-1, keepdim=True)
             target, _, _ = env.preview_targets(
                 **normal_options,
                 world_goal=(
                     torch.as_tensor(goal.origin, device=env.device, dtype=torch.float32)[None],
-                    torch.as_tensor(
-                        Rotation.from_matrix(goal.rot).as_quat(),
-                        device=env.device,
-                        dtype=torch.float32,
-                    )[None],
+                    orientation,
                 ),
             )
         q = array(env.capture.sample.joint_position)[0].copy()

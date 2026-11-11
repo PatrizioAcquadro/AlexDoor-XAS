@@ -33,16 +33,17 @@ physical counterfactual. Pre-existing tool-frame-reference/centering additions
 relative to `700191d` are excluded from the prospective runtime overlay; the
 original finite-tangent controller bundle must remain intact.
 
-Automatic approval review rejected both copying fourteen recording/contact
-operands locally and sending/executing candidate code on Blackwell without
-specific source/data/destination consent. No rejected transfer or remote candidate
-execution occurred. Blackwell, elab3 and elab4 were checked idle with free kernel
-locks, but persistent reservations belong to VLA-LEGO or list earlier owners;
-this chat needs a valid GPU assignment before any CUDA workload. Exact remote
-candidate/controller/reference-memory checks, runtime staging and the single
-changed observed nominal remain pending those approvals. No new GPU allocation,
-charge, native attempt or qualified cell is added. Original negatives, raw
-custody and 37,801.00991463661 continuation GPU seconds remain unchanged.
+Explicit consent allowed exact candidate replay of the fourteen saved cases on
+Blackwell and the temporary elab3 GPU assignment. Original recordings stayed on
+their hosts. The first CUDA check found that the setter normalized the binary32
+quaternion while preview did not. Exact delivery checking caught a numerical
+mismatch on a contrary push. The fix normalizes the preview input in the same
+representation as the setter; the actual command, bounds and tolerances remain
+unchanged. The second recorded-state CUDA check passes all twelve releases and
+two contrary pushes, including three original clipped targets, first-release
+handoff, and held normal-reference memory. No physics interval is advanced in
+these checks. The two leases are closed and charged once. The changed nominal
+and complete observed qualification are separate gates.
 
 The ignored continuation folder preserves `implementation-handoff-20261111.json`,
 `unloading-correction-validation.json`, `unloading-correction-plan.json` and both
