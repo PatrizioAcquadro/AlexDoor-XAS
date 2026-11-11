@@ -31,9 +31,17 @@ bounds. Owned processes and locks are released; the final allocation charges
 are replicated exactly to elab3, with originals preserved on Blackwell. Four
 reports and ten original RGB selections are verified locally; visual review
 covers eight distinct causal captures. The last image precedes native separation,
-so it cannot establish completed release. Exact observed withdrawal reconstruction
-remains unresolved. No unchanged retry or other condition is launched; D4 remains
-0/9 pending a complete observed nominal and independent data review.
+so it cannot establish completed release. Finished-data diagnosis identifies a
+controller/monitor mismatch: compliant targets unload progressively but remain
+ahead of measured distal poses, so the monitor does not recognize withdrawal
+before force disappears. All twelve delivered release targets fail its original
+pre-dispatch withdrawal criterion for normals within the existing orientation
+gate. Exact observed normals and latch history remain unavailable; no successful
+counterfactual is claimed. The next proposed correction is a verified unloading
+contract that preserves actual-motion, load and stop guards, followed by one
+changed complete observed nominal. It is not implemented or launched. No unchanged
+retry or other condition is launched; D4 remains 0/9 pending full nominal and
+independent data qualification.
 
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside

@@ -82,11 +82,29 @@ window is zero at 169.679 seconds; this remains a separate negative diagnostic.
 All 12,797 recorded geometric admissions pass. The final observed lower-force
 window is negative during release, when the saved native force is already zero.
 The monitor permits unloading only after a submitted motion proves withdrawal
-of every distal face. Exact proposal poses and the release latch are not saved,
-so this review does not establish whether the refusal was justified or overly
-conservative. The criterion is an observation-confidence and withdrawal-intent
-gate; its refusal alone does not prove physical danger. No threshold changes or
-phase-name exemptions are adopted.
+of every distal face. A subsequent finished-data diagnosis reconstructs the
+delivered joint-target endpoints from the frozen source and URDF. The compliant
+controller progressively unloads its prior rest target, while the monitor tests
+measured pose to new rest target. All twelve release targets retreat relative to
+their predecessor, yet initially remain 1.14–1.47 mm ahead of measured distal
+poses. None satisfies the all-point withdrawal predicate for any normal within
+the existing five-degree pre-dispatch orientation gate, including the original
+directional uncertainty. Even the last command has a best possible simultaneous
+withdrawal-margin upper bound of −0.087 mm. This mismatch prevents recognition of
+intentional unloading before force vanishes. The refusal is consistent with the
+existing predicate; it does not establish physical danger or failure of a future
+corrected controller.
+
+Independent FK agrees with 73 saved measured poses within 0.67 micrometers and
+1.32 microradians, and with a second URDF transformer on all release endpoints.
+Exact observed normals and latch history are not serialized; the cone bound is
+conditional on successful pre-dispatch checks, not a perception replay. The
+terminal lost-contact check returns before orientation certification. Only three
+of twelve commands are clipped, so clipping is secondary. The measured-origin
+force-to-pose handoff correction is already active. A prior native component has
+identical first-twelve reconstructed target projections and completes release
+and stabilization; it remains component evidence, not an observed demonstration.
+No threshold changes or phase-name exemptions are adopted.
 
 Independent NumPy reconstruction matches all 51,188 saved native upper-force
 estimates exactly, with no model, future ten-newton support, future physical-box or force
@@ -110,9 +128,9 @@ during push, hold and early release. Partial occlusion and sparse sampling do no
 establish contact force, small separation or continuous stability. The last RGB
 is acquired at 247.6 seconds, before the first native zero-force sample at
 247.6125 seconds; separation and terminal refusal are not visually confirmed.
-Stabilization RGB is unavailable. Negative evidence closeout is complete;
-the causal withdrawal diagnosis remains unresolved. Positive-only source review
-and causal training preparation were not executed. No unchanged retry is allowed.
+Stabilization RGB is unavailable. Negative evidence closeout and bounded
+mechanism diagnosis are complete. Positive-only source review and causal
+training preparation were not executed. No unchanged retry is allowed.
 
 Evidence includes `complete-finite-contact-clock-review.json`, the nominal
 plan, wiring review and allocation in the separate local continuation folder.
@@ -123,8 +141,15 @@ New negative diagnostics are stored beside the remote allocation under
 `observed-negative-review/` also preserves transfer verification and
 `manual-original-rgb-review.json`; the whole-copy receipt is
 `D4-observed-finite-tangent-N-blackwell-20261108-custody.json`.
-The next diagnostic must resolve the all-finger withdrawal decision from available
-observed evidence before proposing any changed attempt.
+The local `release-diagnosis.md` and `observed-negative-review/` preserve the
+complete mechanism report, per-command cone bounds, historical comparison and
+reader validation. The next proposed intervention separates verified elastic
+unloading intent from completed geometric withdrawal while retaining actual
+motion/load/stop guards. Merely replacing measured pose by the previous target
+is insufficient: two of 12,065 push commands also have outward target increments.
+Validation must include these contrary cases, inward finger rotation, missing
+history, stale proposals and bounded dispatch before one changed full observed
+nominal. The correction is not implemented, and no new attempt is launched.
 
 ## Question and current outcome
 
