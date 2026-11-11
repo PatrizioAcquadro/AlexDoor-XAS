@@ -42,8 +42,16 @@ representation as the setter; the actual command, bounds and tolerances remain
 unchanged. The second recorded-state CUDA check passes all twelve releases and
 two contrary pushes, including three original clipped targets, first-release
 handoff, and held normal-reference memory. No physics interval is advanced in
-these checks. The two leases are closed and charged once. The changed nominal
-and complete observed qualification are separate gates.
+these checks. The two leases are closed and charged once.
+
+One changed nominal, `D4-observed-unloading-contract-N-elab3-20261111`, is running
+on elab3 using the original setup and calibrated references and the exact
+`1e849fe` source overlay. The owner checkpoints this allocation before monitoring.
+A single post-exit continuation checks owned resource release and reviews the
+closed originals on elab3. It preserves the negative or positive branch and
+extracts acquired, causal RGB for manual inspection. The task outcome, original
+stops, observed receipts, independent load/support and data qualification remain
+pending. No other condition is dispatched.
 
 The ignored continuation folder preserves `implementation-handoff-20261111.json`,
 `unloading-correction-validation.json`, `unloading-correction-plan.json` and both

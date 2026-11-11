@@ -39,8 +39,8 @@ pre-dispatch withdrawal criterion for normals within the existing orientation
 gate. Exact observed normals and latch history remain unavailable; no successful
 counterfactual is claimed. The November 11 handoff authorizes one agent in chat
 `01a1cb23-2128-73e1-a20e-99920b48b98e` to implement and validate the unloading
-contract, then execute and close exactly one changed observed nominal. The source
-heartbeat is now read-only; the old coordinator stays PAUSED. The correction is
+contract, then execute and close exactly one changed observed nominal. The old
+coordinator stays PAUSED. The correction is
 implemented locally: paired requested/rest-target retreat is committed only
 after actual delivery, and expected unloading is distinct from contact and
 separation. Current and frozen-source numerical checks pass, including contrary
@@ -52,8 +52,12 @@ GPU lease. The first CUDA delivery check exposed different float32 quaternion
 normalization in preview and dispatch. Matching the setter's normalization
 preserves exact delivery checking and the original bounds. The 14 recorded-state
 CUDA controller/IO cases pass; this is component evidence. The two CUDA leases
-are closed and accounted. This chat's scope ends with one changed nominal and
-its independent review; the other eight conditions remain unlaunched. D4 remains 0/9 pending complete nominal and data qualification.
+are closed and accounted. The changed nominal
+`D4-observed-unloading-contract-N-elab3-20261111` is running under the owned elab3
+episode lease with the corrected `1e849fe` source. Its independent reviewer waits
+for the actual lease exit before reading the recording. D4 remains 0/9 until
+complete observed and data qualification; the other eight conditions remain
+unlaunched.
 
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside
