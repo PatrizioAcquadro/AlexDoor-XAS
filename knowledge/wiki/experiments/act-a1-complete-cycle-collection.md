@@ -68,7 +68,9 @@ and corrected without a runtime change.
 
 The job finished negative on November 9; readback on November 11 confirms
 `contact_load_lost_or_uncertain` after 12 release commands (0.2/6 seconds),
-following about 51.0 degrees of opening and all 180 hold commands (3 seconds).
+following all 180 hold commands (3 seconds). Opening progresses from 49.88 to
+50.84 degrees during hold and reaches 51.01 degrees at the final release sample;
+this does not claim three seconds continuously above the 50.15-degree target.
 Stabilization is absent. The partial recording contains 14,861 diagnostic
 commands and zero eligible training windows. It cannot qualify the nominal or
 unlock the eight other original conditions.
@@ -95,19 +97,32 @@ acceleration and force bounds;
 maximum tool travel is 0.233 mm. All owned processes and three kernel locks are
 released, with no changes to shared reservations. The final charge is
 35,696.13 GPU seconds, counted once. Original data and failures remain on
-Blackwell. Ten causal, same-generation RGB selections were extracted there;
-stabilization RGB is unavailable. Automatic approval review rejected the whole
-copy to elab3 and the small local image/report download pending specific human
-consent. Manual visual review and whole-copy verification remain incomplete.
-Positive-only source review and causal training preparation were not executed.
-No unchanged retry is allowed.
+Blackwell. Explicit human consent subsequently authorized both previously
+blocked transfers. All 77 raw/deployment/allocation files (8.90 GB) now have an
+exact SHA256-verified replica on elab3; source hashes before and after transfer
+are unchanged. Four reports and ten original RGB selections are verified locally.
+
+Manual review covers all ten causal, same-generation selections, representing
+eight distinct captures: push-last/hold-first and hold-last/release-first reuse
+the same original frames across phase boundaries. The images show a nearly closed
+door during approach/contact and an open door with the gripper near its panel
+during push, hold and early release. Partial occlusion and sparse sampling do not
+establish contact force, small separation or continuous stability. The last RGB
+is acquired at 247.6 seconds, before the first native zero-force sample at
+247.6125 seconds; separation and terminal refusal are not visually confirmed.
+Stabilization RGB is unavailable. Negative evidence closeout is complete;
+the causal withdrawal diagnosis remains unresolved. Positive-only source review
+and causal training preparation were not executed. No unchanged retry is allowed.
 
 Evidence includes `complete-finite-contact-clock-review.json`, the nominal
 plan, wiring review and allocation in the separate local continuation folder.
 New negative diagnostics are stored beside the remote allocation under
 `D4-observed-finite-tangent-N-blackwell-20261108-negative-review/`, including
 `negative-review.json`, `negative-load-support-review.json`,
-`owned-resources.json` and `continuous-stop-review.json`.
+`owned-resources.json` and `continuous-stop-review.json`. The local
+`observed-negative-review/` also preserves transfer verification and
+`manual-original-rgb-review.json`; the whole-copy receipt is
+`D4-observed-finite-tangent-N-blackwell-20261108-custody.json`.
 The next diagnostic must resolve the all-finger withdrawal decision from available
 observed evidence before proposing any changed attempt.
 

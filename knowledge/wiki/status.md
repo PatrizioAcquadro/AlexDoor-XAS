@@ -20,17 +20,19 @@ are excluded. See [[experiments/act-a1-complete-cycle-collection|the experiment]
 for the current evidence and its limits. The wrist-nullspace discriminator closes
 negative after two seconds of hold; no release/stabilization or observed source
 is qualified. The simpler candidate's observed nominal finished negative on
-November 9 and was verified on November 11: it reached about 51.0 degrees and
-three seconds of hold, then stopped after 0.2 of the required six seconds of
-release with `contact_load_lost_or_uncertain`. Stabilization is absent. All
+November 9 and was verified on November 11: it recorded three seconds of hold,
+then stopped after 0.2 of the required six seconds of release with
+`contact_load_lost_or_uncertain`, at about 51.0 degrees. Stabilization is absent. All
 12,245 actual push/hold control windows retain positive native and observed
 lower-force evidence; one zero-force native-offset window is preserved separately.
 The independent six-second, fourteen-shape stop review passes its original
 bounds. Owned processes and locks are released; the final allocation charges
-35,696.13 GPU seconds. The full raw record remains on Blackwell. Remote replication
-and local RGB/report downloads await specific transfer approval after automatic
-review rejected both. Visual review and exact observed withdrawal reconstruction
-remain incomplete. No unchanged retry or other condition is launched; D4 remains
+35,696.13 GPU seconds. Following explicit human consent, all 77 files (8.90 GB)
+are replicated exactly to elab3, with originals preserved on Blackwell. Four
+reports and ten original RGB selections are verified locally; visual review
+covers eight distinct causal captures. The last image precedes native separation,
+so it cannot establish completed release. Exact observed withdrawal reconstruction
+remains unresolved. No unchanged retry or other condition is launched; D4 remains
 0/9 pending a complete observed nominal and independent data review.
 
 The measured-release correction at `0edb99f` now passes all eight original
