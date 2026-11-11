@@ -825,3 +825,129 @@ def test_direct_normal_pivot_covers_rotations_independently_of_selected_anchor(r
     )
     assert not refused.admitted
     assert refused.reason == "incomplete_normal_error_sources"
+
+
+@pytest.mark.parametrize(
+    "request_step,target_step,rotation,expected",
+    [
+        (-0.0001, -0.00005, 0, True),
+        (0.0001, -0.00005, 0, False),  # contrary push target increment
+        (0, -0.00005, 0, False),
+        (-0.0001, 0, 0, False),  # clipped to no retreat
+        (-0.0001, 0.00005, 0, False),
+        (-0.000001, -0.000001, 0.001, False),  # inward rotating distal finger
+        (-1e-9, -1e-9, 0, False),  # existing numerical sign floor
+        (-2e-9, -2e-9, 0, True),
+    ],
+)
+def test_elastic_unloading_requires_both_requested_and_delivered_retreat(
+    request_step,
+    target_step,
+    rotation,
+    expected,
+):
+    m = monitor()
+    establish(m)
+    now, estimate, tool, _, receipt = inputs(1.2)
+    previous = apply_pose_delta(tool, [0.002, 0, 0, 0, 0, 0])
+    requested = apply_pose_delta(tool, [request_step, 0, 0, 0, 0, rotation])
+    target = apply_pose_delta(previous, [target_step, 0, 0, 0, 0, rotation])
+    intent = m.preview_unloading(now, estimate, tool, requested, previous, target, receipt)
+    assert intent["unloading_after"] == expected
+    assert not m.elastic_unloading  # previews never advance state
+    m.commit_unloading(intent, target, now + 1 / 60)
+    assert m.elastic_unloading == expected
+    assert intent["geometric_withdrawal_margin_m"] < 0
+
+
+def begin_elastic_unloading(m):
+    establish(m)
+    now, estimate, tool, _, receipt = inputs(1.2)
+    previous = apply_pose_delta(tool, [0.002, 0, 0, 0, 0, 0])
+    target = apply_pose_delta(previous, [-0.00005, 0, 0, 0, 0, 0])
+    request = apply_pose_delta(tool, [-0.0001, 0, 0, 0, 0, 0])
+    intent = m.preview_unloading(now, estimate, tool, request, previous, target, receipt)
+    m.commit_unloading(intent, target, now + 1 / 60)
+    return intent, target
+
+
+def test_expected_elastic_loss_is_not_geometric_separation_and_requires_force_history():
+    m = monitor()
+    begin_elastic_unloading(m)
+    for t in np.arange(1.2 + 1 / 60, 1.35, 1 / 60):
+        result = m.update(*inputs(float(t), force=0))
+    assert result.status == "unloading"
+    assert not m.releasing and not m.established and not m.latched_reason
+    assert result.decision["delivered_unloading"]["unloading_after"]
+    values = list(inputs(1.35, force=0))
+    values[3] = replace(values[3], normal_samples=())
+    assert m.update(*values).reason == "insufficient_contact_load_history"
+
+
+def test_elastic_unloading_requires_current_receipt_identity_and_actual_delivery():
+    m = monitor()
+    establish(m)
+    now, estimate, tool, _, receipt = inputs(1.2)
+    previous = apply_pose_delta(tool, [0.002, 0, 0, 0, 0, 0])
+    target = apply_pose_delta(previous, [-0.00005, 0, 0, 0, 0, 0])
+    request = apply_pose_delta(tool, [-0.0001, 0, 0, 0, 0, 0])
+    with pytest.raises(ValueError):
+        m.preview_unloading(
+            now,
+            replace(estimate, local=replace(estimate.local, generation=1)),
+            tool,
+            request,
+            previous,
+            target,
+            receipt,
+        )
+    with pytest.raises(ValueError):
+        m.preview_unloading(now + 0.1, estimate, tool, request, previous, target, receipt)
+    intent = m.preview_unloading(now, estimate, tool, request, previous, target, receipt)
+    with pytest.raises(ValueError, match="unloading_delivery_mismatch"):
+        m.commit_unloading(intent, previous, now + 1 / 60)
+    with pytest.raises(ValueError, match="unloading_delivery_mismatch"):
+        m.commit_unloading(intent, target, now + 0.1)
+    assert not m.elastic_unloading
+    # An admitted but unexecuted preview must still fail accidental loss.
+    for t in np.arange(1.2 + 1 / 60, 1.35, 1 / 60):
+        result = m.update(*inputs(float(t), force=0))
+    assert result.status == "lost"
+
+
+def test_unloaded_elastic_continuation_cannot_resume_forward_without_support():
+    m = monitor()
+    begin_elastic_unloading(m)
+    for t in np.arange(1.2 + 1 / 60, 1.35, 1 / 60):
+        m.update(*inputs(float(t), force=0))
+    now, estimate, tool, _, receipt = inputs(1.35, force=0)
+    m.update(now, estimate, tool, inputs(now, force=0)[3], receipt)
+    with pytest.raises(ValueError, match="contact_load_lost_or_uncertain"):
+        m.preview_unloading(now, estimate, tool, tool, tool, tool, receipt)
+
+
+def test_observed_separation_ends_elastic_state_and_allows_stationary_stabilization():
+    m = monitor()
+    begin_elastic_unloading(m)
+    for t in np.arange(1.2 + 1 / 60, 1.35, 1 / 60):
+        m.update(*inputs(float(t), force=0))
+    # Move gradually under the unchanged continuity bound before separation.
+    for i in range(1, 31):
+        values = inputs(1.35 + i / 60, force=0, x=0.003 - i * 0.002)
+        result = m.update(*values)
+    assert result.status == "separated" and not m.elastic_unloading
+    now, estimate, tool, _, receipt = values
+    intent = m.preview_unloading(now, estimate, tool, tool, tool, tool, receipt)
+    assert not intent["unloading_after"]
+
+
+def test_supported_forward_command_cancels_elastic_intent_before_later_accidental_loss():
+    m = monitor()
+    begin_elastic_unloading(m)
+    now, estimate, tool, _, receipt = inputs(1.2)
+    intent = m.preview_unloading(now, estimate, tool, tool, tool, tool, receipt)
+    m.commit_unloading(intent, tool, now + 1 / 60)
+    assert not m.elastic_unloading
+    for t in np.arange(1.2 + 1 / 60, 1.35, 1 / 60):
+        result = m.update(*inputs(float(t), force=0))
+    assert result.status == "lost" and result.reason == "contact_load_lost_or_uncertain"

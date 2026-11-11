@@ -37,11 +37,23 @@ ahead of measured distal poses, so the monitor does not recognize withdrawal
 before force disappears. All twelve delivered release targets fail its original
 pre-dispatch withdrawal criterion for normals within the existing orientation
 gate. Exact observed normals and latch history remain unavailable; no successful
-counterfactual is claimed. The next proposed correction is a verified unloading
-contract that preserves actual-motion, load and stop guards, followed by one
-changed complete observed nominal. It is not implemented or launched. No unchanged
-retry or other condition is launched; D4 remains 0/9 pending full nominal and
-independent data qualification.
+counterfactual is claimed. The November 11 handoff authorizes one agent in chat
+`01a1cb23-2128-73e1-a20e-99920b48b98e` to implement and validate the unloading
+contract, then execute and close exactly one changed observed nominal. The source
+heartbeat is now read-only; the old coordinator stays PAUSED. The correction is
+implemented locally: paired requested/rest-target retreat is committed only
+after actual delivery, and expected unloading is distinct from contact and
+separation. Current and frozen-source numerical checks pass, including contrary
+motion, clipping, stale evidence, missing history and the guarded dispatch path.
+Existing saved extrema bound all twelve release directions within the original
+normal cone; read-only remote algebra rejects both contrary push requests.
+Exact remote candidate execution/source staging was rejected by automatic
+approval review pending specific consent for source/data and destinations.
+All checked GPUs are idle but their persistent reservations do not list this
+chat; a valid assignment and actual CUDA/runtime checks remain required.
+No changed nominal is launched and no new GPU time is charged. This chat's scope
+ends with that nominal and its independent review; the other eight conditions
+remain unlaunched. D4 remains 0/9 pending complete nominal and data qualification.
 
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside

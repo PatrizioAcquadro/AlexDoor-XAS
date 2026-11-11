@@ -300,8 +300,7 @@ class PurdueIO:
                 else command.value
             )
             normal_options = (
-                {"normal_reference_only": True}
-                if command.normal_reference_only else {}
+                {"normal_reference_only": True} if command.normal_reference_only else {}
             )
             target, _, _ = env.preview_targets(
                 **normal_options,
@@ -312,10 +311,18 @@ class PurdueIO:
                         device=env.device,
                         dtype=torch.float32,
                     )[None],
-                )
+                ),
             )
         q = array(env.capture.sample.joint_position)[0].copy()
         q[:7] = array(target)[0]
+        return self.tool_fk(q, self.calibration)
+
+    def delivered_target_pose(self):
+        """FK of the rest target actually held by the actuators, not measured pose."""
+        from alexdoor_xas.recording.b1_runtime import array
+
+        q = array(self.env.capture.sample.joint_position)[0].copy()
+        q[:7] = array(self.env.targets)[0, self.env.arm_ids]
         return self.tool_fk(q, self.calibration)
 
     def execute(self, command):
@@ -355,21 +362,33 @@ class PurdueIO:
             command.normal_reference_only and command.kind != "pose"
         ):
             raise ValueError("normal_reference_requires_pose_command")
-        goal = None
+        goal = (
+            apply_pose_delta(self.tool_pose(), command.value)
+            if command.kind == "delta"
+            else command.value
+            if command.kind == "pose"
+            else None
+        )
+        monitor = getattr(getattr(self.safety, "checks", None), "contact_monitor", None)
+        unloading = None
+        if profile == OPERATIONAL_V1 and monitor is not None:
+            unloading = monitor.preview_unloading(
+                now,
+                self.safety.provider.last_estimate,
+                self.tool_pose(),
+                goal,
+                self.delivered_target_pose(),
+                actual,
+                self.admission,
+            )
         if command.kind == "joints":
             env.step_a1(command.value)
         elif command.kind in ("delta", "pose"):
             # Recorded teacher goals use command_pose. Reconstruct that same goal
             # rather than applying the raw Gym delta's additional component clips.
             # A2/A3/A4 share the existing pose IK and bounded seven-joint targets.
-            goal = (
-                apply_pose_delta(self.tool_pose(), command.value)
-                if command.kind == "delta"
-                else command.value
-            )
             normal_options = (
-                {"normal_reference_only": True}
-                if command.normal_reference_only else {}
+                {"normal_reference_only": True} if command.normal_reference_only else {}
             )
             env.command_pose(
                 goal.origin, Rotation.from_matrix(goal.rot).as_quat(), **normal_options
@@ -381,6 +400,12 @@ class PurdueIO:
         # replace them with a measured stop anchor. This hook adds no commands.
         if recorder := getattr(self, "step_recorder", None):
             recorder(command, goal)
+        if unloading is not None:
+            evidence = monitor.commit_unloading(
+                unloading, self.delivered_target_pose(), env.capture.sample.time_s
+            )
+            if callback := self.safety.checks.on_contact_evidence:
+                callback(evidence)
         if profile == OPERATIONAL_V1:
             try:
                 measured = checked_pose(self.tool_pose())

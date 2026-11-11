@@ -129,6 +129,32 @@ and direct current contact-depth compatibility are separate. Self-occlusion,
 unmeasured motion growth or missing original coverage returns unavailable;
 current support cannot fabricate future zero-motion certainty.
 
+Elastic unloading and geometric withdrawal are distinct. For pose commands,
+`ObservedContactMonitor.preview_unloading()` requires both an all-distal-point
+retreat of the requested pose from measured FK and an all-point retreat of the
+bounded rest target from the previously delivered target, using the observed
+material normal and its existing directional uncertainty. A retreating target
+alone also occurs during supported pushing. Current admission, material identity,
+generation and continuous force history remain required; no teacher phase or
+release flag supplies the evidence. `PurdueIO` keeps measured-to-target motion
+admission, independently previews the controller and verifies the actual held
+target after dispatch before committing unloading. Rejected previews cannot
+advance this state, and actual commands are recorded before a delivery mismatch
+can raise.
+
+Expected loss during delivered elastic unloading reports `unloading`, which is
+neither contact support for push/hold nor geometric separation. A supported
+command that ceases unloading cancels that intent; later uncommanded loss still
+fails. Missing force history refuses, and a forward/stationary continuation
+without renewed support refuses while separation remains uncertain. The existing
+observed separation bound can end unloading and permit ordinary stabilization.
+Decision records retain observed normal/support, requested/measured/previous/bounded
+poses, admitted proposal endpoints and before/after state. Original physical/load/stop, empirical support and
+numerical limits remain unchanged. Current and frozen-source numerical checks
+support this software contract; exact remote CUDA delivery and a changed complete
+observed nominal remain pending in the
+[[../experiments/act-a1-complete-cycle-collection|D4 continuation]].
+
 An optional `pause_aware_seek` clock distinguishes an unchanged submitted target
 from active searching. Target change uses independently verified robot FK
 resolution; actual settling must stay inside the existing command-response

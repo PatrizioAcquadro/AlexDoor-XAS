@@ -1,5 +1,54 @@
 # ACT A1 Complete-Cycle Collection
 
+## D4 unloading correction — November 11
+
+A direct handoff from the diagnosis chat authorizes one agent on
+`PatrizioAcquadro/b1-policy-pilot`, baseline `4e78f92`, to correct unloading,
+validate it and then execute exactly one changed complete observed nominal.
+The source heartbeat is read-only and the previous coordinator stays PAUSED;
+the other eight conditions are outside this execution scope.
+
+The local change separates delivered elastic unloading from geometric withdrawal.
+It requires both requested all-finger retreat from measured FK and bounded
+rest-target retreat from the previous delivered target, with current observed
+normal/support, admission, generation and force history. The dispatcher commits
+state only after verifying the held target and completed interval. Actual commands
+are recorded before a delivery mismatch can raise. `unloading` does not qualify
+contact in push/hold or a completed release. Supported non-unloading commands
+cancel intent; uncommanded loss, missing history and unsupported forward
+continuation still refuse. Observed separation can end this state for stabilization.
+Physical limits, load model, force window, uncertainty, task and stop criteria
+are unchanged; see [[../topics/b1-policy-pilot|the maintained contract]].
+
+Numerical tests cover the monitor and actual guarded-recorder/IO delivery with a
+bounded synthetic plant, including refusal/stale/mismatch, clipping, cancellation,
+force history and early release. They pass on the current source and on frozen
+`700191d` with only `contact.py` and `purdue.py` overlaid. Existing local saved-array
+extrema prove both retreat predicates for all twelve recorded release commands
+throughout the conditional original five-degree cone. Read-only algebra on
+Blackwell identifies the two contrary push commands, 3686 and 10175: their target
+retreats but their requests do not withdraw every distal point. Exact observed
+normals remain unavailable; this is neither a perception replay nor a successful
+physical counterfactual. Pre-existing tool-frame-reference/centering additions
+relative to `700191d` are excluded from the prospective runtime overlay; the
+original finite-tangent controller bundle must remain intact.
+
+Automatic approval review rejected both copying fourteen recording/contact
+operands locally and sending/executing candidate code on Blackwell without
+specific source/data/destination consent. No rejected transfer or remote candidate
+execution occurred. Blackwell, elab3 and elab4 were checked idle with free kernel
+locks, but persistent reservations belong to VLA-LEGO or list earlier owners;
+this chat needs a valid GPU assignment before any CUDA workload. Exact remote
+candidate/controller/reference-memory checks, runtime staging and the single
+changed observed nominal remain pending those approvals. No new GPU allocation,
+charge, native attempt or qualified cell is added. Original negatives, raw
+custody and 37,801.00991463661 continuation GPU seconds remain unchanged.
+
+The ignored continuation folder preserves `implementation-handoff-20261111.json`,
+`unloading-correction-validation.json`, `unloading-correction-plan.json` and both
+current/frozen numerical logs. The source monitor cannot dispatch, clean up,
+book charges or continue conditions on behalf of this owner.
+
 ## Separate D4 continuation — November 8
 
 The new D4 assignment starts from `aa328df`; the closed coordinator and paused

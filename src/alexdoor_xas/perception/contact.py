@@ -1,13 +1,18 @@
 """Operational contact evidence; never a measurement of evaluator contact gaps."""
 
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
 from alexdoor_xas.action.b1 import checked_pose
 from alexdoor_xas.perception.admission import require_current_admission, rotational_travel
-from alexdoor_xas.perception.contracts import POSE_ROUNDOFF, validate_local_contact
+from alexdoor_xas.perception.contracts import (
+    POSE_ROUNDOFF,
+    TIME_ROUNDOFF_S,
+    same_pose,
+    validate_local_contact,
+)
 from alexdoor_xas.perception.material_zone import normal_uncertainty_terms
 
 
@@ -78,7 +83,7 @@ class ObservedContactMonitor:
     footprint, response or stopping admission. Occluded fingertips can have
     indirect contact evidence, but never a fabricated depth measurement.
     Loss/contradiction after contact latches until explicit episode reset.
-    Withdrawal is recognized only from the submitted robot motion, never added.
+    Geometric withdrawal and delivered elastic unloading have distinct evidence.
     """
 
     def __init__(self, config, distal_faces):
@@ -101,9 +106,117 @@ class ObservedContactMonitor:
         self.seek_interval_active = False
         self.seek_pause_credit_s = 0.0
         self.seek_active_travel_m = self.seek_pause_credit_travel_m = 0.0
-        self.established = self.releasing = False
+        self.established = self.releasing = self.elastic_unloading = False
+        self.delivered_unloading = None
         self.latched_reason = None
         self.force_samples = deque()
+
+    def withdrawal_margin(self, start, end, normal, rotation_bound):
+        """All distal points, with the existing directional uncertainty/roundoff."""
+        displacement = np.concatenate(
+            [face @ (end.rot - start.rot).T + end.origin - start.origin for face in self.faces]
+        )
+        return float(
+            np.min(
+                -displacement @ normal
+                - rotational_travel(np.linalg.norm(displacement, axis=1), rotation_bound)
+                - 1e-9
+            )
+        )
+
+    def preview_unloading(self, now, estimate, measured, requested, previous, endpoint, admission):
+        """Read-only intent check; admission still covers measured -> bounded target.
+
+        A pose request must withdraw every finger AND the delivered elastic rest
+        target must retreat. Either sign alone also occurs during supported work.
+        No teacher phase, unchecked release flag or native contact enters here.
+        """
+        require_current_admission(admission, estimate, now)
+        patch = validate_local_contact(estimate.local, now)
+        identity = (
+            estimate.local.generation,
+            patch.patch_id,
+            estimate.local.selection.selection_id,
+        )
+        if self.identity != identity or self.result is None or self.result.time_s != now:
+            raise ValueError("stale_unloading_observation")
+        if self.result.status in ("lost", "unavailable"):
+            raise ValueError(self.result.reason)
+        for pose in (measured, previous, endpoint):
+            checked_pose(pose)
+        if requested is not None:
+            checked_pose(requested)
+        normal = patch.world_pose.rot[:, 0]
+        angle = patch.pose_support.rotation_bound_rad
+        request_margin = (
+            None
+            if requested is None
+            else self.withdrawal_margin(measured, requested, normal, angle)
+        )
+        target_margin = self.withdrawal_margin(previous, endpoint, normal, angle)
+        force = self.result.normal_force_lower_n
+        supported = force is not None and force > self.config.force_off_n
+        unloading = bool(
+            (self.established and supported or self.elastic_unloading)
+            and request_margin is not None
+            and request_margin > 0
+            and target_margin > 0
+            and force is not None
+        )
+        if self.elastic_unloading and not unloading and not supported:
+            raise ValueError("contact_load_lost_or_uncertain")
+
+        def pose(value):
+            return (
+                None
+                if value is None
+                else dict(origin=value.origin.tolist(), rot=value.rot.tolist())
+            )
+
+        return dict(
+            request_s=float(now),
+            interval_end_s=float(admission.proposal.times_s[-1]),
+            generation=identity[0],
+            material_id=identity[1],
+            selection_id=identity[2],
+            observed_normal=normal.tolist(),
+            support_rotation_bound_rad=float(angle),
+            measured_pose=pose(measured),
+            requested_pose=pose(requested),
+            previous_delivered_target=pose(previous),
+            bounded_target=pose(endpoint),
+            admitted_world_poses=[pose(value) for value in admission.proposal.world_poses],
+            request_withdrawal_margin_m=request_margin,
+            target_retreat_margin_m=target_margin,
+            geometric_withdrawal_margin_m=self.withdrawal_margin(measured, endpoint, normal, angle),
+            force_history_lower_n=force,
+            unloading_before=self.elastic_unloading,
+            unloading_after=unloading,
+        )
+
+    def commit_unloading(self, intent, delivered, completed_s):
+        """Only the actual dispatcher can advance unloading after target delivery."""
+        from alexdoor_xas.action.frames import ObjectFrame
+
+        expected = intent["bounded_target"]
+        if (
+            self.result is None
+            or self.result.time_s != intent["request_s"]
+            or self.identity
+            != (intent["generation"], intent["material_id"], intent["selection_id"])
+            or not completed_s > intent["request_s"]
+            or abs(completed_s - intent["interval_end_s"]) > TIME_ROUNDOFF_S
+            or not same_pose(
+                delivered, ObjectFrame(np.asarray(expected["origin"]), np.asarray(expected["rot"]))
+            )
+        ):
+            raise ValueError("unloading_delivery_mismatch")
+        self.elastic_unloading = intent["unloading_after"]
+        self.delivered_unloading = dict(intent, delivery_verified_s=float(completed_s))
+        return replace(
+            self.result,
+            decision=dict(self.result.decision or {}, delivered_unloading=self.delivered_unloading),
+        )
 
     def contact_load(self, load, now):
         samples = load.normal_samples
@@ -362,15 +475,11 @@ class ObservedContactMonitor:
                 for x in signed
             )
             start, end = admission.proposal.world_poses
-            # Every calibrated distal point must withdraw. Center translation
-            # alone can hide one finger rotating further into the material.
-            displacement = np.concatenate(
-                [face @ (end.rot - start.rot).T + end.origin - start.origin for face in self.faces]
-            )
-            direction_error = rotational_travel(
-                np.linalg.norm(displacement, axis=1), support.rotation_bound_rad
-            )
-            withdrawing = bool(np.all(-displacement @ normal > direction_error + 1e-9))
+            withdrawing = self.withdrawal_margin(start, end, normal, support.rotation_bound_rad) > 0
+            decision["geometric_withdrawing"] = withdrawing
+            decision["elastic_unloading_before"] = self.elastic_unloading
+            decision["delivered_unloading"] = self.delivered_unloading
+            decision["observed_normal"] = normal.tolist()
             if self.established and withdrawing:
                 self.releasing = True
             elif (
@@ -380,6 +489,16 @@ class ObservedContactMonitor:
             plausible = any(lower <= 0 <= upper for lower, upper in intervals)
             mean = self.contact_load(load, now)
             force = None if mean is None else float(mean)
+            if self.elastic_unloading and force is None:
+                raise ValueError("insufficient_contact_load_history")
+            if (
+                self.elastic_unloading
+                and force <= self.config.force_off_n
+                and min(lower for lower, _ in intervals) > 0
+            ):
+                # Existing observed separation bound, not a target or phase label.
+                self.elastic_unloading = False
+                self.established = False
             # Maintaining contact requires a strictly positive lower force bound,
             # even when the operational off threshold is zero. Independent
             # physical task scoring has its own unchanged minimum force.
@@ -395,7 +514,11 @@ class ObservedContactMonitor:
             ):
                 raise ValueError("load_without_intended_surface")
             if self.established and not positive:
-                if self.releasing:
+                if self.elastic_unloading and force is not None:
+                    status, reason = "unloading", "delivered_elastic_unloading"
+                    self.established = False
+                    self.confirm_started = None
+                elif self.releasing:
                     status, reason = "separated", "commanded_withdrawal"
                     self.established = False
                     self.confirm_started = None
@@ -410,6 +533,8 @@ class ObservedContactMonitor:
                 self.established = now - self.confirm_started >= self.config.confirmation_s - 1e-9
                 status = "contact" if self.established else "seeking"
                 reason = "supported_indirect_contact" if self.established else "confirming_contact"
+            elif self.elastic_unloading and force is not None:
+                status, reason = "unloading", "delivered_elastic_unloading"
             elif self.releasing:
                 status, reason = "separated", "commanded_withdrawal"
             elif min(lower for lower, _ in intervals) > 0:
@@ -437,7 +562,12 @@ class ObservedContactMonitor:
                 self.seek_interval_active = False
                 self.seek_pause_credit_s = 0.0
                 self.seek_active_travel_m = self.seek_pause_credit_travel_m = 0.0
-            if admission.proposal.loaded and not self.releasing and status == "seeking":
+            if (
+                admission.proposal.loaded
+                and not self.releasing
+                and not self.elastic_unloading
+                and status == "seeking"
+            ):
                 travel = 0.0
                 if self.seek_started is None:
                     self.seek_started, self.seek_anchor = now, tool.origin.copy()
@@ -556,6 +686,7 @@ class ObservedContactMonitor:
                 end.origin.copy(),
                 end.rot.copy(),
             )
+            decision["elastic_unloading_after"] = self.elastic_unloading
             self.result = ContactEvidence(
                 status,
                 reason,
