@@ -56,18 +56,60 @@ a control interval. Complete negative-window controls still reject, duplicate
 checks do not add evidence, and no threshold or filter changes. This diagnostic
 uses recorded privileged normals; uncertainty from images is still untested.
 
-The new nominal `D4-observed-finite-tangent-N-blackwell-20261108` is running with
-actual image perception and maintained observed admission on Blackwell. Its
+The nominal `D4-observed-finite-tangent-N-blackwell-20261108` ran with actual
+image perception and maintained observed admission on Blackwell. Its
 small recorder adapter installs the original finite-tangent controller before
 the first admission preview. It adds no material forecast or nullspace control.
 Nine dispatch/refusal checks pass; controller sources, nominal setup, contact
 monitor and entry-point qualification logic are unchanged. The original pressure
 fixture remains an additional diagnostic guard, not an observation certificate.
 The initial wiring test's incorrect inheritance-position assumption is retained
-and corrected without a runtime change. This run is not yet qualified; the other
-eight original conditions remain unlaunched pending complete nominal review.
-Evidence includes `complete-finite-contact-clock-review.json` and the nominal
-plan, wiring review and allocation in the separate continuation folder.
+and corrected without a runtime change.
+
+The job finished negative on November 9; readback on November 11 confirms
+`contact_load_lost_or_uncertain` after 12 release commands (0.2/6 seconds),
+following about 51.0 degrees of opening and all 180 hold commands (3 seconds).
+Stabilization is absent. The partial recording contains 14,861 diagnostic
+commands and zero eligible training windows. It cannot qualify the nominal or
+unlock the eight other original conditions.
+
+Independent readback finds positive native force at all 12,245 actual 60 Hz
+push/hold decisions (minimum 0.0328 N) and positive observed lower-force evidence
+in all 24,490 recorded checks (minimum 0.0199 N). One native-offset 100 ms
+window is zero at 169.679 seconds; this remains a separate negative diagnostic.
+All 12,797 recorded geometric admissions pass. The final observed lower-force
+window is negative during release, when the saved native force is already zero.
+The monitor permits unloading only after a submitted motion proves withdrawal
+of every distal face. Exact proposal poses and the release latch are not saved,
+so this review does not establish whether the refusal was justified or overly
+conservative. The criterion is an observation-confidence and withdrawal-intent
+gate; its refusal alone does not prove physical danger. No threshold changes or
+phase-name exemptions are adopted.
+
+Independent NumPy reconstruction matches all 51,188 saved native upper-force
+estimates exactly, with no model, future ten-newton support, future physical-box or force
+domain exits. These use privileged native normals and do not substitute for
+observed perception. The original six-second continuing stop independently
+passes all fourteen-shape radial/directional, joint, tool, rotation, speed,
+acceleration and force bounds;
+maximum tool travel is 0.233 mm. All owned processes and three kernel locks are
+released, with no changes to shared reservations. The final charge is
+35,696.13 GPU seconds, counted once. Original data and failures remain on
+Blackwell. Ten causal, same-generation RGB selections were extracted there;
+stabilization RGB is unavailable. Automatic approval review rejected the whole
+copy to elab3 and the small local image/report download pending specific human
+consent. Manual visual review and whole-copy verification remain incomplete.
+Positive-only source review and causal training preparation were not executed.
+No unchanged retry is allowed.
+
+Evidence includes `complete-finite-contact-clock-review.json`, the nominal
+plan, wiring review and allocation in the separate local continuation folder.
+New negative diagnostics are stored beside the remote allocation under
+`D4-observed-finite-tangent-N-blackwell-20261108-negative-review/`, including
+`negative-review.json`, `negative-load-support-review.json`,
+`owned-resources.json` and `continuous-stop-review.json`.
+The next diagnostic must resolve the all-finger withdrawal decision from available
+observed evidence before proposing any changed attempt.
 
 ## Question and current outcome
 

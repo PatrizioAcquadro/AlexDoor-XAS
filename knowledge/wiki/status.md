@@ -19,13 +19,19 @@ preserved. Training, learned-policy comparisons, development/final test and push
 are excluded. See [[experiments/act-a1-complete-cycle-collection|the experiment]]
 for the current evidence and its limits. The wrist-nullspace discriminator closes
 negative after two seconds of hold; no release/stabilization or observed source
-is qualified. The simpler physically complete candidate now runs through the
-unchanged observed guard on Blackwell. Its current/future position support passes
-with independently measured extensions. The unchanged contact monitor also
-passes all 12,245 saved push/hold decision windows at the actual control clock;
-observed-normal uncertainty remains unverified until this new run. Historical
-native-offset negatives remain preserved. The other eight conditions are waiting
-for a complete observed nominal and independent data review.
+is qualified. The simpler candidate's observed nominal finished negative on
+November 9 and was verified on November 11: it reached about 51.0 degrees and
+three seconds of hold, then stopped after 0.2 of the required six seconds of
+release with `contact_load_lost_or_uncertain`. Stabilization is absent. All
+12,245 actual push/hold control windows retain positive native and observed
+lower-force evidence; one zero-force native-offset window is preserved separately.
+The independent six-second, fourteen-shape stop review passes its original
+bounds. Owned processes and locks are released; the final allocation charges
+35,696.13 GPU seconds. The full raw record remains on Blackwell. Remote replication
+and local RGB/report downloads await specific transfer approval after automatic
+review rejected both. Visual review and exact observed withdrawal reconstruction
+remain incomplete. No unchanged retry or other condition is launched; D4 remains
+0/9 pending a complete observed nominal and independent data review.
 
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside
