@@ -44,14 +44,33 @@ two contrary pushes, including three original clipped targets, first-release
 handoff, and held normal-reference memory. No physics interval is advanced in
 these checks. The two leases are closed and charged once.
 
-One changed nominal, `D4-observed-unloading-contract-N-elab3-20261111`, is running
-on elab3 using the original setup and calibrated references and the exact
-`1e849fe` source overlay. The owner checkpoints this allocation before monitoring.
-A single post-exit continuation checks owned resource release and reviews the
-closed originals on elab3. It preserves the negative or positive branch and
-extracts acquired, causal RGB for manual inspection. The task outcome, original
-stops, observed receipts, independent load/support and data qualification remain
-pending. No other condition is dispatched.
+The changed nominal `D4-observed-unloading-contract-N-elab3-20261111` ended
+on November 12 at 05:13 EST with return code 1 after 63,982.584 GPU seconds.
+The last recorded push reached 28.52 degrees at 151.45 s. The run retained 360
+approach, 180 contact and 6,483 push commands. The pressure guard stopped
+collection at `outside_verified_robot_stop_load_domain` during push. The closed
+CPU reconstruction matches the saved estimates on all 28,092 native samples
+and finds one upper-load bound above the calibrated 10 N domain (11.972 N).
+The simulator's native force peak was 10.134 N. The independent position/support
+reader reports zero future physical-limit exits and zero position-support
+errors. The 10 N threshold bounds the calibrated stop-load model.
+
+The independent six-second stop review passed all original bounds across 1,440
+native samples. Tool travel was 0.265 mm. The initial automatic stop reader
+failed to import h5py. Its original log and the recovered CPU report using the
+installed h5py path are preserved. The actor had 7,023 admitted commands, and
+the independent receipt reader reproduced all 7,023 delivered records. Six
+original causal RGB frames were hash-verified and inspected. Hold, release and
+stabilization are absent, so this nominal provides no native release result
+for the unloading correction. The recording is intact and marked incomplete.
+
+The original files remain on elab3. The review verified release of the owned
+GPU lease and absence of its processes and GPU contexts. The charge was added
+once, bringing the separate D4 continuation to 101,795.854 GPU seconds. The
+campaign remains 17/36 with D4 at 0/9. The optimized bundle remains idle and the
+other eight conditions remain unlaunched. The closeout reports and RGB are in
+`unloading-correction/nominal-negative-closeout/` within the ignored D4 evidence
+directory.
 
 The ignored continuation folder preserves `implementation-handoff-20261111.json`,
 `unloading-correction-validation.json`, `unloading-correction-plan.json` and both

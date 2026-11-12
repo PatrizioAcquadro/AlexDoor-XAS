@@ -53,11 +53,12 @@ normalization in preview and dispatch. Matching the setter's normalization
 preserves exact delivery checking and the original bounds. The 14 recorded-state
 CUDA controller/IO cases pass; this is component evidence. The two CUDA leases
 are closed and accounted. The changed nominal
-`D4-observed-unloading-contract-N-elab3-20261111` is running under the owned elab3
-episode lease with the corrected `1e849fe` source. Its independent reviewer waits
-for the actual lease exit before reading the recording. D4 remains 0/9 until
-complete observed and data qualification; the other eight conditions remain
-unlaunched.
+`D4-observed-unloading-contract-N-elab3-20261111` ended during push at 28.52 degrees.
+The load upper bound reached 11.972 N at the 10 N calibrated stopping-domain
+guard. The independent six-second stop passed its original bounds. Hold,
+release and stabilization were unrecorded, leaving the unloading correction
+unexercised in this native attempt. Review and owned resource accounting are
+closed. D4 remains 0/9 and the other eight conditions remain unlaunched.
 
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside
