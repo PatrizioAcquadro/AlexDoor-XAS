@@ -16,6 +16,7 @@ historical scientific results have separate canonical pages.
 - [[topics/cluster-training|Official NVIDIA Cluster Training]]
 - [[topics/pre-a4-initialization-and-hinge-budget|Shared Pre-A4 Initialization and the Simulated Hinge Budget]]
 - [[topics/alex-v2-benchmark|Alex V2 Benchmark]]
+- [[topics/paired-physics-benchmarks|Paired Physics Backend Benchmarks]]
 
 ## Implementation phases
 
