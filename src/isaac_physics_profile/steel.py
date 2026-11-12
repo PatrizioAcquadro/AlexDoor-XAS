@@ -32,7 +32,15 @@ def install_wheel(site):
     sys.meta_path.insert(0, WheelFinder())
 
 
-def config(site, env_roots, *, measure_contact):
+def config(
+    site,
+    env_roots,
+    *,
+    measure_contact,
+    constraint_capacity=None,
+    velocity_limits=False,
+    rigid_gap=None,
+):
     import newton
     from isaaclab.sim.utils import get_current_stage
     from isaaclab.utils.configclass import configclass
@@ -69,6 +77,7 @@ def config(site, env_roots, *, measure_contact):
                         str(Path(__file__).with_name("steel_import.py")),
                         str(usd),
                         str(out),
+                        "default" if rigid_gap is None else str(rigid_gap),
                         *env_roots,
                     ],
                     env=env,
@@ -91,8 +100,11 @@ def config(site, env_roots, *, measure_contact):
                 model,
                 iterations=16,
                 velocity_iterations=4,
-                articulation_constraint_max=128 if cls.measure_contact else 32,
+                articulation_constraint_max=constraint_capacity
+                or (128 if cls.measure_contact else 32),
                 enable_joint_limits=True,
+                enable_joint_velocity_limits=velocity_limits,
+                enable_joint_friction=True,
                 enable_sleeping=False,
             )
             NewtonManager._use_single_state = False
@@ -122,10 +134,13 @@ def config(site, env_roots, *, measure_contact):
     globals()["NewtonSteelManager"] = NewtonSteelManager
     NewtonSteelManager.observables = None
     NewtonSteelManager.measure_contact = measure_contact
+    from .feedback import install_gravity
+
+    install_gravity(NewtonSteelManager)
 
     @configclass
     class SteelSolverCfg(NewtonSolverCfg):
-        class_type: str = "alexdoor_xas.benchmarks.steel:NewtonSteelManager"
+        class_type: str = "isaac_physics_profile.steel:NewtonSteelManager"
         solver_type: str = "steel"
 
     return NewtonCfg(solver_cfg=SteelSolverCfg(), num_substeps=1, use_cuda_graph=True)

@@ -43,6 +43,16 @@ NPZ windows include RGB, depth, simulation timestamps, and the detection outputs
 
 ## Project adapters
 
+The reusable Steel backend lives in `isaac_physics_profile`. On the workstation's
+Isaac Lab beta2 stack, launch with the selective Newton/Warp environment from
+`src/isaac_physics_profile/launch.sh` and inject `steel_config(...)` into
+`SimulationCfg.physics` after AppLauncher. The profile keeps the Kit OpenUSD
+runtime in-process and imports colliders through the separate wheel's OpenUSD.
+Its solved normal-force and mounted-camera adapters are used by VLA-LEGO's
+existing scene, controller, recorder, and evaluator. Project launchers can use
+`ISAAC_PHYSICS_PROFILE=newton_steel` or `isaacsim_physx`. Solver options and
+device graph capture should be recorded alongside task results.
+
 Set `factory` globally or in a named case to a `module:callable` that receives
 `(simulation_cfg, config, case, backend, env_roots)` and returns an experiment
 fixture. It owns its simulation context and exposes `sim`, `start`, `reset`,
@@ -59,7 +69,7 @@ unavailable.
 | Project | Existing interfaces to bind | Acceptance to verify on the project scene |
 | --- | --- | --- |
 | AlexDoor | `qualification.expert.probe_config` supplies the prepared door and `DoorPushPurdueEnvCfg`. `DoorPushPurdueEnv` exposes `step_a1`, `command_pose`, and measured contact and RGB-D capture. | Projected joint feedback, material-point support, load and stop bounds, and observed push/hold/release/stabilization with mounted ZED. |
-| VLA-LEGO | `vla_lego.isaac.environment.AssemblyEnvironment` owns `step`, `capture`, `observe`, `task_truth`, and episode recording. `PickPlaceEvaluator.update` and `result` own the task verdict. | Inject the physics config at context construction. Verify the actual WSG32 mimic, contact and friction, observed head frames, and existing pick/place criteria on the LEGO block. |
+| VLA-LEGO | `vla_lego.isaac.environment.AssemblyEnvironment` injects the profile at context construction and owns `step`, `capture`, `observe`, `task_truth`, and episode recording. `PickPlaceEvaluator.update` and `result` own the task verdict. | Verify physical pick/place completion and timing under the existing evaluator before choosing a default. |
 | SquadBot | `squadbot_av.simulation.rig.AlexSensorRig` owns `step(head_command=...)`, `state`, and `capture_camera`. `pilot_evaluation.evaluate_pilot` owns episode scoring. | Inject the physics config at context construction. Verify neck response, ZED-to-head extrinsics, audiovisual time alignment, room and acoustic integration, and existing orientation metrics. |
 
 The common fixture uses one static camera and no acoustic scene. Application

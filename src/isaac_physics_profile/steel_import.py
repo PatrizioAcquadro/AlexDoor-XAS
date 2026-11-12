@@ -16,7 +16,9 @@ def main():
     stage = Usd.Stage.Open(sys.argv[1])
     builder = ModelBuilder()
     expected = set(builder.custom_attributes)
-    worlds = sys.argv[3:]
+    if sys.argv[3] != "default":
+        builder.rigid_gap = float(sys.argv[3])
+    worlds = sys.argv[4:]
     options = dict(
         load_visual_shapes=False,
         load_static_visual_shapes=False,

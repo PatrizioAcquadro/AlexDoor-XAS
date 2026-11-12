@@ -81,7 +81,7 @@ def run(args, cfg, case, app_seconds):
     from isaaclab import sim as sim_utils
     from isaaclab.sim import SimulationContext
 
-    from . import steel
+    from isaac_physics_profile import steel
 
     if not torch.cuda.is_available() or torch.cuda.device_count() != 1:
         raise RuntimeError("Expose exactly one CUDA device to the benchmark")
@@ -185,7 +185,7 @@ def main():
     app_seconds = perf_counter() - t
     try:
         if args.backend == "steel":
-            from .steel import install_wheel
+            from isaac_physics_profile.steel import install_wheel
 
             install_wheel(os.environ["NEWTON_SITE"])
         run(args, cfg, case, app_seconds)

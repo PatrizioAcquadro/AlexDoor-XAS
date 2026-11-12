@@ -31,7 +31,7 @@ dev = [
 diffusion = ["diffusers>=0.39,<1.0"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/alexdoor_xas"]
+packages = ["src/alexdoor_xas", "src/isaac_physics_profile"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
