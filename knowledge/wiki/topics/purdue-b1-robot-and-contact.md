@@ -126,7 +126,7 @@ remain in raw diagnostics; touching or penetrating fixed obstacles still abort e
 Task normal force sums authorized contacts once; forbidden and structural-support
 records remain separate. Tangential friction is not included in the reported force.
 
-## Documented robot feedback and planned contact monitoring
+## Robot feedback and observed D4 release
 
 The [Alex003 Usage Guide](https://docs.google.com/document/d/17QtexPK_RqmfRammA7CsvEUuhFZFkicrJfONCdlWkEg/edit),
 reviewed October 1, 2026, documents `q`, `qd` and `tau` in `OneDOFJointState` on
@@ -142,27 +142,41 @@ law into desired motor torque. Do not assume a separate selectable effort mode.
 do not establish that a wrist sensor is installed on this Alex003 configuration.
 The guide's EZGripper effort signal is not a WSG32 pushing-force measurement.
 
-The current B1 recorder/IO carries only joint position/velocity in policy observations.
-6.0A adds `RobotFeedback` and `PurdueIO.robot_feedback()` as a separate monitor-only
-interface in canonical seven-right-arm joint order, N m and positive joint-coordinate
-sign. The current runtime reports torque absent; it never reads commands or privileged
-contact data to synthesize measurement. Freshness, known source/semantics, bounded
-robot-only load evidence and verified stop/contact behavior are separate admission
-requirements. The observed monitor remains blocked for loaded control.
-The approved
-[[../implementation_phases/phase-6-0-operational-perception-and-contact|operational plan]]
-assigns actual torque/device acquisition and signal verification to 6.0D, without
-changing policy features or old recordings. External-load inference needs a
-robot-only model, verified feedback semantics and bounded model/friction/timing
-error. An anomaly detector does not certify exact contact location or all force
-criteria. Simulated observations must represent the robot sensor, not expose
-evaluator contact pairs or perfect external forces.
+`scripts/isaac-run.sh scripts/collect_d4_observed.py` runs one declared D4-N
+condition with the prepared panel, an explicit setup, protocol and operational
+recipe, and a fresh output directory. The operational recipe supplies the
+calibration recordings, model locations, residual wrench and stop bounds.
+The launcher uses Steel and records one 60 Hz controller target across four
+240 Hz steps. The bounded held-surface correction uses the last completed
+native interval. The teacher proposes poses, then observed RGB-D, joint state,
+load, and full-robot sweep and stop evidence determine admission.
 
-The guide warns that disabling actuators can let the arms fall. The planned
-stop response must support the arm and limit residual motion/load while physics
-continues; clearing the command queue or retaining a compressed target is not
-enough. Hardware safety remains unvalidated. These are planned controls, not a
-claim that the existing `PurdueIO.stop()` performs physical unloading.
+Steel's joint-output feedback projects solved parent wrenches about the
+link center of mass onto the corresponding joint motion axes. The residual
+model compares those wrenches against rigid-link inverse dynamics. The
+Newton mass matrix includes joint armature, so subtract its acceleration
+contribution in the residual only. Keep the full matrix for predicting
+the controller response and keep armature active in the solver. Contact
+partner, normal force and separation remain independent evaluator channels.
+
+The 5° orientation check protects aligned interaction while acquiring or
+maintaining support. During delivered elastic unloading, an over-limit
+orientation can reach the dispatcher only after current geometry and load
+checks. The dispatcher requires the pose request, change from the previous
+delivered target, and measured-to-bounded-target displacement to withdraw
+both distal covers throughout the supported normal cone. The cone includes
+the published observation age and the material angular allowance for the
+next interval. The same admission covers collision, response, and stopping.
+The actual target and completed interval must match the receipt.
+Free release and stabilization require positive observed separation for both
+fingers and a whole-robot free-space proof. Loss of measured force alone
+leaves the monitor in unloading while geometric separation is unresolved.
+
+Independent stop verification latches the measured joint anchor, applies
+the configured stop impedance, and advances the solver with gravity
+compensation. The 10 N stop calibration domain bounds use of the calibrated
+model. The setup's physical force limit is checked separately. These
+simulation checks leave hardware feedback and stop response unqualified.
 
 ## Collisions, Limits, and Physical Approximation
 

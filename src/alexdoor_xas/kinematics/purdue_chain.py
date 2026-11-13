@@ -9,8 +9,9 @@ from alexdoor_xas.assets.purdue import ARM_JOINTS, derive_push_geometry, origin_
 
 
 class PurdueChain:
-    def __init__(self, urdf, device="cuda:0"):
+    def __init__(self, urdf, device="cuda:0", *, dtype=torch.float32):
         self.device = device
+        self.dtype = dtype
         root = ET.parse(urdf).getroot()
         parents = {j.find("child").get("link"): j for j in root.findall("joint")}
         chain, link = [], "RIGHT_GRIPPER_Y_LINK"
@@ -43,26 +44,27 @@ class PurdueChain:
         self.tip = self.array(geometry.wrist_from_base @ tip)
 
     def array(self, value):
-        return torch.as_tensor(value, dtype=torch.float32, device=self.device)
+        return torch.as_tensor(value, dtype=self.dtype, device=self.device)
 
-    def forward(self, q):
-        transform = torch.eye(4, device=self.device).expand(q.shape[0], 4, 4).clone()
+    def forward(self, q, *, with_jacobian=True):
+        eye4 = torch.eye(4, device=self.device, dtype=q.dtype)
+        eye3 = torch.eye(3, device=self.device, dtype=q.dtype)
+        transform = eye4.expand(q.shape[0], 4, 4).clone()
         origins, axes = {}, {}
         for origin, index, axis, cross in self.chain:
             transform = transform @ origin
             if index is not None:
-                origins[index] = transform[:, :3, 3].clone()
-                axes[index] = transform[:, :3, :3] @ axis
+                if with_jacobian:
+                    origins[index] = transform[:, :3, 3].clone()
+                    axes[index] = transform[:, :3, :3] @ axis
                 angle = q[:, index, None, None]
-                rotation = (
-                    torch.eye(3, device=self.device)
-                    + angle.sin() * cross
-                    + (1 - angle.cos()) * (cross @ cross)
-                )
-                motion = torch.eye(4, device=self.device).expand(q.shape[0], 4, 4).clone()
+                rotation = eye3 + angle.sin() * cross + (1 - angle.cos()) * (cross @ cross)
+                motion = eye4.expand(q.shape[0], 4, 4).clone()
                 motion[:, :3, :3] = rotation
                 transform = transform @ motion
         transform = transform @ self.tip
+        if not with_jacobian:
+            return transform, None
         linear = [torch.linalg.cross(axes[i], transform[:, :3, 3] - origins[i]) for i in range(7)]
         jacobian = torch.cat(
             (torch.stack(linear, -1), torch.stack([axes[i] for i in range(7)], -1)), 1

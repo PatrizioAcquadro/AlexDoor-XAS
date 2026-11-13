@@ -1,18 +1,21 @@
 """Purdue IO with legacy physical stops or observed-only prototype checks."""
 
+from collections import deque
+from threading import Lock
+
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-from alexdoor_xas.action.b1 import apply_pose_delta, finite_vector
+from alexdoor_xas.action.b1 import apply_pose_delta, checked_pose, finite_vector
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
 from alexdoor_xas.perception.admission import require_current_admission
 from alexdoor_xas.perception.contracts import (
     LEGACY_FULL_STATE,
     OPERATIONAL_V1,
-    RobotFeedback,
     geometry_profile,
 )
+from alexdoor_xas.policies.common.b1_contract import PilotBinding
 from alexdoor_xas.qualification.synthetic_probe import ContactLoad
 
 
@@ -45,15 +48,29 @@ class PurdueFK:
         from alexdoor_xas.kinematics.purdue_chain import PurdueChain
 
         self.chain = PurdueChain(urdf, device=device)
+        self._local_poses = deque(maxlen=4)
+        self._pose_lock = Lock()
 
     def __call__(self, joints, calibration):
         import torch
 
-        joints = finite_vector(joints, 9)
-        with torch.no_grad():
-            transform, _ = self.chain.forward(self.chain.array(joints[:7])[None])
-        world = np.asarray(calibration["root_world"]) @ transform[0].cpu().numpy()
-        return ObjectFrame(world[:3, 3], world[:3, :3])
+        arm = finite_vector(joints, 9)[:7].copy()
+        with self._pose_lock:
+            local = next(
+                (pose for previous, pose in self._local_poses if np.array_equal(previous, arm)),
+                None,
+            )
+            if local is None:
+                with torch.no_grad():
+                    transform, _ = self.chain.forward(
+                        self.chain.array(arm)[None], with_jacobian=False
+                    )
+                local = transform[0].cpu().numpy()
+                self._local_poses.append((arm, local))
+            # Only immutable-chain local FK is reused. Every call applies its
+            # current calibration, and the returned matrix owns its storage.
+            world = np.asarray(calibration["root_world"]) @ local
+            return ObjectFrame(world[:3, 3], world[:3, :3])
 
 
 class PurdueSafety:
@@ -144,14 +161,32 @@ class PurdueSafety:
 class PurdueIO:
     """Adapt an already-created, camera-enabled Purdue environment; never launch one."""
 
-    def __init__(self, env, *, binding, robot_asset, setup, observed_provider=None):
+    def __init__(
+        self,
+        env,
+        *,
+        binding,
+        robot_asset,
+        setup,
+        observed_provider=None,
+        load_source=None,
+        contact_monitor=None,
+        step_recorder=None,
+    ):
         from alexdoor_xas.recording.b1_runtime import camera_calibration
 
         self.profile = geometry_profile(binding)
+        if isinstance(binding, PilotBinding) and (
+            env.cfg.decimation not in (2, 4)
+            or not np.isclose(env.cfg.sim.dt * env.cfg.decimation, 1 / 60, atol=1e-10, rtol=0)
+            or not np.isclose(env.step_dt, 1 / 60, atol=1e-10, rtol=0)
+        ):
+            raise ValueError("Pilot requires 120/240 Hz physics and 60 Hz control")
         if self.profile == OPERATIONAL_V1 and observed_provider is None:
             raise ValueError("Operational IO requires the observed-only monitor")
-        if observed_provider is not None and observed_provider.binding != binding:
-            raise ValueError("Observed monitor provider differs from IO binding")
+        from alexdoor_xas.policies.observations import require_provider_binding
+
+        require_provider_binding(observed_provider, binding)
         if env.cfg.action_mode != "A2" or not env.cfg.cameras or env.cfg.prepared_door is None:
             raise ValueError("B1 rollout requires a prepared-door A2 Purdue environment with RGB-D")
         if not str(env.device).startswith("cuda"):
@@ -168,7 +203,10 @@ class PurdueIO:
         if any(env.cfg.initial_joints[k] != v for k, v in setup.initial_joints.items()):
             raise ValueError("Runtime ready pose differs from the common setup")
         self.env, self.binding, self.robot_asset = env, binding, robot_asset
+        self.load_source = load_source
+        self.step_recorder = step_recorder
         self.admission = None
+        self.response_violation = None
         self.dt = env.step_dt
         self.max_ticks = int(round(setup.horizon_s / self.dt))
         self.calibration = camera_calibration(env)
@@ -180,13 +218,19 @@ class PurdueIO:
         else:
             from alexdoor_xas.perception.control import ObservedPurdueSafety
 
-            self.safety = ObservedPurdueSafety(self, setup, observed_provider)
+            self.safety = ObservedPurdueSafety(
+                self, setup, observed_provider, contact_monitor=contact_monitor
+            )
 
     def reset(self):
         self.admission = None
+        self.response_violation = None
         self.env.reset()
         self.safety.reset()
         self.parked_tool = self.tool_pose()
+        from alexdoor_xas.recording.b1_runtime import array
+
+        self.parked_joints = array(self.env.capture.sample.joint_position)[0, :7].copy()
 
     def observe(self):
         import torch
@@ -217,22 +261,75 @@ class PurdueIO:
         return self.tool_fk(array(self.env.capture.sample.joint_position)[0], self.calibration)
 
     def robot_feedback(self):
-        """6.0A declares absence; acquisition/semantics and load inference belong to 6.0D."""
-        return RobotFeedback.unavailable(self.env.capture.sample.time_s, ARM_JOINTS)
+        from alexdoor_xas.perception.load import simulated_feedback
+
+        return simulated_feedback(self.env)
 
     def set_neck_target(self, value):
         self.env.set_neck_target(value)
 
     def hold_step(self):
+        from alexdoor_xas.recording.b1_runtime import array
+
+        measured = array(self.env.capture.sample.joint_position)[0, :7]
+        self.env.step_a1(self.parked_joints - measured)
+        if recorder := getattr(self, "step_recorder", None):
+            recorder(None, None)
+
+    def preview(self, command):
+        """World endpoint of the actual bounded A1/IK controller; no physics/mutation."""
         import torch
 
+        from alexdoor_xas.recording.b1_runtime import array
+
         env = self.env
-        env.command_pose(
-            self.parked_tool.origin, Rotation.from_matrix(self.parked_tool.rot).as_quat()
-        )
-        env.step(torch.zeros((1, 6), device=env.device))
+        if type(command.normal_reference_only) is not bool or (
+            command.normal_reference_only and command.kind != "pose"
+        ):
+            raise ValueError("normal_reference_requires_pose_command")
+        if command.kind == "joints":
+            target, _, _ = env.preview_targets(
+                joint_delta=torch.as_tensor(
+                    command.value, device=env.device, dtype=torch.float32
+                ).reshape(1, 7)
+            )
+        else:
+            goal = (
+                apply_pose_delta(self.tool_pose(), command.value)
+                if command.kind == "delta"
+                else command.value
+            )
+            normal_options = (
+                {"normal_reference_only": True} if command.normal_reference_only else {}
+            )
+            orientation = torch.as_tensor(
+                Rotation.from_matrix(goal.rot).as_quat(), device=env.device, dtype=torch.float32
+            )[None]
+            # Match command_pose: a unit quaternion in float64 need not remain
+            # unit after conversion to the controller's float32 representation.
+            orientation = orientation / orientation.norm(dim=-1, keepdim=True)
+            target, _, _ = env.preview_targets(
+                **normal_options,
+                world_goal=(
+                    torch.as_tensor(goal.origin, device=env.device, dtype=torch.float32)[None],
+                    orientation,
+                ),
+            )
+        q = array(env.capture.sample.joint_position)[0].copy()
+        q[:7] = array(target)[0]
+        return self.tool_fk(q, self.calibration)
+
+    def delivered_target_pose(self):
+        """FK of the rest target actually held by the actuators, not measured pose."""
+        from alexdoor_xas.recording.b1_runtime import array
+
+        q = array(self.env.capture.sample.joint_position)[0].copy()
+        q[:7] = array(self.env.targets)[0, self.env.arm_ids]
+        return self.tool_fk(q, self.calibration)
 
     def execute(self, command):
+        if getattr(getattr(self, "env", None), "motion_stopped", False):
+            raise RuntimeError("motion_stopped")
         self.admission = command.admission if hasattr(command, "admission") else None
         profile = getattr(self, "profile", LEGACY_FULL_STATE)
         if self.admission is not None and profile != OPERATIONAL_V1:
@@ -247,28 +344,116 @@ class PurdueIO:
         import torch
 
         env = self.env
+        if profile == OPERATIONAL_V1:
+            proposal, limits = self.admission.proposal, self.admission.limits
+            now = env.capture.sample.time_s
+            matches = np.flatnonzero(np.isclose(proposal.times_s[:-1], now, atol=1e-8, rtol=0))
+            if len(matches) != 1 or not np.isclose(
+                proposal.times_s[matches[0] + 1] - now, self.dt, atol=1e-8, rtol=0
+            ):
+                raise ValueError("Controller interval differs from admitted schedule")
+            actual = self.preview(command)
+            declared = proposal.world_poses[matches[0] + 1]
+            if (
+                np.linalg.norm(actual.origin - declared.origin) > limits.robot_position_bound_m
+                or Rotation.from_matrix(actual.rot @ declared.rot.T).magnitude()
+                > limits.robot_rotation_bound_rad
+            ):
+                raise ValueError("Controller trajectory exceeds admitted robot error")
+        if type(command.normal_reference_only) is not bool or (
+            command.normal_reference_only and command.kind != "pose"
+        ):
+            raise ValueError("normal_reference_requires_pose_command")
+        goal = (
+            apply_pose_delta(self.tool_pose(), command.value)
+            if command.kind == "delta"
+            else command.value
+            if command.kind == "pose"
+            else None
+        )
+        checks = getattr(self.safety, "checks", None)
+        monitor = getattr(checks, "contact_monitor", None)
+        unloading = None
+        if profile == OPERATIONAL_V1 and monitor is not None:
+            estimate = self.safety.provider.last_estimate
+            measured, previous = self.tool_pose(), self.delivered_target_pose()
+            unloading = monitor.preview_unloading(
+                now,
+                estimate,
+                measured,
+                goal,
+                previous,
+                actual,
+                self.admission,
+            )
+            if getattr(checks, "pending_unloading_orientation", None) is not None:
+                try:
+                    monitor.require_geometric_unloading(
+                        unloading,
+                        self.admission,
+                        estimate,
+                        measured,
+                        goal,
+                        previous,
+                        actual,
+                    )
+                except ValueError:
+                    checks.last_failure = checks.pending_unloading_orientation
+                    raise
+            if command.stage in ("release", "release_free", "stabilize"):
+                monitor.require_release_motion(
+                    unloading, self.admission, free_motion=command.stage != "release"
+                )
         if command.kind == "joints":
             env.step_a1(command.value)
         elif command.kind in ("delta", "pose"):
             # Recorded teacher goals use command_pose. Reconstruct that same goal
             # rather than applying the raw Gym delta's additional component clips.
             # A2/A3/A4 share the existing pose IK and bounded seven-joint targets.
-            goal = (
-                apply_pose_delta(self.tool_pose(), command.value)
-                if command.kind == "delta"
-                else command.value
+            normal_options = (
+                {"normal_reference_only": True} if command.normal_reference_only else {}
             )
-            env.command_pose(goal.origin, Rotation.from_matrix(goal.rot).as_quat())
+            env.command_pose(
+                goal.origin, Rotation.from_matrix(goal.rot).as_quat(), **normal_options
+            )
             env.step(torch.zeros((1, 6), device=env.device))
         else:
             raise ValueError("Unknown execution command")
+        # Record the targets actually applied, before a response violation can
+        # replace them with a measured stop anchor. This hook adds no commands.
+        if recorder := getattr(self, "step_recorder", None):
+            recorder(command, goal)
+        if unloading is not None:
+            evidence = monitor.commit_unloading(
+                unloading, self.delivered_target_pose(), env.capture.sample.time_s
+            )
+            if callback := self.safety.checks.on_contact_evidence:
+                callback(evidence)
+        if profile == OPERATIONAL_V1:
+            try:
+                measured = checked_pose(self.tool_pose())
+                exceeded = (
+                    np.linalg.norm(measured.origin - declared.origin)
+                    > limits.robot_position_bound_m
+                    or Rotation.from_matrix(measured.rot @ declared.rot.T).magnitude()
+                    > limits.robot_rotation_bound_rad
+                )
+                if exceeded:
+                    self.response_violation = "actual_robot_response_exceeded"
+            except ValueError:
+                self.response_violation = "invalid_robot_fk"
+            if self.response_violation:
+                # The command really executed. Latch now, then let the runner
+                # count that step and report its measured failure normally.
+                env.stop_motion()
 
-    def safety_reason(self, stage):
+    def safety_reason(self, stage, *, defer_unloading_orientation=False):
+        if reason := getattr(self, "response_violation", None):
+            return reason
+        if defer_unloading_orientation:
+            return self.safety.check(stage, defer_unloading_orientation=True)
         return self.safety.check(stage)
 
     def stop(self):
         self.admission = None
-        # Do not add a release, IK correction or extra physics step on failure.
-        self.env._pending_pose = None
-        self.env._pending_joints = None
-        self.env.robot.set_joint_position_target_index(target=self.env.targets)
+        self.env.stop_motion()

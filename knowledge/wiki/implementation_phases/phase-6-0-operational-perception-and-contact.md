@@ -3,7 +3,9 @@
 > Current boundary, October 2, 2026: 6.0A contracts and 6.0B static scans are
 > maintained. The custom dynamic/material trackers, full-state replay command and
 > SAM3 video comparison are retired. The CAD-free Point2Pose 6.0C prototype is
-> implemented but unqualified; 6.0D-H remain planned. Historical failures remain failures.
+> implemented but unqualified. D4-N exercises a scoped simulation path for 6.0D.
+> See [[../topics/purdue-b1-robot-and-contact#Robot feedback and observed D4 release|the observed D4 release contract]].
+> General 6.0D–H qualification remains open.
 
 ## Objective and current boundary
 

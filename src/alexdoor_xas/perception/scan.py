@@ -1,6 +1,6 @@
 """Static object evidence and local queries; no door assets, actions or truth inputs."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import product
 
 import numpy as np
@@ -16,6 +16,9 @@ from alexdoor_xas.perception.geometry import (
     similar_surface,
     voxel_points,
 )
+
+_BOX_CORNERS = np.array(tuple(product((-1, 1), repeat=3)))
+_BOX_CORNERS.setflags(write=False)
 
 
 def surface_support(surface, generation, config):
@@ -265,10 +268,21 @@ def footprint_support(surface, pose, distal_faces, config):
                 or (pixels[:, 1] >= h - 1).any()
             ):
                 continue
-            hull = cv2.convexHull(pixels.astype(np.float32))
-            footprint = np.zeros((h, w), np.uint8)
-            cv2.fillConvexPoly(footprint, np.rint(hull).astype(np.int32), 1)
-            if not footprint.any() or not observation.mask()[footprint.astype(bool)].all():
+            hull = np.rint(cv2.convexHull(pixels.astype(np.float32))).astype(np.int32)
+            lower, upper = hull.reshape(-1, 2).min(0), hull.reshape(-1, 2).max(0)
+            footprint = np.zeros((upper[1] - lower[1] + 1, upper[0] - lower[0] + 1), np.uint8)
+            cv2.fillConvexPoly(footprint, hull - lower, 1)
+            rows, columns = np.nonzero(footprint)
+            # Query exactly the same rasterized pixels directly in immutable
+            # packed evidence. Avoid decoding/allocating a complete camera image
+            # for each tiny footprint in every retained inspection view.
+            packed = np.frombuffer(observation.support_mask, np.uint8)
+            indices = (rows + lower[1]) * w + columns + lower[0]
+            if (
+                not len(indices)
+                or len(packed) * 8 < h * w
+                or not ((packed[indices // 8] >> (7 - indices % 8)) & 1).all()
+            ):
                 continue
             local_face = world @ contact_frame(surface.normal)
             boundary = observation.boundary_points @ contact_frame(surface.normal)
@@ -291,6 +305,113 @@ def footprint_support(surface, pose, distal_faces, config):
     )
 
 
+def observed_material_surface(reference, surfaces, semantic_id, config):
+    """Retain all measured coplanar support for one observed material identity.
+
+    Each footprint still requires complete pixels from an actual observation;
+    geometric fusion never fills holes or invents support between visible parts.
+    The native seed surface remains unchanged.
+    """
+    result = reference
+    seen = {(o.frame, o.mask_index, o.support_mask) for o in reference.observations}
+    for surface in surfaces:
+        if (
+            surface.normal @ reference.normal < np.cos(np.deg2rad(config["association_angle_deg"]))
+            or abs(surface.offset - reference.offset) > 2 * config["plane_tolerance_m"]
+            # Similar normals/offsets alone admit long tilted relief faces.
+            # Every measured point must belong to the reference plane envelope.
+            or np.max(abs(surface.points @ reference.normal - reference.offset))
+            > 2 * config["plane_tolerance_m"]
+            or not surface.observations
+            or any(o.semantic_id != semantic_id for o in surface.observations)
+        ):
+            continue
+        observations = tuple(
+            o for o in surface.observations if (o.frame, o.mask_index, o.support_mask) not in seen
+        )
+        if not observations:
+            continue
+        seen.update((o.frame, o.mask_index, o.support_mask) for o in observations)
+        points = voxel_points(np.r_[result.points, surface.points], config["voxel_m"])
+        # This is a coverage atlas, not a new registration reference. Averaging
+        # nearby relief normals rotates the original material frame and can
+        # invalidate the independently measured normal. Keep its plane intact.
+        result = replace(
+            result,
+            points=points,
+            observations=tuple(result.observations) + observations,
+            residual_m=max(
+                result.residual_m,
+                float(np.max(abs(points @ reference.normal - reference.offset))),
+            ),
+        )
+    return result
+
+
+def supported_material_zone(surface, distal_faces, config, *, support_filter=None):
+    """Choose a measured reference with maximum two-finger boundary clearance.
+
+    This is a material-coordinate selection, not a robot goal or ownership proof.
+    Holes and missing support retain their original footprint-query semantics.
+    """
+    best, score = None, -np.inf
+    rotation = contact_frame(surface.normal)
+    indices = np.linspace(0, len(surface.points) - 1, min(128, len(surface.points)), dtype=int)
+    for index in indices:
+        pose = ObjectFrame(surface.points[index].copy(), rotation)
+        support = footprint_support(surface, pose, distal_faces, config)
+        if support.supported and min(support.finger_clearance_m) > score:
+            if support_filter is not None and not support_filter(pose):
+                continue
+            best = pose
+            score = min(support.finger_clearance_m)
+    return best
+
+
+def static_material_witnesses(surfaces, zone, distal_faces, config, semantic_id, error_m):
+    """Retain same-identity finite support from geometrically separated views.
+
+    These witness one selected local rigid material region, not a physical hinge
+    or the ownership of every part inside a semantic door mask.
+    """
+    from dataclasses import replace
+
+    if not np.isfinite(error_m) or error_m < config["plane_tolerance_m"]:
+        raise ValueError("missing_static_material_error_bound")
+    observations = []
+    for surface in surfaces:
+        if surface.normal @ zone.rot[:, 0] < np.cos(np.deg2rad(config["association_angle_deg"])):
+            continue
+        if abs(zone.origin @ surface.normal - surface.offset) > 2 * config["plane_tolerance_m"]:
+            continue
+        for observation in surface.observations:
+            if observation.semantic_id != semantic_id:
+                continue
+            one = replace(surface, observations=[observation])
+            support = footprint_support(one, zone, distal_faces, config)
+            if support.supported:
+                observations.append((observation, support))
+    witnesses = []
+    for observation, support in sorted(observations, key=lambda pair: pair[0].acquired_s):
+        origin = observation.camera_world[:3, 3]
+        if all(
+            np.linalg.norm(origin - np.asarray(w["camera_origin_m"])) > 2 * error_m
+            for w in witnesses
+        ):
+            witnesses.append(
+                dict(
+                    frame=int(observation.frame),
+                    acquired_s=float(observation.acquired_s),
+                    available_s=float(observation.available_s),
+                    semantic_id=int(semantic_id),
+                    camera_origin_m=origin.tolist(),
+                    finger_clearance_m=support.finger_clearance_m,
+                    position_error_m=float(error_m),
+                )
+            )
+    return tuple(witnesses)
+
+
 @dataclass(frozen=True)
 class SpaceSupport:
     collision_clearance_m: float | None
@@ -298,6 +419,52 @@ class SpaceSupport:
     occupied: bool
     reason: str
     support: FieldSupport | None = None
+
+
+class _DepthRectangles:
+    """Exact known-pixel counts over immutable depth rectangles."""
+
+    def __init__(self, depth, valid):
+        self.depth = depth
+        invalid = ~valid | ~np.isfinite(depth) | (depth <= 0)
+        dtype = np.int32 if depth.size < np.iinfo(np.int32).max else np.int64
+        self.invalid = (
+            np.pad(invalid, ((1, 0), (1, 0))).cumsum(0, dtype=dtype).cumsum(1, dtype=dtype)
+        )
+
+    def query(self, lower, upper, *, minimum=True):
+        x0, y0 = lower
+        x1, y1 = upper
+        x1, y1 = x1 + 1, y1 + 1
+        counts = self.invalid
+        bad = int(counts[y1, x1] - counts[y0, x1] - counts[y1, x0] + counts[y0, x0])
+        count = (x1 - x0) * (y1 - y0) - bad
+        value = self.depth[y0:y1, x0:x1].min() if minimum and not bad else None
+        return count, value
+
+
+class _RayPlanes:
+    """Pixel-edge planes and their lengths for one immutable camera."""
+
+    def __init__(self, sensor):
+        k = sensor["intrinsics"]
+        self.height, self.width = sensor["depth_m"].shape[:2]
+        x = np.arange(self.width)[:, None]
+        y = np.arange(self.height)[:, None]
+        self.planes = np.concatenate(
+            (k[0] - x * k[2], x * k[2] - k[0], k[1] - y * k[2], y * k[2] - k[1], [[0, 0, 1]])
+        )
+        self.lengths = np.linalg.norm(self.planes, axis=1)
+
+    def clearance(self, optical, lower, upper):
+        rows = [
+            lower[0],
+            self.width + upper[0],
+            2 * self.width + lower[1],
+            2 * self.width + self.height + upper[1],
+            -1,
+        ]
+        return np.min((self.planes[rows] @ optical) / self.lengths[rows])
 
 
 class ObservedSpace:
@@ -310,7 +477,46 @@ class ObservedSpace:
     def __init__(self, config, generation=0):
         self.config, self.generation, self.views = config, generation, {}
 
+    def index_static_points(self):
+        """Index owned immutable returns with at most four independent builders."""
+        from concurrent.futures import ThreadPoolExecutor
+
+        from scipy.spatial import cKDTree
+
+        self._static_points = {}
+        self._depth_rectangles = {}
+        if not self.views:
+            return
+
+        def build(item):
+            key, view = item
+            depth, valid = view["depth_m"][..., 0], view["valid_depth"][..., 0]
+            v, u = np.nonzero(valid & np.isfinite(depth) & (depth > 0))
+            cloud = deproject(depth[v, u], np.c_[u, v], view["intrinsics"], view["camera_world"])
+            return key, (cKDTree(cloud), np.c_[u, v]), _DepthRectangles(depth, valid)
+
+        with ThreadPoolExecutor(max_workers=min(4, len(self.views))) as executor:
+            indexed = list(executor.map(build, self.views.items()))
+        self._static_points = {key: points for key, points, _ in indexed}
+        self._depth_rectangles = {key: rectangles for key, _, rectangles in indexed}
+        for view in self.views.values():
+            for value in view.values():
+                if isinstance(value, np.ndarray):
+                    value.setflags(write=False)
+
+    def _historical_view(self, key):
+        """Share one indexed static view with the historical clearance reader."""
+        single = ObservedSpace(self.config)
+        single.views = {key: self.views[key]}
+        single._static_points = {key: self._static_points[key]}
+        single._depth_rectangles = {key: self._depth_rectangles[key]}
+        single._ray_planes = _RayPlanes(self.views[key])
+        return single
+
     def add(self, sensor, available_s=None):
+        if hasattr(self, "_static_points"):
+            del self._static_points
+            del self._depth_rectangles
         slot = int(
             np.searchsorted(self.config["inspection"]["sample_times_s"], float(sensor["time_s"]))
         )
@@ -323,6 +529,19 @@ class ObservedSpace:
         )
 
     def query(self, centers, radii):
+        return self._query(centers, radii)
+
+    def _historical_clearance(self, center, radius, *, incumbent=0.0, projection=None):
+        """Return a clearance witness that improves the best accepted view."""
+        return self._query(
+            center[None],
+            np.array([radius]),
+            self._ray_planes,
+            incumbent=incumbent,
+            projection=projection,
+        ).collision_clearance_m
+
+    def _query(self, centers, radii, ray_planes=None, *, incumbent=0.0, projection=None):
         centers, radii = np.asarray(centers, float), np.asarray(radii, float)
         if (
             centers.ndim != 2
@@ -337,60 +556,100 @@ class ObservedSpace:
         margins, unknown, occupied = [], False, False
         for center, radius in zip(centers, radii, strict=True):
             free = []
-            for sensor in self.views.values():
+            for view_key, sensor in self.views.items():
                 camera, k = sensor["camera_world"], sensor["intrinsics"]
-                optical = (center - camera[:3, 3]) @ camera[:3, :3]
-                if optical[2] <= radius:
-                    continue
-                corners = optical + radius * np.array(list(product((-1, 1), repeat=3)))
-                projected = corners @ k.T
-                uv = projected[:, :2] / projected[:, 2, None]
-                lo, hi = np.floor(uv.min(0)).astype(int) - 1, np.ceil(uv.max(0)).astype(int) + 1
+                if projection is None:
+                    optical = (center - camera[:3, 3]) @ camera[:3, :3]
+                    if optical[2] <= radius:
+                        continue
+                    corners = optical + radius * _BOX_CORNERS
+                    projected = corners @ k.T
+                    uv = projected[:, :2] / projected[:, 2, None]
+                    lo, hi = np.floor(uv.min(0)).astype(int) - 1, np.ceil(uv.max(0)).astype(int) + 1
+                else:
+                    optical, lo, hi = projection
                 depth, valid = sensor["depth_m"].squeeze(-1), sensor["valid_depth"].squeeze(-1)
                 h, w = depth.shape
                 if (lo < 0).any() or hi[0] >= w or hi[1] >= h:
                     continue
                 region = depth[lo[1] : hi[1] + 1, lo[0] : hi[0] + 1]
-                good = (
-                    valid[lo[1] : hi[1] + 1, lo[0] : hi[0] + 1] & np.isfinite(region) & (region > 0)
-                )
-                if good.any():
-                    v, u = np.nonzero(good)
-                    cloud = deproject(region[v, u], np.c_[u + lo[0], v + lo[1]], k, camera)
-                    occupied |= bool(
-                        (
-                            np.linalg.norm(cloud - center, axis=1)
-                            <= radius + self.config["plane_tolerance_m"]
-                        ).any()
+                rectangles = getattr(self, "_depth_rectangles", {}).get(view_key)
+                if rectangles is None:
+                    good = (
+                        valid[lo[1] : hi[1] + 1, lo[0] : hi[0] + 1]
+                        & np.isfinite(region)
+                        & (region > 0)
                     )
-                if good.all():
+                    any_good, all_good = good.any(), good.all()
+                else:
+                    count, _ = rectangles.query(lo, hi, minimum=False)
+                    any_good, all_good = count > 0, count == region.size
+                witnesses_before_view = len(free)
+                if all_good:
                     # A free depth gap alone is not radial clearance: lateral
                     # unseen/occupied rays may be closer. Certify a truncated
                     # ray pyramid, including its side planes, around the ball.
                     for padding in (0, 4, 16, 64):
                         lower = np.maximum(lo - padding, 0)
                         upper = np.minimum(hi + padding, [w - 1, h - 1])
-                        region = depth[lower[1] : upper[1] + 1, lower[0] : upper[0] + 1]
-                        known = valid[lower[1] : upper[1] + 1, lower[0] : upper[0] + 1]
-                        if not (known & np.isfinite(region) & (region > 0)).all():
-                            continue
-                        planes = np.array(
-                            [
-                                k[0] - lower[0] * k[2],
-                                upper[0] * k[2] - k[0],
-                                k[1] - lower[1] * k[2],
-                                upper[1] * k[2] - k[1],
-                                [0, 0, 1],
-                            ]
-                        )
-                        lateral = np.min((planes @ optical) / np.linalg.norm(planes, axis=1))
+                        padded_region = depth[lower[1] : upper[1] + 1, lower[0] : upper[0] + 1]
+                        if rectangles is None:
+                            known = valid[lower[1] : upper[1] + 1, lower[0] : upper[0] + 1]
+                            if not (known & np.isfinite(padded_region) & (padded_region > 0)).all():
+                                continue
+                            minimum = padded_region.min()
+                        else:
+                            count, minimum = rectangles.query(lower, upper)
+                            if count != padded_region.size:
+                                # Historical rectangles are nested. Every larger
+                                # one contains the invalid depth already found.
+                                if ray_planes is not None:
+                                    break
+                                continue
+                        depth_gap = minimum - optical[2]
+                        if ray_planes is None:
+                            planes = np.array(
+                                [
+                                    k[0] - lower[0] * k[2],
+                                    upper[0] * k[2] - k[0],
+                                    k[1] - lower[1] * k[2],
+                                    upper[1] * k[2] - k[1],
+                                    [0, 0, 1],
+                                ]
+                            )
+                            lateral = np.min((planes @ optical) / np.linalg.norm(planes, axis=1))
+                        else:
+                            # A larger rectangle cannot increase the minimum depth.
+                            # Keep the original subtraction order at the boundary.
+                            if depth_gap - radius - self.config["plane_tolerance_m"] <= incumbent:
+                                break
+                            lateral = ray_planes.clearance(optical, lower, upper)
                         margin = float(
-                            min(lateral, region.min() - optical[2])
-                            - radius
-                            - self.config["plane_tolerance_m"]
+                            min(lateral, depth_gap) - radius - self.config["plane_tolerance_m"]
                         )
-                        if margin > 0:
+                        if margin > incumbent:
                             free.append(margin)
+
+                # The historical reader consumes only clearance. An occupied
+                # return can veto a witness but cannot turn an unknown into one.
+                if any_good and (ray_planes is None or len(free) > witnesses_before_view):
+                    indexed = getattr(self, "_static_points", {}).get(view_key)
+                    if indexed is not None:
+                        tree, pixels = indexed
+                        distance = radius + self.config["plane_tolerance_m"]
+                        matches = tree.query_ball_point(center, np.nextafter(distance, np.inf))
+                        matched = pixels[matches]
+                        exact = np.linalg.norm(tree.data[matches] - center, axis=1) <= distance
+                        occupied |= bool((exact & ((matched >= lo) & (matched <= hi)).all(1)).any())
+                    else:
+                        v, u = np.nonzero(good)
+                        cloud = deproject(region[v, u], np.c_[u + lo[0], v + lo[1]], k, camera)
+                        occupied |= bool(
+                            (
+                                np.linalg.norm(cloud - center, axis=1)
+                                <= radius + self.config["plane_tolerance_m"]
+                            ).any()
+                        )
             if free:
                 margins.append(max(free))
             else:
@@ -446,6 +705,11 @@ class ScanMemory:
         self.scene_support = None
         self.state = ScanState(generation, space=self.space)
         self.next_id = 0
+
+    @property
+    def observed_surfaces(self):
+        """All retained measurements; global associations remain unresolved."""
+        return (*self.surfaces, *self.ambiguous_associations.values())
 
     def add(self, candidates, sensor, view, *, available_s=None):
         for surface in candidates:

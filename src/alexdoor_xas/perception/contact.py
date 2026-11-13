@@ -1,0 +1,773 @@
+"""Operational contact evidence; never a measurement of evaluator contact gaps."""
+
+from collections import deque
+from dataclasses import dataclass, replace
+
+import numpy as np
+
+from alexdoor_xas.action.b1 import checked_pose
+from alexdoor_xas.perception.admission import require_current_admission, rotational_travel
+from alexdoor_xas.perception.contracts import (
+    POSE_ROUNDOFF,
+    TIME_ROUNDOFF_S,
+    same_pose,
+    validate_local_contact,
+)
+from alexdoor_xas.perception.material_zone import normal_uncertainty_terms
+
+
+@dataclass(frozen=True)
+class ContactMonitorConfig:
+    """Measured pilot recipe, separate from physical evaluator thresholds.
+
+    normal_model_bound_m is an offset along the material normal, including
+    visible-surface/collision-model disagreement;
+    patch support and calibrated robot errors are added independently. Neither
+    this bound nor a plane-fit residual establishes directly observed contact.
+    Optional robot_fk bounds describe measured tool kinematics, independently of
+    command-tracking error. Seek travel is cumulative measured world tool travel.
+    """
+
+    normal_model_bound_m: float
+    force_on_n: float
+    force_off_n: float
+    confirmation_s: float
+    max_sample_gap_s: float
+    max_seek_s: float
+    max_seek_travel_m: float
+    force_window_s: float
+    robot_fk_position_bound_m: float | None = None
+    robot_fk_rotation_bound_rad: float | None = None
+    pause_aware_seek: bool = False
+
+    def __post_init__(self):
+        if not isinstance(self.pause_aware_seek, bool) or (
+            self.pause_aware_seek and self.robot_fk_position_bound_m is None
+        ):
+            raise ValueError("Pause-aware seeking requires independent robot FK bounds")
+        values = [v for v in vars(self).values() if v is not None]
+        if (self.robot_fk_position_bound_m is None) != (self.robot_fk_rotation_bound_rad is None):
+            raise ValueError("partial_robot_fk_contact_bound")
+        if not np.isfinite(values).all() or min(values) < 0:
+            raise ValueError("invalid_contact_monitor_recipe")
+        if not (
+            self.force_on_n > self.force_off_n >= 0
+            and 0 < self.confirmation_s < self.max_seek_s
+            and 0 < self.max_sample_gap_s <= self.confirmation_s
+            and self.max_seek_travel_m > 0
+            and self.max_sample_gap_s <= self.force_window_s < self.max_seek_s
+        ):
+            raise ValueError("invalid_contact_monitor_recipe")
+
+
+@dataclass(frozen=True)
+class ContactEvidence:
+    status: str
+    reason: str
+    time_s: float
+    finger_separation_intervals_m: tuple = ()
+    normal_force_lower_n: float | None = None
+    uncertainty_m: float | None = None
+    directly_observed: bool = False
+    acquisition_started_s: float | None = None
+    acquisition_travel_m: float = 0.0
+    acquisition_active_s: float = 0.0
+    acquisition_active_travel_m: float = 0.0
+    decision: dict | None = None
+
+
+class ObservedContactMonitor:
+    """Fuse qualified local identity/support, robot geometry/load and continuity.
+
+    A valid receipt is required; this monitor cannot replace swept-space,
+    footprint, response or stopping admission. Occluded fingertips can have
+    indirect contact evidence, but never a fabricated depth measurement.
+    Loss/contradiction after contact latches until explicit episode reset.
+    Geometric withdrawal and delivered elastic unloading have distinct evidence.
+    """
+
+    def __init__(self, config, distal_faces):
+        self.config = config
+        self.faces = tuple(np.array(face, dtype=float, copy=True) for face in distal_faces)
+        if len(self.faces) != 2 or any(
+            face.ndim != 2 or face.shape[1:] != (3,) or not len(face) or not np.isfinite(face).all()
+            for face in self.faces
+        ):
+            raise ValueError("missing_calibrated_two_finger_geometry")
+        self.reset()
+
+    def reset(self):
+        self.identity = self.last = self.result = None
+        self.seek_started = self.seek_anchor = self.confirm_started = None
+        self.seek_travel_m = 0.0
+        self.seek_active_s = 0.0
+        self.seek_last_s = None
+        self.seek_pause_anchor = None
+        self.seek_interval_active = False
+        self.seek_pause_credit_s = 0.0
+        self.seek_active_travel_m = self.seek_pause_credit_travel_m = 0.0
+        self.established = self.releasing = self.elastic_unloading = False
+        self.delivered_unloading = None
+        self.latched_reason = None
+        self.force_samples = deque()
+
+    def withdrawal_margin(self, start, end, normal, rotation_bound):
+        """All distal points, with the existing directional uncertainty/roundoff."""
+        displacement = np.concatenate(
+            [face @ (end.rot - start.rot).T + end.origin - start.origin for face in self.faces]
+        )
+        return float(
+            np.min(
+                -displacement @ normal
+                - rotational_travel(np.linalg.norm(displacement, axis=1), rotation_bound)
+                - 1e-9
+            )
+        )
+
+    def preview_unloading(self, now, estimate, measured, requested, previous, endpoint, admission):
+        """Read-only intent check; admission still covers measured -> bounded target.
+
+        A pose request must withdraw every finger AND the delivered elastic rest
+        target must retreat. Either sign alone also occurs during supported work.
+        No teacher phase, unchecked release flag or native contact enters here.
+        """
+        require_current_admission(admission, estimate, now)
+        patch = validate_local_contact(estimate.local, now)
+        identity = (
+            estimate.local.generation,
+            patch.patch_id,
+            estimate.local.selection.selection_id,
+        )
+        if self.identity != identity or self.result is None or self.result.time_s != now:
+            raise ValueError("stale_unloading_observation")
+        if self.result.status in ("lost", "unavailable"):
+            raise ValueError(self.result.reason)
+        for pose in (measured, previous, endpoint):
+            checked_pose(pose)
+        if requested is not None:
+            checked_pose(requested)
+        normal = patch.world_pose.rot[:, 0]
+        angle = patch.pose_support.rotation_bound_rad
+        request_margin = (
+            None
+            if requested is None
+            else self.withdrawal_margin(measured, requested, normal, angle)
+        )
+        target_margin = self.withdrawal_margin(previous, endpoint, normal, angle)
+        force = self.result.normal_force_lower_n
+        supported = force is not None and force > self.config.force_off_n
+        unloading = bool(
+            (self.established and supported or self.elastic_unloading)
+            and request_margin is not None
+            and request_margin > 0
+            and target_margin > 0
+            and force is not None
+        )
+        if (
+            self.elastic_unloading
+            and not unloading
+            and not supported
+            and self.result.status != "separated"
+        ):
+            raise ValueError("contact_load_lost_or_uncertain")
+
+        def pose(value):
+            return (
+                None
+                if value is None
+                else dict(origin=value.origin.tolist(), rot=value.rot.tolist())
+            )
+
+        return dict(
+            request_s=float(now),
+            interval_end_s=float(admission.proposal.times_s[-1]),
+            generation=identity[0],
+            material_id=identity[1],
+            selection_id=identity[2],
+            observed_normal=normal.tolist(),
+            support_rotation_bound_rad=float(angle),
+            measured_pose=pose(measured),
+            requested_pose=pose(requested),
+            previous_delivered_target=pose(previous),
+            bounded_target=pose(endpoint),
+            admitted_world_poses=[pose(value) for value in admission.proposal.world_poses],
+            request_withdrawal_margin_m=request_margin,
+            target_retreat_margin_m=target_margin,
+            geometric_withdrawal_margin_m=self.withdrawal_margin(measured, endpoint, normal, angle),
+            force_history_lower_n=force,
+            unloading_before=self.elastic_unloading,
+            unloading_after=unloading,
+        )
+
+    def require_geometric_unloading(
+        self,
+        intent,
+        admission,
+        estimate,
+        measured,
+        requested,
+        previous,
+        endpoint,
+    ):
+        """Check the pending command over the observed normal cone through its interval."""
+        evidence = admission.local_evidence
+        if (
+            not intent["unloading_after"]
+            or evidence.swept_collision_margin_m is None
+            or evidence.swept_collision_margin_m <= 0
+            or evidence.response_rotation_bound_rad is None
+        ):
+            raise ValueError("observed_contact_orientation")
+        patch = validate_local_contact(estimate.local, intent["request_s"])
+        angle = (
+            max(
+                patch.pose_support.rotation_bound_rad,
+                patch.normal_rotation_bound_rad or 0.0,
+            )
+            + evidence.response_rotation_bound_rad
+        )
+        normal = patch.world_pose.rot[:, 0]
+        margins = tuple(
+            self.withdrawal_margin(start, end, normal, angle)
+            for start, end in ((measured, requested), (previous, endpoint), (measured, endpoint))
+        )
+        if min(margins) <= 0:
+            raise ValueError("observed_contact_orientation")
+        intent["interval_normal_bound_rad"] = float(angle)
+        intent["interval_withdrawal_margins_m"] = margins
+
+    def require_release_motion(self, intent, admission, *, free_motion=False):
+        """A release remains a withdrawal until observation proves free motion."""
+        evidence = admission.local_evidence
+        if intent["unloading_after"] and not free_motion:
+            return
+        if (
+            self.result.status == "separated"
+            and self.result.normal_force_lower_n is not None
+            and self.result.normal_force_lower_n <= self.config.force_off_n
+            and min(lo for lo, _ in self.result.finger_separation_intervals_m) > 0
+            and not admission.proposal.loaded
+            and evidence.unloaded_separation_margin_m is not None
+            and evidence.unloaded_separation_margin_m > 0
+        ):
+            return
+        raise ValueError("observed_release_separation_unverified")
+
+    def commit_unloading(self, intent, delivered, completed_s):
+        """Only the actual dispatcher can advance unloading after target delivery."""
+        from alexdoor_xas.action.frames import ObjectFrame
+
+        expected = intent["bounded_target"]
+        if (
+            self.result is None
+            or self.result.time_s != intent["request_s"]
+            or self.identity
+            != (intent["generation"], intent["material_id"], intent["selection_id"])
+            or not completed_s > intent["request_s"]
+            or abs(completed_s - intent["interval_end_s"]) > TIME_ROUNDOFF_S
+            or not same_pose(
+                delivered, ObjectFrame(np.asarray(expected["origin"]), np.asarray(expected["rot"]))
+            )
+        ):
+            raise ValueError("unloading_delivery_mismatch")
+        self.elastic_unloading = intent["unloading_after"]
+        self.delivered_unloading = dict(intent, delivery_verified_s=float(completed_s))
+        return replace(
+            self.result,
+            decision=dict(self.result.decision or {}, delivered_unloading=self.delivered_unloading),
+        )
+
+    def contact_load(self, load, now):
+        samples = load.normal_samples
+        if not samples:
+            return None
+        for start, end, value in samples:
+            if (
+                not np.isfinite([start, end, value]).all()
+                or not 0 <= start < end <= load.feedback.timestamp_s
+                or now - start > self.config.max_sample_gap_s + 1e-9
+            ):
+                raise ValueError("invalid_native_contact_load_samples")
+            existing = next(
+                (
+                    v
+                    for a, b, v in self.force_samples
+                    if abs(a - start) < 1e-9 and abs(b - end) < 1e-9
+                ),
+                None,
+            )
+            if existing is not None:
+                if not np.isclose(value, existing, atol=1e-9, rtol=0):
+                    raise ValueError("different_contact_load_at_same_time")
+            else:
+                if self.force_samples and abs(start - self.force_samples[-1][1]) > 1e-9:
+                    raise ValueError("contact_load_coverage_gap")
+                self.force_samples.append((start, end, value))
+        end = load.feedback.timestamp_s
+        if abs(self.force_samples[-1][1] - end) > 1e-9:
+            raise ValueError("invalid_native_contact_load_samples")
+        start = end - self.config.force_window_s
+        while self.force_samples and self.force_samples[0][1] <= start:
+            self.force_samples.popleft()
+        if not self.force_samples or self.force_samples[0][0] > start + 1e-9:
+            return None
+        # Explicit covered physics intervals; do not interpolate across missing
+        # measurements or turn duplicate before/after checks into extra evidence.
+        return float(
+            sum((b - max(a, start)) * v for a, b, v in self.force_samples)
+            / self.config.force_window_s
+        )
+
+    def update(self, now, estimate, tool, load, admission):
+        if self.latched_reason:
+            self.result = ContactEvidence(
+                "lost",
+                self.latched_reason,
+                now,
+                acquisition_started_s=self.seek_started,
+                acquisition_travel_m=self.seek_travel_m,
+                acquisition_active_s=self.seek_active_s,
+                acquisition_active_travel_m=self.seek_active_travel_m,
+            )
+            return self.result
+        decision = {}
+        try:
+            checked_pose(tool)
+            patch = validate_local_contact(estimate.local, now)
+            available = (
+                []
+                if admission is None
+                else [float(v) for name, v in admission.margins_m if name == patch.patch_id]
+            )
+            decision = dict(
+                material_id=patch.patch_id,
+                material_margin_m=available[0] if len(available) == 1 else None,
+                normal_model_bound_m=self.config.normal_model_bound_m,
+                numerical_tolerance_m=0.0,
+            )
+            require_current_admission(admission, estimate, now)
+            if admission.local_evidence is None:
+                raise ValueError("missing_local_contact_admission")
+            if patch.tracking_state != "tracking" or patch.ownership not in (
+                "observed_rigid_material",
+                "observed_moving_rigid_candidate",
+            ):
+                raise ValueError("unresolved_contact_material")
+            if load.model_verified is not True or load.stop_verified is not True:
+                raise ValueError("unverified_contact_load_model")
+            if (
+                load.feedback.healthy is not True
+                or load.feedback.torque_nm is None
+                or not load.feedback.timestamp_s <= load.feedback.available_s <= now
+            ):
+                raise ValueError("unavailable_contact_feedback")
+            if not 0 <= now - load.feedback.timestamp_s <= self.config.max_sample_gap_s + 1e-9:
+                raise ValueError("stale_contact_feedback")
+            if not np.isfinite([load.normal_lower_n, load.force_upper_n]).all():
+                raise ValueError("invalid_contact_load")
+            identity = (
+                estimate.local.generation,
+                patch.patch_id,
+                estimate.local.selection.selection_id,
+            )
+            if self.identity is not None and identity != self.identity:
+                raise ValueError("contact_material_changed")
+            if self.last is not None and (
+                now < self.last[0] or now - self.last[0] > self.config.max_sample_gap_s + 1e-9
+            ):
+                raise ValueError("contact_observation_gap")
+            self.identity = identity
+            normal = patch.world_pose.rot[:, 0]
+            points = [face @ tool.rot.T + tool.origin for face in self.faces]
+            signed = np.array(
+                [np.min((patch.world_pose.origin - face) @ normal) for face in points]
+            )
+            radius = max(
+                np.linalg.norm(face - patch.world_pose.origin, axis=1).max() for face in points
+            )
+            support, limits = patch.pose_support, admission.limits
+            motion_uncertainty = (
+                self.config.normal_model_bound_m
+                + patch.geometry_support.position_bound_m
+                + rotational_travel(radius, patch.geometry_support.rotation_bound_rad)
+                + support.position_bound_m
+                + rotational_travel(radius, support.rotation_bound_rad)
+                + limits.robot_position_bound_m
+                + rotational_travel(
+                    max(np.linalg.norm(f, axis=1).max() for f in self.faces),
+                    limits.robot_rotation_bound_rad,
+                )
+            )
+            robot_position = (
+                limits.robot_position_bound_m
+                if self.config.robot_fk_position_bound_m is None
+                else self.config.robot_fk_position_bound_m
+            )
+            robot_rotation = (
+                limits.robot_rotation_bound_rad
+                if self.config.robot_fk_rotation_bound_rad is None
+                else self.config.robot_fk_rotation_bound_rad
+            )
+            normal_bounds = (
+                patch.normal_position_bound_m is not None
+                and patch.normal_rotation_bound_rad is not None
+            )
+            if normal_bounds:
+                uncertainty = (
+                    self.config.normal_model_bound_m
+                    + patch.normal_position_bound_m
+                    + rotational_travel(radius, patch.normal_rotation_bound_rad)
+                    + robot_position
+                    + rotational_travel(
+                        max(np.linalg.norm(f, axis=1).max() for f in self.faces), robot_rotation
+                    )
+                )
+            else:
+                uncertainty = motion_uncertainty
+            normal_source_terms = {}
+            if patch.normal_uncertainty_sources:
+                # The same plane-angle error used to travel centroid -> anchor
+                # and then anchor -> fingers. Use its actual pivot once, rather
+                # than charging the sum of two correlated lever lengths.
+                normal_source_terms = normal_uncertainty_terms(
+                    patch.normal_uncertainty_sources, np.concatenate(points)
+                )
+                uncertainty = (
+                    self.config.normal_model_bound_m
+                    + sum(normal_source_terms.values())
+                    + robot_position
+                    + rotational_travel(
+                        max(np.linalg.norm(f, axis=1).max() for f in self.faces), robot_rotation
+                    )
+                )
+            margins = [
+                float(value) for name, value in admission.margins_m if name == patch.patch_id
+            ]
+            # Material margins are in the tangent plane. A normal discrepancy
+            # spends only its tangential projection when independent whole-robot
+            # collision/stop evidence exists. Keep the full normal interval above.
+            normal_angle = patch.geometry_support.rotation_bound_rad + support.rotation_bound_rad
+            directional = admission.local_evidence.swept_collision_margin_m is not None
+            extra = self.config.normal_model_bound_m * (
+                np.sin(min(normal_angle, np.pi / 2)) if directional else 1.0
+            )
+            whole_robot_free = (
+                not admission.proposal.loaded
+                and admission.local_evidence.unloaded_separation_margin_m is not None
+            )
+            decision = dict(
+                material_id=patch.patch_id,
+                material_margin_m=(
+                    margins[0] if not whole_robot_free and len(margins) == 1 else None
+                ),
+                unloaded_separation_margin_m=(
+                    admission.local_evidence.unloaded_separation_margin_m
+                ),
+                normal_model_bound_m=self.config.normal_model_bound_m,
+                normal_direction_bound_rad=float(normal_angle),
+                additional_tangent_uncertainty_m=float(extra),
+                numerical_tolerance_m=0.0,
+                directional_projection=directional,
+                independent_robot_sweep_margin_m=(
+                    admission.local_evidence.swept_collision_margin_m
+                ),
+                whole_robot_free=whole_robot_free,
+                admission_decision=admission.decision,
+                material_normal_range_m=admission.local_evidence.material_normal_range_m,
+                normal_primitive_terms_m=normal_source_terms,
+                normal_uncertainty_terms_m=dict(
+                    model=self.config.normal_model_bound_m,
+                    material_position=(
+                        sum(source[1] for source in patch.normal_uncertainty_sources)
+                        if normal_source_terms
+                        else patch.normal_position_bound_m
+                        if normal_bounds
+                        else patch.geometry_support.position_bound_m + support.position_bound_m
+                    ),
+                    material_rotation=(
+                        sum(normal_source_terms.values())
+                        - sum(source[1] for source in patch.normal_uncertainty_sources)
+                        if normal_source_terms
+                        else rotational_travel(radius, patch.normal_rotation_bound_rad)
+                        if normal_bounds
+                        else rotational_travel(radius, patch.geometry_support.rotation_bound_rad)
+                        + rotational_travel(radius, support.rotation_bound_rad)
+                    ),
+                    robot_position=(
+                        robot_position if normal_bounds else limits.robot_position_bound_m
+                    ),
+                    robot_rotation=rotational_travel(
+                        max(np.linalg.norm(f, axis=1).max() for f in self.faces),
+                        robot_rotation if normal_bounds else limits.robot_rotation_bound_rad,
+                    ),
+                    total=float(uncertainty),
+                ),
+            )
+            if not whole_robot_free:
+                if len(margins) != 1 or not np.isfinite(margins).all():
+                    raise ValueError("missing_contact_material_margin")
+                if extra >= margins[0]:
+                    raise ValueError("contact_uncertainty_exceeds_admitted_margin")
+            relative = (tool.origin - patch.world_pose.origin) @ patch.world_pose.rot
+            if self.last is not None and now > self.last[0]:
+                allowed = (
+                    motion_uncertainty
+                    + self.last[2]
+                    + limits.relative_speed_bound_m_s * (now - self.last[0])
+                )
+                if np.linalg.norm(relative - self.last[1]) > allowed + 1e-9:
+                    raise ValueError("inconsistent_contact_motion")
+            if (
+                self.last is not None
+                and now == self.last[0]
+                and (
+                    not np.allclose(relative, self.last[1], atol=1e-9, rtol=0)
+                    or not np.allclose(tool.origin, self.last[3], atol=1e-9, rtol=0)
+                )
+            ):
+                raise ValueError("different_contact_pose_at_same_time")
+            # Same-clock before/after checks do not accumulate artificial support.
+            depth_range = admission.local_evidence.material_normal_range_m
+            depth_range = (0.0, 0.0) if depth_range is None else depth_range
+            intervals = tuple(
+                (float(x + depth_range[0] - uncertainty), float(x + depth_range[1] + uncertainty))
+                for x in signed
+            )
+            start, end = admission.proposal.world_poses
+            withdrawing = self.withdrawal_margin(start, end, normal, support.rotation_bound_rad) > 0
+            decision["geometric_withdrawing"] = withdrawing
+            decision["elastic_unloading_before"] = self.elastic_unloading
+            decision["delivered_unloading"] = self.delivered_unloading
+            decision["observed_normal"] = normal.tolist()
+            if self.established and withdrawing:
+                self.releasing = True
+            elif (
+                self.releasing and not withdrawing and load.normal_lower_n >= self.config.force_on_n
+            ):
+                self.releasing = False
+            plausible = any(lower <= 0 <= upper for lower, upper in intervals)
+            mean = self.contact_load(load, now)
+            force = None if mean is None else float(mean)
+            if self.elastic_unloading and force is None:
+                raise ValueError("insufficient_contact_load_history")
+            if (
+                self.elastic_unloading
+                and force <= self.config.force_off_n
+                and min(lower for lower, _ in intervals) > 0
+            ):
+                # Existing observed separation bound, not a target or phase label.
+                self.elastic_unloading = False
+                self.established = False
+            # Maintaining contact requires a strictly positive lower force bound,
+            # even when the operational off threshold is zero. Independent
+            # physical task scoring has its own unchanged minimum force.
+            positive = force is not None and (
+                force > self.config.force_off_n
+                if self.established
+                else force >= self.config.force_on_n
+            )
+            if (
+                load.normal_lower_n >= self.config.force_on_n
+                and not plausible
+                and not self.established
+            ):
+                raise ValueError("load_without_intended_surface")
+            if self.established and not positive:
+                if self.elastic_unloading and force is not None:
+                    status, reason = "unloading", "delivered_elastic_unloading"
+                    self.established = False
+                    self.confirm_started = None
+                elif self.releasing:
+                    status, reason = (
+                        ("separated", "observed_geometric_separation")
+                        if min(lower for lower, _ in intervals) > 0
+                        else ("unloading", "geometric_withdrawal")
+                    )
+                    self.established = False
+                    self.confirm_started = None
+                else:
+                    self.latched_reason = "contact_load_lost_or_uncertain"
+                    status, reason = "lost", self.latched_reason
+            elif self.established and not plausible:
+                self.latched_reason = "contact_geometry_inconsistent"
+                status, reason = "lost", self.latched_reason
+            elif plausible and positive:
+                self.confirm_started = now if self.confirm_started is None else self.confirm_started
+                self.established = now - self.confirm_started >= self.config.confirmation_s - 1e-9
+                status = "contact" if self.established else "seeking"
+                reason = "supported_indirect_contact" if self.established else "confirming_contact"
+            elif self.elastic_unloading and force is not None:
+                status, reason = "unloading", "delivered_elastic_unloading"
+            elif min(lower for lower, _ in intervals) > 0:
+                self.confirm_started = None
+                status, reason = "separated", "observed_geometric_separation"
+                self.releasing = False
+            elif self.releasing:
+                status, reason = "unloading", "geometric_withdrawal"
+            else:
+                self.confirm_started = None
+                status, reason = (
+                    "seeking",
+                    (
+                        "insufficient_contact_load_history"
+                        if mean is None
+                        else "normal_contact_not_established"
+                    ),
+                )
+            if status == "contact" or status == "separated" and not self.established:
+                # Confirmed contact completes acquisition; bounded separation
+                # ends an unresolved attempt. Neither clears identity, force
+                # history or a latched failure. This transition is reported.
+                self.seek_started = self.seek_anchor = None
+                self.seek_travel_m = 0.0
+                self.seek_active_s = 0.0
+                self.seek_last_s = None
+                self.seek_pause_anchor = None
+                self.seek_interval_active = False
+                self.seek_pause_credit_s = 0.0
+                self.seek_active_travel_m = self.seek_pause_credit_travel_m = 0.0
+            if (
+                admission.proposal.loaded
+                and not self.releasing
+                and not self.elastic_unloading
+                and status == "seeking"
+            ):
+                travel = 0.0
+                if self.seek_started is None:
+                    self.seek_started, self.seek_anchor = now, tool.origin.copy()
+                else:
+                    travel = float(np.linalg.norm(tool.origin - self.seek_anchor))
+                    self.seek_travel_m += travel
+                    self.seek_anchor = tool.origin.copy()
+                # The monitor checks before and after dispatch at the SAME
+                # clock. Charge a completed interval using its submitted intent;
+                # a repeated after-check cannot turn that motion into a pause.
+                if self.seek_last_s is not None and now > self.seek_last_s:
+                    dt = now - self.seek_last_s
+                    if self.seek_interval_active:
+                        self.seek_active_s += dt
+                        self.seek_active_travel_m += travel
+                        self.seek_pause_credit_s = 0.0
+                        self.seek_pause_credit_travel_m = 0.0
+                    else:
+                        self.seek_pause_credit_s += dt
+                        self.seek_pause_credit_travel_m += travel
+                    self.seek_interval_active = False
+                paused = False
+                resolved_request = True
+                if self.config.pause_aware_seek:
+                    radius = max(np.linalg.norm(face, axis=1).max() for face in self.faces)
+                    # FK resolution classifies whether the commanded TARGET
+                    # changes. Actual tracking/settling has its separate,
+                    # independently verified response envelope, not FK precision.
+                    resolution = 2 * (robot_position + rotational_travel(radius, robot_rotation))
+                    if self.seek_pause_anchor is None:
+                        self.seek_pause_anchor = (
+                            (now, end.origin.copy(), end.rot.copy())
+                            if self.seek_last_s is None or self.last is None
+                            else (self.seek_last_s, self.last[4], self.last[5])
+                        )
+                    _, anchor_p, anchor_r = self.seek_pause_anchor
+                    target_travel = np.concatenate(
+                        [
+                            face @ (end.rot - anchor_r).T + end.origin - anchor_p
+                            for face in self.faces
+                        ]
+                    )
+                    response = np.concatenate(
+                        [
+                            face @ (tool.rot - end.rot).T + tool.origin - end.origin
+                            for face in self.faces
+                        ]
+                    )
+                    response_bound = limits.robot_position_bound_m + rotational_travel(
+                        radius, limits.robot_rotation_bound_rad
+                    )
+                    if self.last is not None:
+                        step = np.concatenate(
+                            [
+                                face @ (end.rot - self.last[5]).T + end.origin - self.last[4]
+                                for face in self.faces
+                            ]
+                        )
+                        resolved_request = bool(np.linalg.norm(step, axis=1).max() > resolution)
+                    paused = bool(
+                        (self.last is None or not resolved_request)
+                        and np.linalg.norm(target_travel, axis=1).max() <= resolution
+                        and np.linalg.norm(response, axis=1).max() <= response_bound
+                        and load.normal_lower_n < self.config.force_on_n
+                        and (force is None or force < self.config.force_on_n)
+                    )
+                if paused and np.linalg.norm(target_travel, axis=1).max() <= POSE_ROUNDOFF:
+                    # Numerically unchanged targets complete the prior pause.
+                    # Later tiny resumed motion cannot charge that completed hold.
+                    self.seek_pause_credit_s = 0.0
+                    self.seek_pause_credit_travel_m = 0.0
+                if not paused:
+                    if (
+                        self.seek_pause_anchor is not None
+                        and not resolved_request
+                        and load.normal_lower_n < self.config.force_on_n
+                        and (force is None or force < self.config.force_on_n)
+                    ):
+                        # Target creep resolves the whole provisional interval;
+                        # a genuine resumed command preserves the prior pause.
+                        self.seek_active_s += self.seek_pause_credit_s
+                        self.seek_active_travel_m += self.seek_pause_credit_travel_m
+                    self.seek_pause_credit_s = 0.0
+                    self.seek_pause_credit_travel_m = 0.0
+                    self.seek_pause_anchor = None
+                    self.seek_interval_active = True
+                # Same-clock checks can mark an interval active, never erase it.
+                self.seek_last_s = now
+                # Report the same effective interval that accounting preserves.
+                # An after-check may observe a stationary target at this clock,
+                # but cannot relabel an already submitted active command as pause.
+                decision["supported_seek_pause"] = paused and not self.seek_interval_active
+                decision["seek_interval_active"] = self.seek_interval_active
+                decision["provisional_pause_credit_s"] = self.seek_pause_credit_s
+                elapsed = (
+                    self.seek_active_s if self.config.pause_aware_seek else now - self.seek_started
+                )
+                search_travel = (
+                    self.seek_active_travel_m
+                    if self.config.pause_aware_seek
+                    else self.seek_travel_m
+                )
+                decision["seek_budget_travel_m"] = search_travel
+                decision["seek_total_elapsed_s"] = now - self.seek_started
+                if (
+                    elapsed > self.config.max_seek_s
+                    or search_travel > self.config.max_seek_travel_m
+                ):
+                    self.latched_reason = "contact_acquisition_budget"
+                    status, reason = "lost", self.latched_reason
+            self.last = (
+                now,
+                relative.copy(),
+                motion_uncertainty,
+                tool.origin.copy(),
+                end.origin.copy(),
+                end.rot.copy(),
+            )
+            decision["elastic_unloading_after"] = self.elastic_unloading
+            self.result = ContactEvidence(
+                status,
+                reason,
+                now,
+                intervals,
+                force,
+                uncertainty + max(abs(x) for x in depth_range),
+                acquisition_started_s=self.seek_started,
+                acquisition_travel_m=self.seek_travel_m,
+                acquisition_active_s=self.seek_active_s,
+                acquisition_active_travel_m=self.seek_active_travel_m,
+                decision=decision,
+            )
+            return self.result
+        except (ValueError, TypeError, AttributeError, IndexError) as error:
+            self.confirm_started = None
+            if self.established:
+                self.latched_reason = str(error)
+            self.result = ContactEvidence("unavailable", str(error), now, decision=decision)
+            return self.result

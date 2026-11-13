@@ -11,6 +11,7 @@ from alexdoor_xas.action.b1 import (
     SegmentMotion,
     StageSequence,
     apply_pose_delta,
+    checked_pose,
     finite_vector,
 )
 from alexdoor_xas.action.frames import frame_delta_to_world
@@ -24,7 +25,12 @@ from alexdoor_xas.perception.contracts import (
     same_pose,
     validate_reference,
 )
-from alexdoor_xas.policies.observations import require_estimate
+from alexdoor_xas.policies.common.b1_contract import PilotBinding
+from alexdoor_xas.policies.observations import (
+    observation_columns,
+    require_estimate,
+    require_features,
+)
 
 
 @dataclass(frozen=True)
@@ -33,6 +39,7 @@ class Command:
     value: object
     stage: str | None = None
     admission: ActionAdmission | None = None
+    normal_reference_only: bool = False  # Explicit teacher force-admittance command.
 
 
 class ActionAdapter:
@@ -58,6 +65,22 @@ class ActionAdapter:
         self.admission = None
         self.blocked = False
 
+    def interpret(self, action, *, estimate=None):
+        """Decode a primitive representation only; the result carries no admission.
+
+        A1/A2 use robot/world coordinates. Only A3 needs a supplied hinge frame.
+        A4 retains its separate segment state machine and execution checks.
+        """
+        if self.space == A4_OBJ_CENTRIC_CHUNK:
+            raise ValueError("A4 requires segment execution context")
+        row = finite_vector(action, ACTION_DIMS[self.space]).copy()
+        if self.space == A1_JOINT_DELTA:
+            return Command("joints", row)
+        if self.space == A3_OBJ_REL_EE_DELTA:
+            checked_pose(getattr(estimate, "frame", None))
+            row = frame_delta_to_world(row, estimate.frame)
+        return Command("delta", row)
+
     def admit(self, observation, tool, action, admission):
         if self.motion is not None:
             if admission is not None and admission is not self.admission:
@@ -66,14 +89,20 @@ class ActionAdapter:
         if admission is None:
             raise ValueError("Missing explicit operational action admission")
         require_current_admission(admission, observation.estimate, observation.time_s)
-        if observation.generation != admission.estimate.operational.generation:
-            raise ValueError("Action admission episode generation mismatch")
-        validate_reference(
-            observation.estimate,
-            observation.time_s,
-            self.max_age_s,
-            generation=observation.generation,
+        state = (
+            admission.estimate.local
+            if admission.local_evidence is not None
+            else admission.estimate.operational
         )
+        if observation.generation != state.generation:
+            raise ValueError("Action admission episode generation mismatch")
+        if admission.local_evidence is None:
+            validate_reference(
+                observation.estimate,
+                observation.time_s,
+                self.max_age_s,
+                generation=observation.generation,
+            )
         proposal = admission.proposal
         if (
             proposal.action_space != self.space
@@ -125,21 +154,25 @@ class ActionAdapter:
                 raise ValueError(f"Invalid observed input: {observation.reason}")
             require_estimate(observation.estimate, observation.time_s, self.max_age_s)
         else:
+            local = (
+                admission is not None
+                and admission.estimate is not None
+                and admission.local_evidence is not None
+            )
             if not observation.features_available or (
-                self.source == "policy" and not observation.valid
+                self.source == "policy" and not observation.valid and not local
             ):
                 raise ValueError(f"Invalid observed input: {observation.reason}")
             self.admit(observation, tool, action, admission)
         if self.space != A4_OBJ_CENTRIC_CHUNK:
-            row = finite_vector(action, ACTION_DIMS[self.space])
+            decoded = self.interpret(action, estimate=observation.estimate)
+            row = decoded.value
             if self.profile == OPERATIONAL_V1 and len(self.admission.proposal.world_poses) != 2:
                 raise ValueError("Primitive admission requires one control interval")
             if self.space == A1_JOINT_DELTA:
                 if self.profile == OPERATIONAL_V1:
                     self.require_goal(observation, 1)
                 return Command("joints", row, admission=self.admission)
-            if self.space == A3_OBJ_REL_EE_DELTA:
-                row = frame_delta_to_world(row, observation.estimate.frame)
             if self.profile == OPERATIONAL_V1:
                 self.require_goal(observation, 1, apply_pose_delta(tool, row))
             return Command("delta", row, admission=self.admission)
@@ -191,7 +224,10 @@ class MatchedReplay:
     not supplied to the adapter. The caller labels results as replay diagnostics.
     """
 
-    def __init__(self, dataset, episode_id):
+    def __init__(self, dataset, episode_id, *, absolute_joint_targets=False):
+        if absolute_joint_targets and dataset.action_space != A1_JOINT_DELTA:
+            raise ValueError("Absolute joint references require A1")
+        self.absolute_joint_targets = absolute_joint_targets
         self.record = dataset.by_id(episode_id)
         self.binding, self.robot_asset = dataset.binding, dataset.robot_asset
         self.action_space = dataset.action_space
@@ -219,6 +255,12 @@ class MatchedReplay:
             if not np.isclose(observation.time_s - self.start_time, expected, atol=1e-7, rtol=0):
                 raise ValueError("Matched replay action timing differs from the recording")
             row = self.record.actions[self.index].copy()
+            if self.absolute_joint_targets:
+                # Holding a fixed target requires current measured feedback.
+                # A zero delta instead recenters the servo every tick and can
+                # remove the restoring effort needed to arrest drift.
+                measured = observation_columns(observation.features, self.binding)["joint_position"]
+                row = row - measured[:7]
             self.index += 1
             return row[None]
 
@@ -232,11 +274,27 @@ class B1Runner:
     RGB-D/proprioception and robot FK, never door truth or evaluator progress.
     """
 
-    def __init__(self, policy, observer, io, *, temporal_ensemble=False, n_action_steps=None):
+    def __init__(
+        self,
+        policy,
+        observer,
+        io,
+        *,
+        temporal_ensemble=False,
+        n_action_steps=None,
+        pilot_inference_only=False,
+        admission_source=None,
+        completion_source=None,
+    ):
         if observer.binding != policy.binding or io.binding != policy.binding:
             raise ValueError("Policy and observer perception bindings differ")
         assert_checkpoint_runtime_compatible(policy.robot_asset, io.robot_asset)
         self.policy, self.observer, self.io = policy, observer, io
+        if pilot_inference_only and not isinstance(policy.binding, PilotBinding):
+            raise ValueError("Inference-only pilot requires an explicit pilot binding")
+        self.pilot_inference_only = pilot_inference_only
+        self.admission_source = admission_source
+        self.completion_source = completion_source
         self.source_options = dict(
             temporal_ensemble=temporal_ensemble, n_action_steps=n_action_steps
         )
@@ -260,14 +318,19 @@ class B1Runner:
     def stop(self, reason, steps, *, complete=False):
         self.pending.clear()
         self.source = None
-        self.adapter.reset()
-        self.observer.reset()
         self.io.stop()
         self.stopped = True
+        self.adapter.reset()
+        self.observer.reset()
         return RolloutResult(reason, steps, complete)
 
     def inspect(self):
         """Use the common neck schedule and hold the parked tool through warmup."""
+        startup = getattr(self.policy, "startup", None)
+        if startup is not None:
+            # Explicit temporal intermediate producer owns fresh, guarded startup.
+            # Normal per-row readiness/admission checks run before any prediction.
+            return startup(self.observer, self.io)
         cfg = self.observer.binding.config
         points = np.asarray(cfg["inspection"]["waypoints"])
         end = float(points[-1, 0]) + cfg["warmup_s"]
@@ -283,6 +346,9 @@ class B1Runner:
             observation = self.observer.update(self.io.observe())
         if reason := self.io.safety_reason("inspect"):
             return observation, reason
+        if isinstance(self.policy.binding, PilotBinding):
+            require_features(observation, self.policy.binding)
+            return observation, ""
         return observation, "" if observation.valid else observation.reason
 
     def run(self, *, max_ticks=None, seed=0):
@@ -299,10 +365,15 @@ class B1Runner:
             if reason:
                 return self.stop(reason, steps)
             for _ in range(budget):
-                if reason := self.io.safety_reason(None):
+                monitor_stage = "inspect" if self.pilot_inference_only else None
+                if reason := self.io.safety_reason(monitor_stage):
                     return self.stop(reason, steps)
-                if not observation.valid:
+                if isinstance(self.policy.binding, PilotBinding):
+                    require_features(observation, self.policy.binding)
+                elif not observation.valid:
                     return self.stop(observation.reason, steps)
+                if validate := getattr(self.policy, "validate_observation", None):
+                    validate(observation)
                 row = None
                 if self.policy.action_space == A4_OBJ_CENTRIC_CHUNK:
                     if self.adapter.motion is None:
@@ -312,16 +383,38 @@ class B1Runner:
                     if not self.pending:
                         self.pending.extend(self.source(observation))
                     row = self.pending.popleft()
+                if self.pilot_inference_only:
+                    self.adapter.interpret(row, estimate=observation.estimate)
+                    return self.stop("unqualified_pilot_inference_only", steps)
+                tool = self.io.tool_pose()
+                admission = None
+                if self.adapter.profile == OPERATIONAL_V1 and self.adapter.motion is None:
+                    if self.admission_source is None:
+                        return self.stop("missing_action_admission_source", steps)
+                    admission = self.admission_source(observation, tool, row, budget - steps)
+                    if admission is not None and admission.admitted is False:
+                        return self.stop(admission.reason or "action_not_admitted", steps)
                 command = self.adapter.command(
-                    observation, self.io.tool_pose(), action=row, remaining_ticks=budget - steps
+                    observation,
+                    tool,
+                    action=row,
+                    remaining_ticks=budget - steps,
+                    admission=admission,
                 )
                 self.io.execute(command)
                 steps += 1
                 observation = self.observer.update(self.io.observe())
                 if reason := self.io.safety_reason(command.stage):
                     return self.stop(reason, steps)
-                if not observation.valid:
+                if isinstance(self.policy.binding, PilotBinding):
+                    require_features(observation, self.policy.binding)
+                elif not observation.valid:
                     return self.stop(observation.reason, steps)
+                # Evaluation may end a completed task AFTER actual dispatch,
+                # observation and safety checks. It supplies no action or policy
+                # feature and is distinct from a model-predicted end token.
+                if self.completion_source is not None and self.completion_source():
+                    return self.stop("evaluated_task_complete", steps)
                 if isinstance(self.policy, MatchedReplay) and steps == self.policy.control_ticks:
                     return self.stop("replay_complete", steps)
                 if self.adapter.done:

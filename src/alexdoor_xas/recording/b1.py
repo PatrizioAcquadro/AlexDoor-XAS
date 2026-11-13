@@ -10,7 +10,7 @@ from alexdoor_xas.assets.purdue import ARM_JOINTS
 from alexdoor_xas.perception.contracts import RobotFeedback
 
 SCHEMA = "b1.rgbd.v1"
-PHASES = ("approach", "contact", "push", "hold", "release", "inspect")
+PHASES = ("approach", "contact", "push", "hold", "release", "inspect", "stabilize")
 OBS_KEYS = (
     "time_s",
     "frame",
@@ -25,10 +25,25 @@ OBS_KEYS = (
 
 
 def robot_feedback_at(h5, row):
-    """Legacy RGB-D replay has no torque channel, including when commands contain efforts."""
+    """Read measured feedback; legacy absence stays absent even with effort commands."""
     if h5.attrs.get("schema") != SCHEMA:
         raise ValueError("Unsupported robot-feedback recording schema")
-    return RobotFeedback.unavailable(float(h5["observations/time_s"][row]), ARM_JOINTS)
+    if "robot_feedback" not in h5:
+        return RobotFeedback.unavailable(float(h5["observations/time_s"][row]), ARM_JOINTS)
+    group = h5["robot_feedback"]
+    value = {key: dataset[row] for key, dataset in group.items()}
+    for key in ("source", "semantics", "reason"):
+        value[key] = value[key].decode()
+    return RobotFeedback(
+        float(value["timestamp_s"]),
+        float(value["available_s"]),
+        tuple(json.loads(group.attrs["joint_names"])),
+        value["torque_nm"] if value["present"] else None,
+        value["source"],
+        value["semantics"],
+        bool(value["healthy"]),
+        value["reason"],
+    )
 
 
 class B1Writer:
@@ -42,31 +57,76 @@ class B1Writer:
         )
         for name in ("observations", "commands", "annotations"):
             self.file.create_group(name)
+        self._columns, self._pending, self._last = {}, {}, {}
+        self._write_failed = False
+        self._interval = tuple(calibration["depth_interval_m"])
         self.last_time = None
         self.last_frame = None
         self.count = 0
 
     def _append(self, group, values):
+        if self._write_failed:
+            raise RuntimeError("b1_write_failed")
         for name, value in values.items():
             arr = np.asarray(value)
-            if arr.dtype.kind in "OUS":
-                raise ValueError("Step arrays must be numeric")
             key = f"{group}/{name}"
-            if key not in self.file:
-                # One image per chunk keeps memory bounded and supports random reads.
-                self.file.create_dataset(
-                    key,
-                    shape=(0, *arr.shape),
-                    maxshape=(None, *arr.shape),
-                    dtype=arr.dtype,
-                    chunks=(1, *arr.shape),
-                    compression="lzf",
-                )
-            dataset = self.file[key]
-            dataset.resize(len(dataset) + 1, axis=0)
-            dataset[-1] = arr
+            text = group == "robot_feedback" and name in ("source", "semantics", "reason")
+            if arr.dtype.kind in "OUS" and not text:
+                raise ValueError("Step arrays must be numeric")
+            if key in self._columns and self._columns[key].shape[1:] != arr.shape:
+                raise ValueError("Changed B1 column shape")
+        try:
+            for name, value in values.items():
+                arr = np.asarray(value)
+                key = f"{group}/{name}"
+                image = group == "observations" and name in ("rgb", "depth_m", "valid_depth")
+                text = group == "robot_feedback" and name in ("source", "semantics", "reason")
+                if key not in self._columns:
+                    self._columns[key] = self.file.create_dataset(
+                        key,
+                        shape=(0, *arr.shape),
+                        maxshape=(None, *arr.shape),
+                        dtype=h5py.string_dtype() if text else arr.dtype,
+                        chunks=(1 if image else 128, *arr.shape),
+                        compression="lzf",
+                    )
+                    if not image:
+                        self._pending[key] = []
+                column = self._columns[key]
+                if image:
+                    column.resize(len(column) + 1, axis=0)
+                    column[-1] = arr
+                else:
+                    self._pending[key].append(str(value) if text else arr.copy())
+                    if len(self._pending[key]) == 128:
+                        self._flush_column(key)
+                if key in ("physics_feedback/time_s", "robot_state/time_s"):
+                    self._last[key] = arr.copy()
+        except BaseException:
+            self._write_failed = True
+            raise
 
-    def observe(self, observation, annotation):
+    def _flush_column(self, key):
+        rows = self._pending[key]
+        if rows:
+            column = self._columns[key]
+            start = len(column)
+            column.resize(start + len(rows), axis=0)
+            column[start:] = rows if column.dtype.kind == "O" else np.stack(rows)
+            rows.clear()
+
+    def flush(self):
+        if self._write_failed:
+            raise RuntimeError("b1_write_failed")
+        try:
+            for key in self._pending:
+                self._flush_column(key)
+            self.file.flush()
+        except BaseException:
+            self._write_failed = True
+            raise
+
+    def observe(self, observation, annotation, *, feedback=None):
         if set(observation) != set(OBS_KEYS):
             raise ValueError("B1 observation keys differ from the observed-only contract")
         observation = dict(observation)
@@ -90,6 +150,33 @@ class B1Writer:
             value = np.asarray(observation[key])
             if value.shape != (9,) or not np.isfinite(value).all():
                 raise ValueError("Expected nine finite observed joints")
+        feedback = feedback or RobotFeedback.unavailable(t, ARM_JOINTS)
+        if (
+            feedback.joint_names != ARM_JOINTS
+            or not 0 <= feedback.timestamp_s <= feedback.available_s <= t
+            or feedback.units != "N m"
+            or feedback.sign_convention != "positive_joint_coordinate"
+        ):
+            raise ValueError("Invalid recorded feedback support/semantics")
+        torque = feedback.torque_nm
+        if torque is not None and (np.shape(torque) != (7,) or not np.isfinite(torque).all()):
+            raise ValueError("Invalid measured torque")
+        group = self.file.require_group("robot_feedback")
+        group.attrs["joint_names"] = json.dumps(feedback.joint_names)
+        self._append(
+            "robot_feedback",
+            dict(
+                timestamp_s=feedback.timestamp_s,
+                available_s=feedback.available_s,
+                torque_nm=np.zeros(7) if torque is None else torque,
+                present=torque is not None,
+                healthy=feedback.healthy,
+            ),
+        )
+        self._append(
+            "robot_feedback",
+            {key: getattr(feedback, key) for key in ("source", "semantics", "reason")},
+        )
         self._append("observations", observation)
         self._append("annotations", annotation)
         self.last_time, self.last_frame = t, frame
@@ -97,25 +184,98 @@ class B1Writer:
 
     @property
     def calibration_interval(self):
-        return json.loads(self.file["metadata"].attrs["calibration"])["depth_interval_m"]
+        return self._interval
 
-    def transition(self, command, observation, annotation):
+    def transition(self, command, observation, annotation, *, feedback=None):
         if self.count == 0 or not np.isclose(command["time_s"], self.last_time, atol=1e-9, rtol=0):
             raise ValueError("Command must follow its initial observation")
-        self.observe(observation, annotation)
+        self.observe(observation, annotation, feedback=feedback)
         self._append("commands", command)
         if self.count % 60 == 0:
-            self.file.flush()
+            self.flush()
+
+    def physics_feedback(self, samples):
+        """Retain independent 120 Hz robot telemetry, never policy features/labels."""
+        for sample in samples:
+            feedback = sample.feedback
+            group = self.file.require_group("physics_feedback")
+            if (
+                feedback.torque_nm is None
+                or feedback.available_s > self.last_time
+                or "physics_feedback/time_s" in self._last
+                and feedback.timestamp_s <= self._last["physics_feedback/time_s"]
+            ):
+                raise ValueError("Invalid physics-feedback support")
+            group.attrs.update(
+                source=feedback.source,
+                semantics=feedback.semantics,
+                joint_names=json.dumps(feedback.joint_names),
+                units=feedback.units,
+                sign_convention=feedback.sign_convention,
+            )
+            self._append(
+                "physics_feedback",
+                dict(
+                    time_s=feedback.timestamp_s,
+                    available_s=feedback.available_s,
+                    torque_nm=feedback.torque_nm,
+                    expected_torque_nm=sample.expected_torque_nm,
+                    jacobian_world=sample.jacobian_world,
+                    joint_position=sample.q,
+                    joint_velocity=sample.dq,
+                    joint_acceleration=sample.ddq,
+                ),
+            )
+
+    def robot_state(self, time_s, *, joint_names, q, dq, tool_position, tool_rotation):
+        """Synchronized full robot telemetry for reuse, outside policy observations."""
+        if self.last_time is None or time_s != self.last_time:
+            raise ValueError("Robot state must match its observation timestamp")
+        values = dict(
+            time_s=time_s,
+            joint_position=q,
+            joint_velocity=dq,
+            tool_position=tool_position,
+            tool_rotation=tool_rotation,
+        )
+        if (
+            np.shape(q) != (len(joint_names),)
+            or np.shape(dq) != np.shape(q)
+            or np.shape(tool_position) != (3,)
+            or np.shape(tool_rotation) != (3, 3)
+            or any(not np.isfinite(value).all() for value in values.values())
+        ):
+            raise ValueError("Invalid recorded robot state")
+        group = self.file.require_group("robot_state")
+        names = json.dumps(list(joint_names))
+        if "joint_names" in group.attrs and group.attrs["joint_names"] != names:
+            raise ValueError("Recorded robot joint order changed")
+        if "robot_state/time_s" in self._last and time_s <= self._last["robot_state/time_s"]:
+            raise ValueError("Repeated robot-state timestamp")
+        group.attrs.update(
+            joint_names=names, tool_pose_source="robot_link_state_with_calibrated_tool_offset"
+        )
+        self._append("robot_state", values)
 
     def finish(self, outcome):
-        if self.count < 2 or len(self.file["commands/time_s"]) != self.count - 1:
+        if (
+            self.count < 2
+            or (len(self._columns["commands/time_s"]) + len(self._pending["commands/time_s"]))
+            != self.count - 1
+        ):
             raise ValueError("Incomplete causal episode")
         self.file["metadata"].attrs["outcome"] = json.dumps(outcome)
+        self.flush()
         self.file.attrs["complete"] = True
         self.file.flush()
 
     def close(self):
-        self.file.close()
+        if self.file:
+            try:
+                if not self._write_failed:
+                    self.flush()
+            finally:
+                self.file.close()
 
 
 def validate_episode(path, *, images=True):
@@ -158,8 +318,40 @@ def validate_episode(path, *, images=True):
                 if not np.any(rgb):
                     raise ValueError("Empty RGB recording")
         outcome = json.loads(h5["metadata"].attrs["outcome"])
-        if not outcome["passed"] or not outcome["released"] or outcome["hold_angle_deg"] is None:
+        if meta.get("purpose") == "b1_partial_policy_pilot":
+            if outcome.get("passed") is not True or not outcome.get("termination"):
+                raise ValueError("Pilot requires explicit physical validity and termination")
+        elif not outcome["passed"] or not outcome["released"] or outcome["hold_angle_deg"] is None:
             raise ValueError("Expert episode failed physical validity/hold/release")
+        if "physics_feedback" in h5:
+            physics = h5["physics_feedback"]
+            clock = physics["time_s"][:]
+            if (
+                not len(clock)
+                or not np.isfinite(clock).all()
+                or not (np.diff(clock) > 0).all()
+                or clock[0] < 0
+                or clock[-1] > times[-1]
+                or any(
+                    len(v) != len(clock) or not np.isfinite(v[:]).all() for v in physics.values()
+                )
+                or np.any(physics["available_s"][:] < clock)
+                or np.any(physics["available_s"][:] > times[-1])
+            ):
+                raise ValueError("Invalid physics-feedback stream")
+        if "robot_state" in h5:
+            state = h5["robot_state"]
+            if not np.array_equal(state["time_s"][:], times) or any(
+                len(v) != n or not np.isfinite(v[:]).all() for v in state.values()
+            ):
+                raise ValueError("Unsynchronized robot-state stream")
+        if "robot_feedback" in h5:
+            if any(len(v) != n for v in h5["robot_feedback"].values()):
+                raise ValueError("Feedback length differs from observations")
+            for row in range(n):
+                feedback = robot_feedback_at(h5, row)
+                if not 0 <= feedback.timestamp_s <= feedback.available_s <= times[row]:
+                    raise ValueError("Noncausal robot feedback")
         return dict(
             path=str(path),
             asset_id=meta["asset_id"],
@@ -174,7 +366,9 @@ def validate_episode(path, *, images=True):
 
 def episode_paths(root, corpus, *, complete_campaign=True):
     entries = {e["asset_id"]: e for e in corpus["doors"] if e["split"] != "test"}
-    paths = sorted(Path(root).glob("*/*/episode.hdf5"))
+    root = Path(root)
+    single = root.is_file()
+    paths = [root] if single else sorted(root.glob("*/*/episode.hdf5"))
     found = set()
     for path in paths:
         validate_episode(path, images=False)
@@ -186,6 +380,8 @@ def episode_paths(root, corpus, *, complete_campaign=True):
         ):
             raise ValueError(f"Episode does not belong to the frozen corpus: {path}")
         key = (meta["asset_id"], meta["condition"])
+        if single and key != (path.parent.parent.name, path.parent.name):
+            raise ValueError("Recording identity differs from its asset/condition directory")
         if key in found or meta["condition"] not in ("nominal", "light"):
             raise ValueError("Duplicate or unknown perception condition")
         found.add(key)

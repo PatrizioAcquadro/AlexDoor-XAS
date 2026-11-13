@@ -41,9 +41,8 @@ class PrototypeRecipe:
 def load_recipe(path, root):
     config = json.loads(Path(path).read_text())
     config["inspection"] = load_inspection(Path(root) / config.pop("inspection_path"))
-    config["point2pose_selected"] = json.loads(
-        (Path(root) / "configs/point2pose_selected.json").read_text()
-    )
+    selected = config.pop("point2pose_selected_path", "configs/point2pose_selected.json")
+    config["point2pose_selected"] = json.loads((Path(root) / selected).read_text())
     return PrototypeRecipe(json.dumps(config, sort_keys=True, allow_nan=False))
 
 

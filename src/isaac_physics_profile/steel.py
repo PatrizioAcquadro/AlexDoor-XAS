@@ -71,6 +71,7 @@ def config(
     rigid_gap=None,
     contact_view=None,
     import_worker=None,
+    measure_joint_load=False,
 ):
     import newton
     import warp as wp
@@ -149,9 +150,14 @@ def config(
         @classmethod
         def _initialize_contacts(cls):
             super()._initialize_contacts()
+            kinds = []
             if cls.measure_contact:
+                kinds.append(cls._solver.ObservableKind.CONTACT_F)
+            if measure_joint_load:
+                kinds.append(cls._solver.ObservableKind.BODY_PARENT_F)
+            if kinds:
                 cls.observables = cls._solver.observables(
-                    [cls._solver.ObservableKind.CONTACT_F],
+                    kinds,
                     contacts=cls._contacts,
                 )
             if contact_view is not None:

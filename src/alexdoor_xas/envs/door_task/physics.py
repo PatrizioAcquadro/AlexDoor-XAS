@@ -34,5 +34,6 @@ def configure_purdue_physics(cfg):
             constraint_capacity=512,
             contact_view=SteelPurdueViews,
             import_worker=worker,
+            measure_joint_load=cfg.observed_load_feedback,
         )
         yield True

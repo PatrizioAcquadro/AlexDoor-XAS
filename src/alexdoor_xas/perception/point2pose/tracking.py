@@ -8,6 +8,7 @@ from dataclasses import dataclass, replace
 import numpy as np
 
 from alexdoor_xas.action.frames import ObjectFrame
+from alexdoor_xas.perception.admission import rotational_travel
 from alexdoor_xas.perception.contracts import (
     MAX_DYNAMIC_AGE_S,
     FieldSupport,
@@ -16,12 +17,24 @@ from alexdoor_xas.perception.contracts import (
     LocalPatchState,
     validate_local_transition,
 )
-from alexdoor_xas.perception.geometry import contact_frame, project, similar_surface
+from alexdoor_xas.perception.geometry import (
+    contact_frame,
+    deproject,
+    project,
+    similar_surface,
+    surfaces,
+)
 from alexdoor_xas.perception.ipc import unpack_array
+from alexdoor_xas.perception.local_surface import (
+    SurfacePose,
+    constrained_surface_pose,
+    observed_basis,
+)
 from alexdoor_xas.perception.material_zone import (
     BoundSource,
     ContactBudget,
     contact_depth_supported,
+    normal_uncertainty_terms,
     object_frame,
     pose_matrix,
     query_slip,
@@ -34,7 +47,29 @@ from alexdoor_xas.perception.observed_articulation import (
     fit_motion_axis,
 )
 from alexdoor_xas.perception.point2pose.seed import candidate_references, verify_candidate
-from alexdoor_xas.perception.scan import object_members, registered_support, surface_support
+from alexdoor_xas.perception.scan import (
+    footprint_support,
+    object_members,
+    observed_material_surface,
+    registered_support,
+    static_material_witnesses,
+    supported_material_zone,
+    surface_support,
+)
+
+
+@dataclass(frozen=True)
+class LocalSurfaceCertificate:
+    """One measured constraint with its actual camera, support and reference."""
+
+    constraint: SurfacePose
+    camera_world: np.ndarray
+    support: FieldSupport
+    initial_world: np.ndarray
+    map_from_object: np.ndarray
+    object_from_zone: np.ndarray
+    sam3_id: int | None
+    selection: LocalContactSelection | None
 
 
 @dataclass
@@ -57,6 +92,12 @@ class PanelCandidate:
     sam3_id: int | None = None
     p2p_object_id: int | None = None
     material_recovery_unverified: bool = False
+    static_material_witnesses: tuple = ()
+    local_constraint: SurfacePose | None = None
+    local_constraint_reason: str = "local_surface_not_processed"
+    local_certificate: LocalSurfaceCertificate | None = None
+    local_surface: object | None = None
+    material_cover: object | None = None
 
 
 def metric_registration_bound(source, current, transform, depth_error_m):
@@ -105,6 +146,21 @@ class PanelTracking:
         relative_speed_bound=None,
     ):
         self.engine, self.config = engine, config
+        constraint = config.get("local_surface_constraint")
+        if constraint is not None and (
+            not isinstance(constraint, dict)
+            or set(constraint) != {"point_error_m", "normal_model_bound_rad"}
+            or not np.isfinite(list(constraint.values())).all()
+            or constraint["point_error_m"] <= 0
+            or constraint["normal_model_bound_rad"] < 0
+        ):
+            raise ValueError("invalid_local_surface_constraint_recipe")
+        if (
+            config.get("reference_selection")
+            in ("largest_conditioned_surface", "best_conditioned_surface")
+            and constraint is None
+        ):
+            raise ValueError("conditioned_reference_requires_local_surface_recipe")
         self.calibration, self.tool_fk, self.distal_faces = calibration, tool_fk, distal_faces
         self.calibration_bound = calibration_bound
         self.relative_speed_bound = relative_speed_bound
@@ -153,6 +209,13 @@ class PanelTracking:
                 )
                 if whole_leaf_mask is not None:
                     verify_candidate(observation.mask(), whole_leaf_mask, references)
+                if self.config.get("reference_selection") in (
+                    "largest_conditioned_surface",
+                    "best_conditioned_surface",
+                ):
+                    observed_basis(
+                        surface, self.config["local_surface_constraint"]["point_error_m"]
+                    )
             except ValueError as error:
                 self.diagnostics.setdefault("initialization_rejections", []).append(
                     dict(
@@ -245,6 +308,114 @@ class PanelTracking:
         self.last_submitted = int(sensor["frame"])
         return True
 
+    def adopt_candidates(self, candidates, sensor, scan_memory=None, *, available_s=None):
+        """Attach finite support at its actual publication time; preserve acquisition."""
+        available_s = float(sensor["time_s"]) if available_s is None else float(available_s)
+        if not np.isfinite(available_s) or available_s < float(sensor["time_s"]):
+            raise ValueError("invalid_material_adoption_clock")
+        self.candidates = candidates
+        for candidate in candidates:
+            candidate.static_material_witnesses = ()
+            if candidate.ownership == "observed_rigid_material":
+                candidate.ownership = "ambiguous_leaf_candidate"
+        if self.distal_faces is None:
+            return
+        for candidate in candidates:
+            if candidate.geometry.acquired_s != float(sensor["time_s"]):
+                raise ValueError("unsynchronized_material_zone_initialization")
+            zone = supported_material_zone(candidate.surface, self.distal_faces, self.config)
+            self.diagnostics.setdefault("initial_material_zone", {})[candidate.candidate_id] = (
+                "maximum_observed_two_finger_margin"
+                if zone is not None
+                else "no_supported_finite_material_zone"
+            )
+            if zone is None:
+                continue
+            if scan_memory is not None and self.calibration_bound is not None:
+                p, a = self.calibration_bound
+                if p is not None and a is not None:
+
+                    def witnesses(zone, candidate=candidate, p=p, a=a):
+                        radius = np.linalg.norm(zone.origin - sensor["camera_world"][:3, 3])
+                        error = candidate.geometry.position_bound_m + p + 2 * radius * np.sin(a / 2)
+                        return static_material_witnesses(
+                            scan_memory.observed_surfaces,
+                            zone,
+                            self.distal_faces,
+                            self.config,
+                            candidate.sam3_id,
+                            error,
+                        )
+
+                    # A broad current-only zone can hide an independently
+                    # supported material anchor elsewhere on the same surface.
+                    # Prefer such an observed anchor; never manufacture views
+                    # or use task geometry to select it. If none exists, keep
+                    # the original ambiguous diagnostic candidate.
+                    if len(witnesses(zone)) < 3:
+                        supported = supported_material_zone(
+                            candidate.surface,
+                            self.distal_faces,
+                            self.config,
+                            support_filter=lambda pose, witnesses=witnesses: (
+                                len(witnesses(pose)) >= 3
+                            ),
+                        )
+                        if supported is not None:
+                            zone = supported
+            candidate.initial_world = pose_matrix(zone)
+            candidate.map_from_object = (
+                np.linalg.inv(sensor["camera_world"]) @ candidate.initial_world
+            )
+            candidate.object_from_zone = np.eye(4)
+            candidate.static_reference = StaticReference.observed(
+                candidate.initial_world, candidate.geometry
+            )
+            if scan_memory is not None and self.calibration_bound is not None:
+                p, a = self.calibration_bound
+                if p is not None and a is not None:
+                    radius = np.linalg.norm(zone.origin - sensor["camera_world"][:3, 3])
+                    error = candidate.geometry.position_bound_m + p + 2 * radius * np.sin(a / 2)
+                    candidate.static_material_witnesses = static_material_witnesses(
+                        scan_memory.observed_surfaces,
+                        zone,
+                        self.distal_faces,
+                        self.config,
+                        candidate.sam3_id,
+                        error,
+                    )
+                    if any(
+                        w["available_s"] > available_s for w in candidate.static_material_witnesses
+                    ):
+                        raise ValueError("future_static_material_witness")
+            self.diagnostics.setdefault("static_material_witnesses", {})[candidate.candidate_id] = (
+                candidate.static_material_witnesses
+            )
+            if scan_memory is not None:
+                candidate.local_surface = observed_material_surface(
+                    candidate.surface, scan_memory.surfaces, candidate.sam3_id, self.config
+                )
+                if max(o.available_s for o in candidate.local_surface.observations) > available_s:
+                    raise ValueError("future_local_material_surface")
+
+    def attach_material_cover(self, views):
+        """Frozen observed inspection relief; no runtime pose/identity replacement."""
+        from alexdoor_xas.perception.material_zone import MaterialCover
+
+        if self.config.get("material_depth_cover") is None:
+            return
+        for candidate in self.candidates:
+            candidate.material_cover = MaterialCover.from_inspection(
+                candidate.surface,
+                views,
+                candidate.sam3_id,
+                self.config,
+                generation=self.generation,
+            )
+            self.diagnostics.setdefault("material_cover", {})[candidate.candidate_id] = (
+                candidate.material_cover.diagnostics
+            )
+
     def select_zone(self, patch_id, now, *, source):
         if source not in ("diagnostic", "policy") or patch_id not in [
             c.candidate_id for c in self.candidates
@@ -261,7 +432,7 @@ class PanelTracking:
         validate_local_transition(self.selection, selection)
         self.selection = selection
 
-    def consume(self, captured, result, ready):
+    def consume(self, captured, result, ready, *, clock=None):
         started = time.perf_counter()
         if len(result["objects"]) != len(self.candidates):
             raise ValueError("point2pose_candidate_identity_count_changed")
@@ -353,8 +524,20 @@ class PanelTracking:
             ] = consistent
             if consistent and (normal_travel > 2 * p or plane_angle > 2 * a):
                 candidate.ownership = "observed_moving_rigid_candidate"
+            elif (
+                candidate.ownership != "observed_moving_rigid_candidate"
+                and consistent
+                and self.selection is not None
+                and self.selection.patch_id == candidate.candidate_id
+                and len(candidate.static_material_witnesses) >= 3
+            ):
+                candidate.ownership = "observed_rigid_material"
+            elif candidate.ownership == "observed_rigid_material" and not consistent:
+                candidate.ownership = "ambiguous_leaf_candidate"
         result["adapter_latency_s"] = time.perf_counter() - started
-        ready += result["adapter_latency_s"]
+        ready = (
+            max(ready, float(clock())) if clock is not None else ready + result["adapter_latency_s"]
+        )
         for candidate in self.candidates:
             if candidate.state == "tracked":
                 candidate.support = replace(candidate.support, available_s=ready)
@@ -376,6 +559,311 @@ class PanelTracking:
             captured_s=result["capture_s"],
             available_s=ready,
             candidates=len(self.candidates),
+        )
+
+    def constrain_local(self, captured, result):
+        """Constrain only A1/A2 local pose; native/A3/A4 diagnostics stay unchanged."""
+        config = self.config.get("local_surface_constraint")
+        if config is None:
+            return
+        self.diagnostics["local_surface_query"] = dict(
+            expanded="local_surface_expansion_reason" in result,
+            reason=result.get("local_surface_expansion_reason"),
+            surfaces=len(result.get("local_surfaces") or []),
+        )
+        for candidate, raw in zip(self.candidates, result["objects"], strict=True):
+            previous = getattr(candidate, "local_certificate", None)
+            candidate.local_constraint = candidate.local_certificate = None
+            normal_points = None
+            try:
+                if candidate.state != "tracked" or candidate.material_recovery_unverified:
+                    raise ValueError("unavailable_native_material_identity")
+                normal_points = self.reobserved_material_points(candidate, captured)
+                choices = [
+                    s
+                    for s in (result.get("local_surfaces") or [])
+                    if s.observations[0].semantic_id == candidate.sam3_id and abs(s.normal[2]) < 0.3
+                ]
+                if not choices:
+                    raise ValueError("missing_or_ambiguous_current_surface")
+                obj = {
+                    k: unpack_array(v) if isinstance(v, dict) and "data" in v else v
+                    for k, v in raw.items()
+                }
+                measured = obj["measured_correspondences"] & obj["inliers"]
+                initial_camera = candidate.initial_world @ np.linalg.inv(candidate.map_from_object)
+                reference_points = (
+                    candidate.surface.points - initial_camera[:3, 3]
+                ) @ initial_camera[:3, :3]
+                consistent, failures = [], []
+                # Every candidate must independently retain the original material.
+                # Rank complete pose uncertainty over the entire observed root,
+                # rather than optimizing only the current fingertip normal. The
+                # original normal and full-pose gates still consume their own
+                # unchanged bounds at each actual action and response.
+                for current in sorted(
+                    choices, key=lambda s: int(s.observations[0].mask().sum()), reverse=True
+                ):
+                    try:
+                        observation = current.observations[0]
+                        if observation.frame != int(
+                            captured["frame"]
+                        ) or observation.acquired_s != float(captured["time_s"]):
+                            raise ValueError("unsynchronized_local_surface")
+                        constraint = constrained_surface_pose(
+                            candidate.surface,
+                            current,
+                            candidate.initial_world @ np.linalg.inv(candidate.map_from_object),
+                            captured["camera_world"],
+                            obj["source_points"][measured],
+                            obj["current_points"][measured],
+                            config["point_error_m"],
+                            current_normal_points=normal_points,
+                            map_anchor=(candidate.map_from_object @ candidate.object_from_zone)[
+                                :3, 3
+                            ],
+                        )
+                        local = self._constrained_candidate(candidate, constraint)
+                        # Identity belongs to the original measured seed.
+                        # A coverage atlas contains other partial views whose
+                        # occlusion today cannot invalidate that seed's match.
+                        if not self.root_consistent(
+                            replace(local, surface=candidate.surface), captured
+                        ):
+                            raise ValueError("local_surface_material_inconsistent")
+                        lever = np.linalg.norm(
+                            reference_points - constraint.registration_origin_map, axis=1
+                        ).max()
+                        error = constraint.position_bound_m + rotational_travel(
+                            lever, constraint.rotation_bound_rad
+                        )
+                        consistent.append((error, constraint))
+                    except (ValueError, KeyError) as error:
+                        failures.append(str(error))
+                if not consistent:
+                    raise ValueError(failures[0])
+                errors = [error for error, _ in consistent]
+                if errors.count(min(errors)) != 1:
+                    raise ValueError("missing_or_ambiguous_current_surface")
+                candidate.local_constraint = consistent[int(np.argmin(errors))][1]
+                self.retain_local_certificate(candidate, previous, captured)
+                candidate.local_constraint_reason = ""
+            except (ValueError, KeyError) as error:
+                if (
+                    candidate.state == "tracked"
+                    and not candidate.material_recovery_unverified
+                    and result.get("local_surfaces_dominant", False)
+                    and result.get("cue") is not None
+                ):
+                    # Relief may hide the selected material from the first-plane
+                    # query. Reuse every current measured component, retaining
+                    # the same conditioning, identity and ambiguity checks.
+                    self.diagnostics["local_surface_query_expansions"] = (
+                        self.diagnostics.get("local_surface_query_expansions", 0) + 1
+                    )
+                    result["local_surfaces"] = surfaces(result["cue"], captured, self.config)
+                    result["local_surfaces_dominant"] = False
+                    result["local_surface_expansion_reason"] = str(error)
+                    return self.constrain_local(captured, result)
+                candidate.local_constraint_reason = str(error)
+            self.diagnostics.setdefault("local_surface_constraint", {})[candidate.candidate_id] = {
+                "available": candidate.local_constraint is not None,
+                "reason": candidate.local_constraint_reason,
+                "native_pose_unchanged": True,
+                "reobserved_normal_points": 0 if normal_points is None else len(normal_points),
+                "normal_rotation_bound_rad": None
+                if candidate.local_constraint is None
+                else candidate.local_constraint.normal_rotation_bound_rad,
+            }
+
+    @staticmethod
+    def _constrained_candidate(candidate, constraint):
+        certificate = getattr(candidate, "local_certificate", None)
+        paired = certificate is not None and certificate.constraint is constraint
+        camera = certificate.camera_world if paired else candidate.camera_world
+        support = certificate.support if paired else candidate.support
+        return replace(
+            candidate,
+            camera_world=camera,
+            support=support,
+            pose=transported_zone(
+                camera,
+                constraint.camera_from_map,
+                candidate.map_from_object,
+                candidate.object_from_zone,
+            ),
+            registration_origin_map=constraint.registration_origin_map,
+            registration_position_m=constraint.position_bound_m,
+            registration_rotation_rad=constraint.rotation_bound_rad,
+            surface=candidate.local_surface or candidate.surface,
+        )
+
+    def retain_local_certificate(self, candidate, previous, captured):
+        """Compare whole-root error, never an action margin or fingertip score.
+
+        A valid fresh constraint is mandatory. An older one can only replace it
+        with its own camera and support, current depth/identity confirmation and
+        the original temporal envelope; a measurement never renews an old clock.
+        """
+        support = candidate.support
+        if support is None or candidate.camera_world is None:
+            return
+        current = LocalSurfaceCertificate(
+            candidate.local_constraint,
+            candidate.camera_world.copy(),
+            support,
+            candidate.initial_world.copy(),
+            candidate.map_from_object.copy(),
+            candidate.object_from_zone.copy(),
+            candidate.sam3_id,
+            self.selection,
+        )
+        candidate.local_certificate = current
+        retained, reason = False, "no_previous_certificate"
+        if previous is not None:
+            reason = "current_certificate_preferred"
+            try:
+                if (
+                    previous.support.generation != self.generation
+                    or previous.sam3_id != candidate.sam3_id
+                    or previous.selection != self.selection
+                    or any(
+                        not np.array_equal(getattr(previous, name), getattr(candidate, name))
+                        for name in ("initial_world", "map_from_object", "object_from_zone")
+                    )
+                ):
+                    raise ValueError("local_certificate_reference_changed")
+                now = support.available_s
+                if (
+                    support.acquired_s != float(captured["time_s"])
+                    or support.supported_s != float(captured["time_s"])
+                    or not previous.support.supported_s <= support.supported_s <= now
+                    or not previous.support.available_s <= now
+                    or not 0 <= now - previous.support.supported_s <= MAX_DYNAMIC_AGE_S + 1e-9
+                ):
+                    raise ValueError("local_certificate_support_unavailable")
+                older = replace(
+                    candidate,
+                    local_constraint=previous.constraint,
+                    local_certificate=previous,
+                )
+                local = self._constrained_candidate(older, previous.constraint)
+                if not self.root_consistent(replace(local, surface=candidate.surface), captured):
+                    raise ValueError("local_certificate_current_depth_inconsistent")
+                if self.local_certificate_error(older, now) < self.local_certificate_error(
+                    candidate, now
+                ):
+                    candidate.local_constraint = previous.constraint
+                    candidate.local_certificate = previous
+                    retained, reason = True, "bounded_previous_certificate"
+            except ValueError as error:
+                reason = str(error)
+        self.diagnostics.setdefault("local_certificate", {})[candidate.candidate_id] = dict(
+            retained_previous=retained,
+            reason=reason,
+            acquired_s=candidate.local_certificate.support.acquired_s,
+            available_s=candidate.local_certificate.support.available_s,
+            supported_s=candidate.local_certificate.support.supported_s,
+        )
+
+    def local_certificate_error(self, candidate, now):
+        """Complete pose and normal error on the original measured root."""
+        constraint = candidate.local_constraint
+        local = self._constrained_candidate(candidate, constraint)
+        motion = local.pose @ np.linalg.inv(local.initial_world)
+        points = candidate.surface.points @ motion[:3, :3].T + motion[:3, 3]
+        registration = (
+            local.pose
+            @ np.linalg.inv(local.map_from_object @ local.object_from_zone)
+            @ np.r_[constraint.registration_origin_map, 1.0]
+        )[:3]
+        frame = self.frame_budget(local, now)
+        if frame.displacement_m is None or frame.rotation_rad is None:
+            raise ValueError("local_certificate_error_unavailable")
+        error = 0.0
+        for source in frame.sources:
+            origin = local.camera_world[:3, 3] if source.name == "calibration_fk" else registration
+            lever = np.linalg.norm(points - origin, axis=1).max()
+            error += source.position_m + rotational_travel(lever, source.rotation_rad)
+        geometry_lever = max(
+            np.linalg.norm(points - local.pose[:3, 3], axis=1).max(),
+            np.linalg.norm(points - registration, axis=1).max(),
+        )
+        error += local.geometry.position_bound_m + rotational_travel(
+            geometry_lever, local.geometry.rotation_bound_rad
+        )
+        sources, _ = self.local_normal_bounds(local, constraint, now)
+        if not sources:
+            raise ValueError("local_certificate_normal_unavailable")
+        return error + sum(normal_uncertainty_terms(sources, points).values())
+
+    def local_normal_bounds(self, candidate, constraint, now):
+        """Original measured, model, calibration and actual-age primitives."""
+        if constraint is None or candidate.support is None or candidate.camera_world is None:
+            return (), None
+        age = now - candidate.support.supported_s
+        if not 0 <= age <= MAX_DYNAMIC_AGE_S + 1e-9:
+            return (), None
+        p, a = self.calibration_bound or (None, None)
+        v, w = self.relative_speed_bound or (None, None)
+        linear = 0.0 if age == 0 else None if v is None else age * v
+        angular = 0.0 if age == 0 else None if w is None else age * w
+        angle = None
+        if (
+            a is not None
+            and angular is not None
+            and np.isfinite([a, angular]).all()
+            and min(a, angular) >= 0
+        ):
+            angle = (
+                constraint.normal_rotation_bound_rad
+                + self.config["local_surface_constraint"]["normal_model_bound_rad"]
+                + a
+                + angular
+            )
+        if any(value is None for value in (p, a, linear, angular)) or (
+            not np.isfinite([p, a, linear, angular]).all() or min(p, a, linear, angular) < 0
+        ):
+            return (), angle
+        return (
+            (
+                "measured_plane",
+                constraint.normal_point_bound_m,
+                constraint.normal_rotation_bound_rad,
+                tuple(constraint.normal_origin_world.tolist()),
+            ),
+            (
+                "normal_model",
+                0.0,
+                self.config["local_surface_constraint"]["normal_model_bound_rad"],
+                tuple(constraint.normal_origin_world.tolist()),
+            ),
+            ("calibration_fk", p, a, tuple(candidate.camera_world[:3, 3].tolist())),
+            ("temporal_growth", linear, angular, tuple(candidate.pose[:3, 3])),
+        ), angle
+
+    def reobserved_material_points(self, candidate, sensor):
+        """Fresh depth on the tracked seed; no other semantic component or old XYZ."""
+        motion = candidate.pose @ np.linalg.inv(candidate.initial_world)
+        predicted = candidate.surface.points @ motion[:3, :3].T + motion[:3, 3]
+        uv, z = project(predicted, sensor["intrinsics"], sensor["camera_world"])
+        good = np.isfinite(uv).all(1) & np.isfinite(z) & (z > 0)
+        uv, z = np.rint(uv[good]).astype(int), z[good]
+        h, w = sensor["rgb"].shape[:2]
+        good = (uv >= 0).all(1) & (uv[:, 0] < w) & (uv[:, 1] < h)
+        uv, z = uv[good], z[good]
+        measured = sensor["depth_m"][uv[:, 1], uv[:, 0], 0]
+        good = (
+            sensor["valid_depth"][uv[:, 1], uv[:, 0], 0]
+            & np.isfinite(measured)
+            & (abs(measured - z) <= 2 * self.config["plane_tolerance_m"])
+        )
+        pixels = np.unique(uv[good], axis=0)
+        return deproject(
+            sensor["depth_m"][pixels[:, 1], pixels[:, 0], 0],
+            pixels,
+            sensor["intrinsics"],
+            sensor["camera_world"],
         )
 
     def root_consistent(self, candidate, sensor):
@@ -400,18 +888,47 @@ class PanelTracking:
 
     def budget(self, candidate, now, distal_faces=None, tool_world=None):
         faces = self.distal_faces if distal_faces is None else distal_faces
-        # Each radius is measured from its actual rotation origin to the fingers.
-        finger_r = None if faces is None else max(np.linalg.norm(f, axis=1).max() for f in faces)
+        radius = None if faces is None else max(np.linalg.norm(f, axis=1).max() for f in faces)
+        return self._point_budget(candidate, now, radius, tool_world)
+
+    def frame_budget(self, candidate, now):
+        """Dynamic frame-origin error; local geometry is published separately.
+
+        Do not publish a complete fingertip displacement as frame translation
+        and then charge the same geometry/rotation again in action admission.
+        """
+        complete = self._point_budget(candidate, now, 0.0, None)
+        return ContactBudget(tuple(s for s in complete.sources if s.name != "local_geometry"))
+
+    def point_budget_query(self, candidate, now):
+        """Discard this per-admission query before candidate state changes."""
+        inverses = {}
+
+        def inverse(matrix):
+            key = id(matrix)
+            if key not in inverses:
+                inverses[key] = np.linalg.inv(matrix)
+            return inverses[key]
+
+        def query(radius, tool_world):
+            # Preserve the original finite-face radius arithmetic exactly.
+            finger_r = np.linalg.norm(np.array([[radius, 0.0, 0.0]]), axis=1).max()
+            return self._point_budget(candidate, now, finger_r, tool_world, _inverse=inverse)
+
+        return query
+
+    def _point_budget(self, candidate, now, finger_r, tool_world, *, _inverse=np.linalg.inv):
+        # Each angular lever starts at its actual registration/calibration origin.
         registration_origin = candidate.registration_origin_map
         origin_o = (
             None
             if registration_origin is None
-            else (np.linalg.inv(candidate.map_from_object) @ np.r_[registration_origin, 1.0])[:3]
+            else (_inverse(candidate.map_from_object) @ np.r_[registration_origin, 1.0])[:3]
         )
         tool_o = candidate.object_from_zone[:3, 3]
         local_r = finger_r
         if tool_world is not None and candidate.pose is not None:
-            relative = np.linalg.inv(candidate.pose) @ pose_matrix(tool_world)
+            relative = _inverse(candidate.pose) @ pose_matrix(tool_world)
             tool_o = (candidate.object_from_zone @ relative)[:3, 3]
             local_r = None if finger_r is None else np.linalg.norm(relative[:3, 3]) + finger_r
         object_r = (
@@ -430,9 +947,7 @@ class PanelTracking:
         calibration = self.calibration_bound or (None, None)
         if tool_world is not None and candidate.camera_world is not None and finger_r is not None:
             camera_r = (
-                np.linalg.norm(
-                    (np.linalg.inv(candidate.camera_world) @ pose_matrix(tool_world))[:3, 3]
-                )
+                np.linalg.norm((_inverse(candidate.camera_world) @ pose_matrix(tool_world))[:3, 3])
                 + finger_r
             )
         age = None if candidate.support is None else max(0.0, now - candidate.support.supported_s)
@@ -465,14 +980,25 @@ class PanelTracking:
     def local_state(self, now, sensor=None):
         patches = []
         for candidate in self.candidates:
+            constraint_reason = ""
+            constraint = None
+            if self.config.get("local_surface_constraint") is not None:
+                constraint = candidate.local_constraint
+                if constraint is None:
+                    constraint_reason = candidate.local_constraint_reason
+                else:
+                    candidate = self._constrained_candidate(candidate, constraint)
             fresh = (
-                candidate.state == "tracked"
+                not constraint_reason
+                and candidate.state == "tracked"
                 and candidate.support is not None
                 and candidate.support.available_s <= now
                 and 0 <= now - candidate.support.supported_s <= MAX_DYNAMIC_AGE_S + 1e-9
             )
             reason = (
-                "material_recovery_unverified"
+                constraint_reason
+                if constraint_reason
+                else "material_recovery_unverified"
                 if candidate.material_recovery_unverified
                 else "ambiguous_leaf_ownership"
                 if fresh and candidate.ownership == "ambiguous_leaf_candidate"
@@ -498,7 +1024,10 @@ class PanelTracking:
                 and self.calibration is not None
             ):
                 tool = self.tool_fk(sensor["joint_position"], self.calibration)
-            budget = self.budget(candidate, now, tool_world=tool)
+            budget = self.budget(
+                candidate, now, tool_world=object_frame(candidate.pose) if fresh else None
+            )
+            frame_budget = self.frame_budget(candidate, now)
             pose_support = (
                 None
                 if support is None
@@ -507,35 +1036,97 @@ class PanelTracking:
                     support.available_s,
                     support.supported_s,
                     self.generation,
-                    budget.displacement_m,
-                    budget.rotation_rad,
+                    frame_budget.displacement_m,
+                    frame_budget.rotation_rad,
                 )
             )
             clearance = (None, None)
-            if (
-                fresh
-                and sensor is not None
-                and self.tool_fk is not None
-                and self.calibration is not None
-                and self.distal_faces is not None
-                and not reason
-            ):
-                slip = query_slip(
+            if fresh and self.distal_faces is not None and not reason:
+                # This field describes the selected material zone, including
+                # while the robot is parked away from it. The action producer
+                # separately checks the actual tool footprints and full sweep.
+                selected = query_slip(
                     candidate.surface,
                     candidate.initial_world,
                     candidate.pose,
-                    tool,
+                    object_frame(candidate.pose),
                     self.distal_faces,
                     budget,
                     self.config,
                 )
-                clearance = slip.finger_clearance_m
-                self.diagnostics["tool_relative_zone"] = vars(slip)
-                if not contact_depth_supported(
-                    sensor, candidate.pose, tool, self.distal_faces, budget.displacement_m
-                ):
-                    clearance = (None, None)
-                    reason = "missing_current_contact_geometry"
+                # Publish measured material geometry separately from dynamic
+                # error. Admission charges the complete pose/calibration bounds
+                # against the actual action's footprint and sweep exactly once.
+                measured = footprint_support(
+                    candidate.surface,
+                    object_frame(candidate.initial_world),
+                    self.distal_faces,
+                    self.config,
+                )
+                clearance = measured.finger_clearance_m
+                self.diagnostics["selected_material_zone"] = vars(selected)
+                if tool is not None:
+                    tool_budget = self.budget(candidate, now, tool_world=tool)
+                    slip = query_slip(
+                        candidate.surface,
+                        candidate.initial_world,
+                        candidate.pose,
+                        tool,
+                        self.distal_faces,
+                        tool_budget,
+                        self.config,
+                    )
+                    self.diagnostics["tool_relative_zone"] = vars(slip)
+                    # Transported material geometry and direct pixel support are
+                    # different statements; neither measures a hidden interface.
+                    visible = contact_depth_supported(
+                        sensor, candidate.pose, tool, self.distal_faces, tool_budget.displacement_m
+                    )
+                    self.diagnostics.setdefault("contact_visibility", {})[
+                        candidate.candidate_id
+                    ] = dict(
+                        direct_surface_depth_supported=visible,
+                        contact_directly_measured=False,
+                        reason="current_depth_compatible"
+                        if visible
+                        else "interface_unobserved_or_occluded",
+                        contact_admitted=False,
+                    )
+            normal_sources, normal_rotation_bound = (
+                self.local_normal_bounds(candidate, constraint, now) if fresh else ((), None)
+            )
+            normal_position_bound = (
+                sum(
+                    translation
+                    + rotational_travel(np.linalg.norm(candidate.pose[:3, 3] - origin), angle)
+                    for _, translation, angle, origin in normal_sources
+                )
+                if normal_sources
+                else None
+            )
+            pose_sources = ()
+            if (
+                fresh
+                and candidate.registration_origin_map is not None
+                and candidate.camera_world is not None
+            ):
+                registration_world = (
+                    candidate.pose
+                    @ np.linalg.inv(candidate.map_from_object @ candidate.object_from_zone)
+                    @ np.r_[candidate.registration_origin_map, 1.0]
+                )[:3]
+                pose_sources = tuple(
+                    (
+                        s.name,
+                        s.position_m,
+                        s.rotation_rad,
+                        s.lever_m,
+                        tuple(candidate.camera_world[:3, 3].tolist())
+                        if s.name == "calibration_fk"
+                        else tuple(registration_world.tolist()),
+                    )
+                    for s in frame_budget.sources
+                )
             patches.append(
                 LocalPatchState(
                     candidate.candidate_id,
@@ -552,8 +1143,16 @@ class PanelTracking:
                         if candidate.state == "tracking_lost"
                         else "stale_dynamic_support"
                     ),
-                    tracking_state=candidate.state if fresh else "unavailable",
+                    tracking_state="tracking" if fresh else "unavailable",
                     ownership=candidate.ownership,
+                    normal_rotation_bound_rad=normal_rotation_bound,
+                    normal_position_bound_m=normal_position_bound,
+                    normal_uncertainty_sources=normal_sources,
+                    pose_temporal_position_m=next(
+                        (s.position_m for s in frame_budget.sources if s.name == "temporal_growth"),
+                        None,
+                    ),
+                    pose_uncertainty_sources=pose_sources,
                     uncertainty_sources=tuple(
                         (s.name, s.position_m, s.rotation_rad, s.lever_m) for s in budget.sources
                     ),

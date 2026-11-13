@@ -13,7 +13,12 @@ from pathlib import Path
 
 import numpy as np
 
-from alexdoor_xas.perception.geometry import surfaces
+from alexdoor_xas.perception.geometry import (
+    integer_center_intrinsics,
+    pixel_center_offset,
+    surfaces,
+)
+from alexdoor_xas.perception.local_surface import observed_basis
 from alexdoor_xas.perception.point2pose.tracking import PanelTracking
 from alexdoor_xas.perception.scan import (
     ObservedSpace,
@@ -30,6 +35,38 @@ def selected_recipe(path=None):
         else Path(__file__).resolve().parents[3] / "configs/point2pose_selected.json"
     )
     return json.loads(path.read_text())
+
+
+def observed_reference_pixel(surfaces, *, point_error_m=None):
+    """Select a visible seed, never a material-identity or contact certificate.
+
+    Select the unique largest area, or the unique smallest complete measured
+    basis bound when a metric point error is supplied. Both require an exclusive
+    pixel; the padded distance transform stays inside measured support.
+    """
+    from scipy.ndimage import distance_transform_edt
+
+    masks = [surface.observations[0].mask() for surface in surfaces]
+    if len(masks) < 2:
+        return None
+    if any(mask.shape != masks[0].shape for mask in masks):
+        raise ValueError("inconsistent_reference_masks")
+    if point_error_m is None:
+        scores = np.array([-np.count_nonzero(mask) for mask in masks])
+    else:
+        scores = np.array([observed_basis(s, point_error_m)[1] for s in surfaces])
+    winners = np.flatnonzero(scores == scores.min())
+    if len(winners) != 1:
+        return None
+    winner = int(winners[0])
+    exclusive = masks[winner] & ~np.logical_or.reduce(
+        [mask for i, mask in enumerate(masks) if i != winner]
+    )
+    if not exclusive.any():
+        return None
+    distance = distance_transform_edt(np.pad(exclusive, 1))[1:-1, 1:-1]
+    v, u = np.unravel_index(np.argmax(distance), distance.shape)
+    return int(u), int(v)
 
 
 class SerialTrackingEngine:
@@ -73,12 +110,25 @@ class PerceptionSession:
         p2p_worker=None,
         historical_selection=False,
         generation=0,
+        inspection_samples_only=False,
     ):
         from alexdoor_xas.perception.point2pose.runtime import Point2PoseWorker
         from alexdoor_xas.perception.sam3.runtime import Sam3Worker
 
         self.config = recipe.config
+        if self.config.get("reference_selection") not in (
+            None,
+            "largest_visible_surface",
+            "largest_conditioned_surface",
+            "best_conditioned_surface",
+        ):
+            raise ValueError("unknown_observed_reference_selection")
         self.selected = selected or self.config.get("point2pose_selected") or selected_recipe()
+        controls = dict(self.selected["point2pose_controls"])
+        # Read frozen recipes containing disabled historical controls without forwarding them.
+        for key in ("refit_seed_rollback", "selected_registration_only"):
+            if controls.pop(key, False):
+                raise ValueError("retired_point2pose_variant")
         self.output = Path(output)
         self.output.mkdir(parents=True, exist_ok=True)
         self.log = (self.output / "sam3.log").open("a")
@@ -92,9 +142,8 @@ class PerceptionSession:
                     self.config["plane_tolerance_m"],
                     1,
                     self.output / "native",
-                    external_masks=True,
                     registration_diagnostics=registration_diagnostics,
-                    **self.selected["point2pose_controls"],
+                    **controls,
                 )
                 self.native.first_request = False
         except BaseException:
@@ -114,6 +163,10 @@ class PerceptionSession:
             self.inspection_end if initialize_after_s is None else initialize_after_s
         )
         self.next_geometry = self.config["inspection"]["sample_times_s"][0]
+        if type(inspection_samples_only) is not bool:
+            raise ValueError("invalid_inspection_geometry_schedule")
+        self.inspection_samples_only = inspection_samples_only
+        self.next_inspection_sample = 0
         self.identity = None
         self.historical_selection = historical_selection
         self.lock = threading.Lock()
@@ -198,7 +251,10 @@ class PerceptionSession:
             if self.identity is None:
                 if self.requested_identity is not None:
                     self.identity = self.requested_identity
-                elif len(ids) == 1:
+                elif len(ids) == 1 and (self.native is None or t >= self.initialize_after):
+                    # Automatic material selection belongs to the completed
+                    # inspection. A transient earlier mask is not a selected
+                    # identity; explicit requests still latch immediately.
                     self.identity = ids[0]
         present = self.identity is not None and self.identity in ids
         state = (
@@ -216,7 +272,19 @@ class PerceptionSession:
         scan_snapshot = None
         geometry_s = 0.0
         if not self.tracker.candidates:
-            if t >= self.next_geometry or t >= self.initialize_after:
+            geometry_due = t >= self.next_geometry or t >= self.initialize_after
+            inspection_times = self.config["inspection"]["sample_times_s"]
+            if self.inspection_samples_only and t < self.inspection_end - 1e-9:
+                geometry_due = geometry_due and (
+                    self.next_inspection_sample < len(inspection_times)
+                    and t >= inspection_times[self.next_inspection_sample] - 1e-9
+                )
+            if geometry_due:
+                while (
+                    self.next_inspection_sample < len(inspection_times)
+                    and inspection_times[self.next_inspection_sample] <= t + 1e-9
+                ):
+                    self.next_inspection_sample += 1
                 geometry_started = time.perf_counter()
                 candidates = surfaces(cue, sensor, self.config)
                 for index, surface in enumerate(candidates):
@@ -237,9 +305,19 @@ class PerceptionSession:
                     self.scan_memory.add(candidates, sensor, frame)
                     scan_snapshot = deepcopy(self.scan_memory)
                 self.next_geometry = t + self.config["semantic_period_s"]
-                if self.native is not None and present:
+                # Geometry can be inspected for an unambiguous current mask
+                # before its automatic identity is latched. A selected/requested
+                # identity that disappears may never use another mask instead.
+                reference_identity = (
+                    self.identity
+                    if present
+                    else ids[0]
+                    if self.identity is None and len(ids) == 1
+                    else None
+                )
+                if self.native is not None and reference_identity is not None:
                     selected_surfaces = [
-                        s for s in candidates if s.observations[0].semantic_id == self.identity
+                        s for s in candidates if s.observations[0].semantic_id == reference_identity
                     ]
                     with self.lock:
                         requested_surface = self.requested_surface
@@ -257,23 +335,23 @@ class PerceptionSession:
                         selected_surfaces = (
                             []
                             if reference is None
-                            or reference.observations[-1].semantic_id != self.identity
+                            or reference.observations[-1].semantic_id != reference_identity
                             else [
                                 s
                                 for s in selected_surfaces
                                 if registered_support(reference, s.observations[0])
                             ]
                         )
-                    mask = self.sam.all_masks[ids.index(self.identity)]
+                    mask = self.sam.all_masks[ids.index(reference_identity)]
                     options, _ = self.tracker.eligible_surfaces(selected_surfaces, sensor, mask)
                     geometric_choices = [
                         dict(
                             surface_id=s.surface_id,
-                            sam3_id=self.identity,
+                            sam3_id=reference_identity,
                             static_surface_ids=[
                                 old.surface_id
                                 for old in self.scan_memory.surfaces
-                                if old.observations[-1].semantic_id == self.identity
+                                if old.observations[-1].semantic_id == reference_identity
                                 and registered_support(old, s.observations[0])
                             ],
                             frame=frame,
@@ -285,6 +363,37 @@ class PerceptionSession:
                         )
                         for s in options
                     ]
+                    if (
+                        requested_surface is None
+                        and requested_pixel is None
+                        and t >= self.initialize_after
+                        and self.config.get("reference_selection")
+                        in (
+                            "largest_visible_surface",
+                            "largest_conditioned_surface",
+                            "best_conditioned_surface",
+                        )
+                    ):
+                        conditioned = (
+                            self.config["reference_selection"] == "best_conditioned_surface"
+                        )
+                        requested_pixel = observed_reference_pixel(
+                            options,
+                            point_error_m=self.config["local_surface_constraint"]["point_error_m"]
+                            if conditioned
+                            else None,
+                        )
+                        if requested_pixel is not None:
+                            self.select(
+                                self.identity,
+                                reference_pixel=requested_pixel,
+                                after_s=t,
+                                criterion=(
+                                    "smallest measured basis bound with exclusive interior pixel"
+                                    if conditioned
+                                    else "largest observed surface with exclusive interior pixel"
+                                ),
+                            )
                     if requested_pixel is not None:
                         u, v = requested_pixel
                         selected_surfaces = [
@@ -328,6 +437,9 @@ class PerceptionSession:
             self.engine.submit(sensor, [mask])
             native_result = self.engine.result
             state = "tracking" if present else "selected_identity_absent"
+        local_surfaces = None
+        if self.config.get("local_surface_constraint") is not None and native_result is not None:
+            local_surfaces = surfaces(cue, sensor, self.config)
         result = dict(native_result or dict(objects=[]))
         native_s = 0 if native_result is None else native_result["latency_s"]
         result.update(
@@ -336,6 +448,8 @@ class PerceptionSession:
             latency_s=time.perf_counter() - started,
             sam3=meta,
             cue=cue,
+            local_surfaces=local_surfaces,
+            local_surfaces_dominant=False,
             semantic_absent=not present,
             identity=dict(
                 sam3_id=self.identity,
@@ -415,13 +529,44 @@ class PublishedTrackingEngine:
 class SessionProvider:
     """Shared live/replay ingress with complete episode reset and immutable publications."""
 
-    def __init__(self, recipe, engine, *, tracking=True, **tracking_options):
+    def __init__(
+        self,
+        recipe,
+        engine,
+        *,
+        tracking=True,
+        synchronous_simulation=False,
+        inference_period_s=0.0,
+        geometry_filter=None,
+        local_selection_source=None,
+        preload_on_reset=True,
+        **tracking_options,
+    ):
         self.binding, self.config, self.engine = recipe, recipe.config, engine
+        self.pixel_center_offset_xy = pixel_center_offset(
+            self.config, tracking_options.get("calibration")
+        )
+        if synchronous_simulation and (engine.replay or not callable(engine.clock)):
+            raise ValueError("synchronous_simulation_requires_measured_clock")
+        if (
+            not np.isfinite(inference_period_s)
+            or not 0 <= inference_period_s <= self.config["max_gap_s"]
+        ):
+            raise ValueError("invalid_geometry_inference_period")
+        if local_selection_source not in (None, "policy", "diagnostic") or (
+            local_selection_source is not None and not tracking
+        ):
+            raise ValueError("invalid_local_selection_source")
+        self.local_selection_source = local_selection_source
+        self.geometry_filter = geometry_filter
+        self.synchronous_simulation = synchronous_simulation
+        self.inference_period_s = inference_period_s
         self.tracking = (
             PanelTracking(PublishedTrackingEngine(), self.config, **tracking_options)
             if tracking
             else None
         )
+        self.preload_on_reset = preload_on_reset
         self.generation = -1
         self.reset()
 
@@ -433,7 +578,9 @@ class SessionProvider:
     def scan_state(self):
         return self.scan_memory.state
 
-    def reset(self, *, preload=True):
+    def reset(self, *, preload=None):
+        if preload is None:
+            preload = self.preload_on_reset
         self.generation += 1
         self.engine.reset(preload=preload)
         if self.tracking:
@@ -441,8 +588,10 @@ class SessionProvider:
         self.scan_memory = ScanMemory(self.config, self.generation)
         self.current_space = ObservedSpace(self.config, self.generation)
         self.scan_available = {}  # Bounded by the stationary inspection window.
+        self.material_views = []
         self.last_time = self.last_frame = self.last_estimate = self.last_cue = None
         self.last_publication = None
+        self.last_submitted_s = None
         self.encoding = None
         self.diagnostics = dict(state="searching", semantic_calls=0)
 
@@ -469,15 +618,76 @@ class SessionProvider:
             self.scan_memory = result["scan_memory"]
             self.scan_memory.generation = self.generation
             self.scan_memory.state.generation = self.generation
+        if result["scan_memory"] is not None:
+            self.scan_available[float(captured["time_s"])] = ready
+            # Worker snapshots contain acquisition-time estimates. Preserve actual
+            # earlier publications when replacing the snapshot; never refresh old
+            # inspection support with a later tracking acquisition.
+            for surface in self.scan_memory.observed_surfaces:
+                for observation in surface.observations:
+                    observation.available_s = self.scan_available.get(
+                        observation.acquired_s, observation.available_s
+                    )
+            for obj in self.scan_memory.state.objects:
+                obj.support = replace(
+                    obj.support,
+                    available_s=self.scan_available.get(
+                        obj.support.supported_s, obj.support.available_s
+                    ),
+                )
         result["cue"]["available_s"] = ready
         self.last_cue = captured, result["cue"]
+        material_view = None
+        if self.config.get("material_depth_cover") is not None and any(
+            abs(float(captured["time_s"]) - sample) < 1e-9
+            for sample in self.config["inspection"]["sample_times_s"]
+        ):
+            material_view = {
+                key: np.array(captured[key], copy=True)
+                for key in (
+                    "time_s",
+                    "frame",
+                    "depth_m",
+                    "valid_depth",
+                    "intrinsics",
+                    "camera_world",
+                )
+            }
+            material_view.update(semantic=result["cue"], available_s=ready)
+            self.material_views.append(material_view)
         if self.tracking:
             if result["initial_candidates"]:
-                self.tracking.candidates = result["initial_candidates"]
+                # Worker-local latency estimates are not publication clocks.
+                # Seed observations may be separate objects from the map copy;
+                # assign the same measured publication time before adoption.
+                for candidate in result["initial_candidates"]:
+                    for observation in candidate.surface.observations:
+                        observation.available_s = self.scan_available.get(
+                            observation.acquired_s,
+                            ready
+                            if observation.acquired_s == float(captured["time_s"])
+                            else observation.available_s,
+                        )
+                self.tracking.adopt_candidates(
+                    result["initial_candidates"], captured, self.scan_memory, available_s=ready
+                )
+                self.tracking.attach_material_cover(self.material_views)
                 self.tracking.diagnostics["binding"] = result["binding"]
+                if self.local_selection_source is not None and len(self.tracking.candidates) == 1:
+                    self.tracking.select_zone(
+                        self.tracking.candidates[0].candidate_id,
+                        ready,
+                        source=self.local_selection_source,
+                    )
             if result["objects"]:
-                self.tracking.consume(captured, result, ready)
+                self.tracking.consume(
+                    captured,
+                    result,
+                    ready,
+                    clock=self.engine.clock if self.synchronous_simulation else None,
+                )
                 ready = self.tracking.diagnostics["available_s"]
+                self.tracking.constrain_local(captured, result)
             self.diagnostics["tracking"] = self.tracking.diagnostics
         self.current_space.views.clear()
         self.current_space.add(captured, ready)
@@ -502,23 +712,6 @@ class SessionProvider:
             unresolved_surfaces=len(self.scan_state.unresolved_surfaces),
             queue=self.engine.queue_stats.copy(),
         )
-        if result["scan_memory"] is not None:
-            self.scan_available[float(captured["time_s"])] = ready
-            # Worker snapshots contain acquisition-time estimates. Preserve actual
-            # earlier publications when replacing the snapshot; never refresh old
-            # inspection support with a later tracking acquisition.
-            for surface in self.scan_memory.surfaces:
-                for observation in surface.observations:
-                    observation.available_s = self.scan_available.get(
-                        observation.acquired_s, observation.available_s
-                    )
-            for obj in self.scan_memory.state.objects:
-                obj.support = replace(
-                    obj.support,
-                    available_s=self.scan_available.get(
-                        obj.support.supported_s, obj.support.available_s
-                    ),
-                )
         if self.tracking and result["initial_candidates"]:
             for candidate, binding in zip(self.tracking.candidates, result["binding"], strict=True):
                 candidate.geometry = replace(candidate.geometry, available_s=ready)
@@ -538,13 +731,19 @@ class SessionProvider:
         )
         # Include the complete adapter, timestamp propagation and diagnostics work.
         publication_s = time.perf_counter() - publication_started
-        ready = publication_base + publication_s
+        ready = (
+            max(publication_base, float(self.engine.clock()))
+            if self.synchronous_simulation
+            else publication_base + publication_s
+        )
+        if self.synchronous_simulation:
+            result["publication_clock_domain"] = "simulation"
         result["provider_publication_s"] = publication_s
         result["publication_latency_s"] = ready - float(captured["time_s"])
         result["cue"]["available_s"] = ready
         if result["scan_memory"] is not None:
             self.scan_available[float(captured["time_s"])] = ready
-            for surface in self.scan_memory.surfaces:
+            for surface in self.scan_memory.observed_surfaces:
                 for observation in surface.observations:
                     if observation.acquired_s == float(captured["time_s"]):
                         observation.available_s = ready
@@ -553,6 +752,16 @@ class SessionProvider:
                     obj.support = replace(obj.support, available_s=ready)
         for view in self.current_space.views.values():
             view["available_s"] = ready
+        if material_view is not None:
+            material_view["available_s"] = ready
+        if self.tracking and result["initial_candidates"]:
+            for candidate in self.tracking.candidates:
+                if candidate.material_cover is not None:
+                    cover = candidate.material_cover
+                    cover.support = replace(cover.support, available_s=ready)
+                    for source in cover.diagnostics["captures"]:
+                        if source["acquired_s"] == float(captured["time_s"]):
+                            source["available_s"] = ready
         if self.tracking and result["objects"]:
             for candidate in self.tracking.candidates:
                 if result["initial_candidates"]:
@@ -560,6 +769,16 @@ class SessionProvider:
                     candidate.static_reference = replace(
                         candidate.static_reference, support=candidate.geometry
                     )
+                    candidate.static_material_witnesses = tuple(
+                        dict(
+                            w,
+                            available_s=self.scan_available.get(w["acquired_s"], w["available_s"]),
+                        )
+                        for w in candidate.static_material_witnesses
+                    )
+                    self.tracking.diagnostics.setdefault("static_material_witnesses", {})[
+                        candidate.candidate_id
+                    ] = candidate.static_material_witnesses
                 if candidate.state == "tracked" and candidate.support.supported_s == float(
                     captured["time_s"]
                 ):
@@ -613,6 +832,13 @@ class SessionProvider:
             or not np.isfinite(sensor["intrinsics"]).all()
         ):
             reason = "invalid_calibration"
+        if reason is None:
+            try:
+                sensor["intrinsics"] = integer_center_intrinsics(
+                    sensor["intrinsics"], self.pixel_center_offset_xy
+                )
+            except ValueError:
+                reason = "invalid_calibration"
         depth, valid = sensor["depth_m"], sensor["valid_depth"]
         if (
             depth.ndim != 3
@@ -629,8 +855,28 @@ class SessionProvider:
         # A capture gap does not fabricate intermediate SAM/P2P steps. Staleness
         # remains visible in support times; only explicit reset starts a new identity.
         self.last_time, self.last_frame = t, frame
+        filtered_this_capture = self.geometry_filter is None
         try:
-            self.engine.submit(sensor, start_s=now)
+            if self.synchronous_simulation and abs(now - t) > 1e-9:
+                raise ValueError("synchronous_simulation_clock_mismatch")
+            due = (
+                self.last_submitted_s is None
+                or t - self.last_submitted_s >= self.inference_period_s - 1e-9
+            )
+            if due:
+                if self.geometry_filter is not None:
+                    removed = np.asarray(self.geometry_filter(sensor, observation))
+                    if removed.dtype != bool or removed.shape != depth.shape[:2]:
+                        raise ValueError("invalid_robot_geometry_filter")
+                    sensor["valid_depth"] = sensor["valid_depth"].copy()
+                    sensor["valid_depth"][removed] = False
+                    filtered_this_capture = True
+                self.engine.submit(sensor, start_s=now)
+                self.last_submitted_s = t
+                if self.synchronous_simulation:
+                    self.engine.wait()
+                    if abs(float(self.engine.clock()) - now) > 1e-9:
+                        raise ValueError("synchronous_simulation_clock_advanced")
             self.consume_results(now)
         except (RuntimeError, EOFError, BrokenPipeError, ValueError) as error:
             self.engine.failed = True
@@ -641,7 +887,13 @@ class SessionProvider:
                     candidate.state = "tracking_lost"
             else:
                 raise
-        local = self.tracking.local_state(now, sensor) if self.tracking else None
+        # Intermediate ticks use bounded material support, not an unfiltered
+        # robot-occluded image as a new direct-depth observation.
+        local = (
+            self.tracking.local_state(now, sensor if filtered_this_capture else None)
+            if self.tracking
+            else None
+        )
         self.last_estimate = DoorEstimate(
             t,
             False,
@@ -665,6 +917,11 @@ def session_provider(
     selection=None,
     registration_diagnostics=False,
     clock=None,
+    synchronous_simulation=False,
+    inference_period_s=0.0,
+    preload=True,
+    preload_on_reset=True,
+    inspection_samples_only=False,
     **options,
 ):
     from alexdoor_xas.perception.point2pose.runtime import Point2PoseEngine
@@ -682,17 +939,28 @@ def session_provider(
             tracking=tracking,
             generation=engine.generation - 1,
             registration_diagnostics=registration_diagnostics,
+            inspection_samples_only=inspection_samples_only,
         )
         if selection is not None:
             worker.select(**selection)
+        (Path(output) / "startup.json").write_text(json.dumps(worker.runtime, indent=2) + "\n")
         return worker
 
     engine = Point2PoseEngine(factory, replay=replay, capture_session=True, clock=clock)
-    provider = SessionProvider(recipe, engine, tracking=tracking, **options)
-    try:
-        engine.prepare()
-    except BaseException:
-        provider.close()
-        raise
-    (Path(output) / "startup.json").write_text(json.dumps(engine.worker.runtime, indent=2) + "\n")
+    provider = SessionProvider(
+        recipe,
+        engine,
+        tracking=tracking,
+        synchronous_simulation=synchronous_simulation,
+        inference_period_s=inference_period_s,
+        preload_on_reset=preload_on_reset,
+        calibration=calibration,
+        **options,
+    )
+    if preload:
+        try:
+            engine.prepare()
+        except BaseException:
+            provider.close()
+            raise
     return provider

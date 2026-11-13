@@ -1,6 +1,7 @@
 """Common observed inspection motion; door truth is used only in the offline audit."""
 
 import json
+from copy import deepcopy
 
 import numpy as np
 
@@ -9,7 +10,7 @@ INSPECTION_LIMITS = dict(tool_drift_m=0.01, door_angle_rad=0.01, neck_error_rad=
 
 def inspection_tolerances(dt, max_neck_speed_rad_s):
     """Float32 accumulated roundoff and one control tick of neck tracking resolution."""
-    numerical = 32 * np.finfo(np.float32).eps
+    numerical = float(32 * np.finfo(np.float32).eps)
     if not np.isfinite([dt, max_neck_speed_rad_s]).all() or dt <= 0 or max_neck_speed_rad_s <= 0:
         raise ValueError("Invalid inspection timing/speed")
     return dict(
@@ -31,6 +32,19 @@ def load_inspection(path):
     config = json.loads(path.read_text())
     validate_inspection(config)
     return config
+
+
+def acquisition_inspection(original, acquisition=None):
+    """Change only actual view timing/targets; retain calibrated mounting and limits."""
+    if acquisition is None:
+        return original
+    keys = {"waypoints", "sample_times_s"}
+    if {k: v for k, v in original.items() if k not in keys} != {
+        k: v for k, v in acquisition.items() if k not in keys
+    }:
+        raise ValueError("Observation acquisition cannot change inspection calibration")
+    validate_inspection(acquisition)
+    return deepcopy(acquisition)
 
 
 def validate_inspection(config):
@@ -88,7 +102,6 @@ def tilt_mount(stage, joint_path, pitch_rad):
 
 def run_inspection(env, config, recorder=None):
     """Hold the parked arm while scanning; abort on contacts, motion or tracking errors."""
-    import torch
     from scipy.spatial.transform import Rotation
 
     from alexdoor_xas.recording.b1_runtime import array
@@ -96,16 +109,19 @@ def run_inspection(env, config, recorder=None):
     points = np.asarray(config["waypoints"])
     p, q = [array(v)[0] for v in env.tool_pose()]
     rotation = Rotation.from_quat(q).as_matrix()
-    zero = torch.zeros((1, 6), device=env.device)
+    parked_joints = array(env.robot.data.joint_pos)[0, env.arm_ids].copy()
+    initial_door_angle = float(array(env.door.data.joint_pos)[0, 0])
     maximum = dict(tool_drift_m=0.0, door_angle_rad=0.0, neck_error_rad=0.0)
     for i in range(1, round(points[-1, 0] / env.step_dt) + 1):
         time_s = i * env.step_dt
         neck = np.array([np.interp(time_s, points[:, 0], points[:, j]) for j in (1, 2)])
         env.set_neck_target(neck)
-        env.command_pose(p, q)
-        env.step(zero)
+        # Hold the declared ready joints. Cartesian hold would introduce
+        # nullspace recentering and change the post-scan physical condition.
+        measured = array(env.robot.data.joint_pos)[0, env.arm_ids]
+        env.step_a1(parked_joints - measured)
         drift = float(np.linalg.norm(array(env.tool_pose()[0])[0] - p))
-        angle = float(np.abs(array(env.door.data.joint_pos)[0, 0]))
+        angle = float(np.abs(array(env.door.data.joint_pos)[0, 0] - initial_door_angle))
         neck_error = float(np.max(np.abs(array(env.robot.data.joint_pos)[0, env.neck_ids] - neck)))
         metrics = dict(tool_drift_m=drift, door_angle_rad=angle, neck_error_rad=neck_error)
         if not inspection_within_limits(
@@ -118,6 +134,7 @@ def run_inspection(env, config, recorder=None):
             recorder.transition(env, p, rotation, "inspect", dict(valid=True))
     return dict(
         duration_s=float(points[-1, 0]),
+        initial_door_angle_rad=initial_door_angle,
         tolerances=inspection_tolerances(env.step_dt, config["max_neck_speed_rad_s"]),
         **maximum,
     )

@@ -20,6 +20,43 @@ def array(value):
     return value.detach().cpu().numpy() if isinstance(value, torch.Tensor) else np.asarray(value)
 
 
+def joint_si_units(urdf, names):
+    """Native robot diagnostics include rotational joints and prismatic WSG jaws."""
+    kinds = {
+        joint.get("name"): joint.get("type") for joint in ET.parse(urdf).getroot().findall("joint")
+    }
+    selected = [kinds[name] for name in names]
+    if any(kind not in ("revolute", "continuous", "prismatic") for kind in selected):
+        raise ValueError("Unknown active-joint units")
+    return dict(
+        position=["m" if kind == "prismatic" else "rad" for kind in selected],
+        velocity=["m/s" if kind == "prismatic" else "rad/s" for kind in selected],
+        effort=["N" if kind == "prismatic" else "N m" for kind in selected],
+    )
+
+
+def annotate_native_units(file, urdf, names):
+    """Add explicit SI units to diagnostics; never change samples or outcomes.
+
+    The legacy effort_target_nm container holds full native feedforward effort,
+    including force for prismatic jaws. It is separate from measured arm7 tau.
+    """
+    units = joint_si_units(urdf, names)
+    for field, key in (("full_joint_position", "position"), ("full_joint_velocity", "velocity")):
+        path = "control/" + field
+        if path in file:
+            file[path].attrs.update(
+                joint_names=json.dumps(list(names)), units=json.dumps(units[key])
+            )
+    if "commands/effort_target_nm" in file:
+        file["commands/effort_target_nm"].attrs.update(
+            joint_names=json.dumps(list(names)),
+            units=json.dumps(units["effort"]),
+            semantics="native_feedforward_effort_not_measured_torque; legacy_container_name",
+        )
+    file["metadata"].attrs["full_joint_units"] = json.dumps(units)
+
+
 def camera_calibration(env):
     """Serialize fixed mount + URDF neck chain, never a per-door camera reset cache."""
     from pxr import UsdGeom
@@ -61,6 +98,7 @@ def camera_calibration(env):
         root_world=root_world.tolist(),
         joint_names=list(ARM_JOINTS + NECK_JOINTS),
         depth_interval_m=[env.capture.near_m, env.capture.far_m],
+        pixel_center_offset_xy=[0.5, 0.5],  # RTX sample centers; raw SDK K is retained.
         optical_convention="ROS",
         depth_kind="distance_to_image_plane_m",
     )
@@ -79,8 +117,29 @@ def camera_from_joints(calibration, q):
     return transform @ np.asarray(calibration["head_camera"])
 
 
+def record_robot_state(writer, env):
+    """Retain actual calibrated tool-link pose and full robot joints, without door quantities."""
+    position, quaternion = [array(v)[0] for v in env.tool_pose()]
+    writer.robot_state(
+        env.capture.sample.time_s,
+        joint_names=env.robot.joint_names,
+        q=array(env.robot.data.joint_pos)[0],
+        dq=array(env.robot.data.joint_vel)[0],
+        tool_position=position,
+        tool_rotation=Rotation.from_quat(quaternion).as_matrix(),
+    )
+
+
 class ExpertRecorder:
-    def __init__(self, path, metadata):
+    def __init__(
+        self, path, metadata, *, purpose="perception_engineering_not_matched_policy_dataset"
+    ):
+        if purpose not in (
+            "perception_engineering_not_matched_policy_dataset",
+            "b1_partial_policy_pilot",
+        ):
+            raise ValueError("Unsupported expert recording purpose")
+        self.purpose = purpose
         self.path, self.metadata = path, metadata
         self.writer = None
         self.calibration = None
@@ -145,10 +204,16 @@ class ExpertRecorder:
         self.metadata.update(
             control_dt=env.step_dt,
             sim_dt=env.cfg.sim.dt,
-            purpose="perception_engineering_not_matched_policy_dataset",
+            purpose=self.purpose,
         )
         self.writer = B1Writer(self.path, self.metadata, self.calibration)
-        self.writer.observe(self.observation(env), self.annotation(env, phase))
+        from alexdoor_xas.perception.load import simulated_feedback
+
+        self.writer.observe(
+            self.observation(env), self.annotation(env, phase), feedback=simulated_feedback(env)
+        )
+
+        record_robot_state(self.writer, env)
 
     def transition(self, env, goal_p, goal_r, phase, trace):
         command = dict(
@@ -157,16 +222,27 @@ class ExpertRecorder:
             tool_rotation=np.asarray(goal_r),
             joint_target=array(env.targets)[0, env.arm_ids],
             neck_target=array(env.targets)[0, env.neck_ids],
+            effort_target_nm=array(env.robot.data.joint_effort_target)[0, env.observed_ids],
             phase=np.int8(PHASES.index(phase)),
         )
+        from alexdoor_xas.perception.load import simulated_feedback
+
         self.writer.transition(
-            command, self.observation(env), self.annotation(env, phase, trace["valid"])
+            command,
+            self.observation(env),
+            self.annotation(env, phase, trace["valid"]),
+            feedback=simulated_feedback(env),
         )
+        if env.load_samples:
+            self.writer.physics_feedback(env.load_samples)
+        record_robot_state(self.writer, env)
 
     def finish(self, result):
         self.writer.file["metadata"].attrs["camera_fk_error"] = json.dumps(
             dict(position_m=self.max_camera_error_m, rotation_rad=self.max_camera_error_rad)
         )
+        if self.purpose == "b1_partial_policy_pilot":
+            result = dict(result, termination=result["stop_reason"])
         self.writer.finish(result)
 
     def close(self):

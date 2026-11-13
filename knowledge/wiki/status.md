@@ -11,7 +11,7 @@ reference. A3/A4, policies and operational thresholds are unchanged.
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts/static evidence | Operational/local support, explicit selection, admission and feedback contracts; object fusion, ownership alternatives, finite-cover and relevant-space queries. Scans/interfaces do not admit motion. |
 | 6.0C — Tracking | One persistent SAM3 session shared by inspection/tracking, bounded history and renewal-only depth gate; live/replay and serial evaluation share the coordinator. Useful accuracy improves offline, but material identity and 150 ms freshness remain unqualified. |
-| 6.0D–H — Contact/qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
+| 6.0D–H — Contact/qualification | D4-N has a scoped observed Steel collection path with robot-only load and independent simulation stop checks. Complete qualification and hardware validation remain open. |
 | 6.1 — Actions | ACT/Diffusion × A1–A4 observed-input/data/normalization/execution software maintained; qualified-provider integration and physical rollout validation pending. |
 | 6.2–7 — Data/learning | Not started. No matched B1 policy dataset or learned-policy result; no sealed-test evaluation. |
 
@@ -140,6 +140,12 @@ preserve its failures and all intervening decisions.
 
 ## Action and qualification limits
 
+The D4-N observed Steel integration is tracked in
+[[topics/purdue-b1-robot-and-contact#Robot feedback and observed D4 release|Purdue B1 robot feedback and observed D4 release]].
+The prior PhysX attempt reached about 50° and completed its hold before the
+observed release refusal. D4 remains at 0/9 qualified conditions. The scoped
+Steel path does not establish the rest of Phase 6.0D–H.
+
 The [[topics/pre-a4-initialization-and-hinge-budget|shared pre-A4 specification]]
 applies before policy dispatch in every A1–A4 × ACT/Diffusion condition. Stationary
 observations can support local surface/closed rotation, but these scans lack a
@@ -152,7 +158,8 @@ interface inputs and uncertainty validation against proposed command/sweep/stop
 margins. Correspondence envelopes and evaluator hinge p95 are different quantities;
 neither substitutes for missing calibration bounds. A4 freezes each segment's
 admitted frame, so a fixed local endpoint retains full origin error at approach
-completion. Actual proposals, contact/load/stop and hardware calibration remain absent.
+completion. The D4-N component path does not establish the required A4 hinge
+initialization or hardware calibration.
 
 The unchanged gates require per-door 95% coverage/accepted precision and 1 cm/5
 degrees; always unavailable fails. Pilot offline and feedback/stop checks precede

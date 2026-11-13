@@ -6,6 +6,37 @@ import numpy as np
 from scipy.spatial import cKDTree
 
 
+def pixel_center_offset(config, calibration=None):
+    """Resolve the declared source sampling convention; never infer it from a fit."""
+    configured = config.get("camera_pixel_center_offset_xy")
+    recorded = (calibration or {}).get("pixel_center_offset_xy")
+    values = [np.asarray(v, float) for v in (configured, recorded) if v is not None]
+    if any(v.shape != (2,) or not np.isfinite(v).all() for v in values):
+        raise ValueError("invalid_pixel_center_offset")
+    if len(values) == 2 and not np.array_equal(values[0], values[1]):
+        raise ValueError("pixel_center_offset_mismatch")
+    return values[0].copy() if values else np.zeros(2)
+
+
+def integer_center_intrinsics(intrinsics, sample_offset_xy):
+    """Convert source K once for integer-index geometry, retaining the raw SDK K."""
+    matrix, offset = np.asarray(intrinsics, float), np.asarray(sample_offset_xy, float)
+    if (
+        matrix.shape != (3, 3)
+        or not np.isfinite(matrix).all()
+        or not np.array_equal(matrix[2], [0, 0, 1])
+        or matrix[0, 0] <= 0
+        or matrix[1, 1] <= 0
+        or offset.shape != (2,)
+        or not np.isfinite(offset).all()
+    ):
+        raise ValueError("invalid_camera_intrinsics")
+    result = matrix.copy()
+    # K^-1 [u+offset_x, v+offset_y, 1] equals K_integer^-1 [u, v, 1].
+    result[:2, 2] -= offset
+    return result
+
+
 def deproject(depth, pixels, intrinsics, camera):
     """Optical-axis depth in ROS optical coordinates, transformed into calibrated world."""
     pixels = np.asarray(pixels, dtype=float)
@@ -224,7 +255,12 @@ def contact_frame(normal):
     return np.column_stack((x, np.cross(z, x), z))
 
 
-def surfaces(cue, sensor, config):
+def surfaces(cue, sensor, config, *, dominant_only=False):
+    """Measured mask/depth components; optional first-plane local query only.
+
+    Dominant-only queries keep the largest connected measured part of the first
+    robust plane. They preserve invalid depth/holes and do not assert ownership.
+    """
     from scipy.ndimage import binary_erosion, binary_fill_holes, binary_opening, label
 
     h, w = cue["shape"]
@@ -268,7 +304,12 @@ def surfaces(cue, sensor, config):
             raster[vv[member], uu[member]] = True
             raster = binary_opening(raster, iterations=1)
             components, count = label(raster)
-            for component in range(1, count + 1):
+            chosen_components = (
+                [int(np.argmax(np.bincount(components.ravel())[1:])) + 1]
+                if dominant_only and count
+                else range(1, count + 1)
+            )
+            for component in chosen_components:
                 part = components == component
                 pv, pu = np.nonzero(part)
                 if len(pu) < config["min_points"]:
@@ -345,6 +386,8 @@ def surfaces(cue, sensor, config):
                         observations=(observation,),
                     )
                 )
+            if dominant_only:
+                break
             remaining = remaining[abs(remaining @ normal - offset) > config["plane_tolerance_m"]]
     return result
 

@@ -12,6 +12,14 @@ commands and evaluator annotations remain separate. Existing recordings have no
 measured torque; commands do not substitute for feedback. No recording migration
 or policy-dataset production is performed by repository consolidation.
 
+The D4 observed simulation entry point writes `b1.temporal-recording.v1` on
+disk. The native joint-output stream retains its acquisition clock and
+separate diagnostics. RGB-D uses LZF and lossless depth shuffle. The recorder
+caches sampled preprocessed frames with their source indices and keeps the
+online observation history bounded. Inspect, approach, contact, push, hold,
+release, and ordinary stabilization are reviewed from the closed HDF5
+recording. The independent stop traces remain separate from teacher actions.
+
 ## Matched Policy Data
 
 `dataset/b1.py` provides `b1.policy-dataset.v1`: one physical episode with N+1 common

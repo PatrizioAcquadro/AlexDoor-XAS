@@ -14,6 +14,8 @@ OBS_KEYS = ("rgbd_static", "rgbd_recent", "joint_position", "joint_velocity")
 OBS_SCHEMA = "b1.policy-observation.v1"
 CONTRACT_SCHEMA = "b1.policy-contract.v1"
 RELEASE_SCHEMA = "b1.perception.release.v2"
+PILOT_SCHEMA = "b1.policy-pilot.v1"
+PILOT_CONTRACT_SCHEMA = "b1.policy-contract.pilot.v1"
 
 
 def check_sha(value):
@@ -23,6 +25,71 @@ def check_sha(value):
         or any(c not in "0123456789abcdef" for c in value)
     ):
         raise ValueError("Expected a SHA256 artifact reference")
+
+
+def validate_recipe(cfg):
+    dims = cfg.get("visual_dims")
+    if (
+        not isinstance(dims, list)
+        or len(dims) != 2
+        or any(type(v) is not int or v < 1 for v in dims)
+        or not cfg.get("inspection")
+    ):
+        raise ValueError("Incompatible B1 perception recipe")
+    for key, positive in (("max_gap_s", True), ("warmup_s", False)):
+        value = cfg.get(key)
+        if (
+            type(value) not in (int, float)
+            or not math.isfinite(value)
+            or value < 0
+            or positive
+            and value == 0
+        ):
+            raise ValueError("Incompatible B1 perception timing")
+    from alexdoor_xas.perception.inspection import validate_inspection
+
+    validate_inspection(cfg["inspection"])
+
+
+@dataclass(frozen=True)
+class PilotBinding:
+    """Explicit development recipe; never a perception release or motion permission."""
+
+    recipe_json: str
+
+    def __post_init__(self):
+        from alexdoor_xas.perception.contracts import OPERATIONAL_V1
+
+        value = self.to_dict()
+        if value.get("schema") != PILOT_SCHEMA or any(
+            value.get(key) is not False for key in ("offline_passed", "dynamic_passed", "frozen")
+        ):
+            raise ValueError("Pilot must remain explicitly unqualified")
+        validate_recipe(self.config)
+        if self.config.get("geometry_profile") != OPERATIONAL_V1:
+            raise ValueError("Pilot execution requires operational geometry checks")
+        if not isinstance(self.config.get("encoder"), str) or not self.config["encoder"]:
+            raise ValueError("Pilot requires an explicit encoder recipe identity")
+
+    @classmethod
+    def from_dict(cls, value):
+        return cls(json.dumps(value, sort_keys=True, allow_nan=False))
+
+    def to_dict(self):
+        return json.loads(self.recipe_json)
+
+    @property
+    def config(self):
+        return self.to_dict()["config"]
+
+    @property
+    def obs_dim(self):
+        return sum(self.config["visual_dims"]) + 18
+
+
+def observation_binding(value):
+    binding_type = PilotBinding if value.get("schema") == PILOT_SCHEMA else PerceptionBinding
+    return binding_type.from_dict(value)
 
 
 @dataclass(frozen=True)
@@ -60,27 +127,7 @@ class PerceptionBinding:
             )
         ):
             raise ValueError("Perception release v2 only supports legacy-full-state")
-        dims = cfg.get("visual_dims")
-        if (
-            not isinstance(dims, list)
-            or len(dims) != 2
-            or any(type(v) is not int or v < 1 for v in dims)
-            or not cfg.get("inspection")
-        ):
-            raise ValueError("Incompatible B1 perception recipe")
-        for key, positive in (("max_gap_s", True), ("warmup_s", False)):
-            value = cfg.get(key)
-            if (
-                type(value) not in (int, float)
-                or not math.isfinite(value)
-                or value < 0
-                or positive
-                and value == 0
-            ):
-                raise ValueError("Incompatible B1 perception timing")
-        from alexdoor_xas.perception.inspection import validate_inspection
-
-        validate_inspection(cfg["inspection"])
+        validate_recipe(cfg)
 
     def verify_artifacts(self, paths):
         """Verify exact release inputs before a provider loads them; this is not qualification."""
@@ -113,7 +160,7 @@ def policy_contract(binding, space):
     if space not in ACTION_DIMS:
         raise ValueError("Unknown B1 action space")
     return dict(
-        schema=CONTRACT_SCHEMA,
+        schema=PILOT_CONTRACT_SCHEMA if isinstance(binding, PilotBinding) else CONTRACT_SCHEMA,
         action_schema=ACTION_SCHEMA,
         observation_schema=OBS_SCHEMA,
         arm_joints=list(ARM_JOINTS),
@@ -129,7 +176,7 @@ def policy_contract(binding, space):
 def validate_contract(value, binding=None, space=None):
     if not isinstance(value, dict) or "perception" not in value:
         raise ValueError("Missing explicit B1 policy contract; legacy data are not B1")
-    recorded = PerceptionBinding.from_dict(value["perception"])
+    recorded = observation_binding(value["perception"])
     expected = policy_contract(binding or recorded, space or value.get("action_space"))
     if value != expected:
         raise ValueError("B1 observation/action/perception contract mismatch")

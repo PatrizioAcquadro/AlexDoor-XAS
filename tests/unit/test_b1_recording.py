@@ -41,7 +41,7 @@ def test_causal_terminal_roundtrip_and_truth_separation(tmp_path):
     import h5py
 
     with h5py.File(path) as h5:
-        assert set(h5) == {"observations", "commands", "annotations", "metadata"}
+        assert set(h5) == {"observations", "commands", "annotations", "metadata", "robot_feedback"}
         assert "angle" not in h5["observations"]
         np.testing.assert_array_equal(h5["commands/joint_target"][0], np.arange(7))
         assert robot_feedback_at(h5, 0).torque_nm is None

@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -10,6 +11,7 @@ from alexdoor_xas.action.b1 import ACTION_DIMS, checked_pose, finite_vector, rel
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.contracts import (
     OPERATIONAL_V1,
+    TIME_ROUNDOFF_S,
     ContactSelection,
     DoorEstimate,
     FieldSupport,
@@ -19,6 +21,9 @@ from alexdoor_xas.perception.contracts import (
     validate_contact_transition,
     validate_reference,
 )
+
+if TYPE_CHECKING:
+    from alexdoor_xas.perception.local_admission import LocalActionSupport
 
 
 def nonnegative(value, reason):
@@ -111,6 +116,8 @@ class ActionAdmission:
     proposal: ActionProposal | None = None
     estimate: DoorEstimate | None = None
     limits: ActionLimits | None = None
+    local_evidence: "LocalActionSupport | None" = None
+    decision: dict | None = None
 
 
 def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):
@@ -281,8 +288,17 @@ def require_current_admission(admission, estimate, now):
     ):
         raise ValueError("action_not_admitted")
     before = admission.estimate.operational
-    if not admission.proposal.times_s[0] <= now <= admission.proposal.times_s[-1]:
+    if not (
+        admission.proposal.times_s[0] - TIME_ROUNDOFF_S
+        <= now
+        <= admission.proposal.times_s[-1] + TIME_ROUNDOFF_S
+    ):
         raise ValueError("outside_admitted_schedule")
+    if admission.local_evidence is not None:
+        from alexdoor_xas.perception.local_admission import require_current_local_admission
+
+        require_current_local_admission(admission, estimate, now)
+        return
     validate_reference(estimate, now, generation=before.generation)
     current = estimate.operational
     validate_contact_transition(before.contact, current.contact)

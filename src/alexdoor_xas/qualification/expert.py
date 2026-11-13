@@ -84,6 +84,15 @@ def publish_expert(folder, original, report, output):
     write_result(path, current)
 
 
+def configure_physics_substeps(cfg, substeps):
+    """Refine integration while retaining 60 Hz control and rendering boundaries."""
+    if type(substeps) is not int or substeps not in (2, 4):
+        raise ValueError("Supported physics substeps are 2 (120 Hz) and 4 (240 Hz)")
+    cfg.sim.dt = 1 / (60 * substeps)
+    cfg.decimation = substeps
+    cfg.sim.render_interval = substeps
+
+
 def probe_config(door, setup, device, cameras=True):
     from alexdoor_xas.assets.synthetic_door import SyntheticDoor
     from alexdoor_xas.envs.door_task.door_push_purdue_env_cfg import DoorPushPurdueEnvCfg
@@ -102,6 +111,8 @@ def probe_config(door, setup, device, cameras=True):
         "NECK_Z": setup.neck[0],
         "NECK_Y": setup.neck[1],
     }
+    cfg.door_mass_scale = setup.door_mass_scale
+    cfg.door_hinge_damping = setup.door_hinge_damping
     cfg.max_joint_speed = setup.max_joint_speed
     cfg.centering_gain = setup.centering_gain
     cfg.ik_damping = setup.ik_damping

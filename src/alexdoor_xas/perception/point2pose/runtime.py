@@ -282,6 +282,26 @@ class Point2PoseEngine(CueEngine):
         self.pending = (self.generation, snapshot, started), result
         return True
 
+    def wait(self):
+        """Wait for the captured frame's result without advancing simulation."""
+        if self.pending is None or self.replay:
+            return
+        future = self.pending[1]
+        check = getattr(self, "interruption_check", None)
+        if check is None:
+            future.result()
+            return
+        from concurrent.futures import TimeoutError
+
+        while True:
+            check()
+            try:
+                future.result(timeout=0.1)
+                return
+            except TimeoutError:
+                if future.done():
+                    raise
+
     def poll(self, now):
         if self.pending is not None and not self.replay:
             (_, sensor, started), future = self.pending

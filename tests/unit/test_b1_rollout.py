@@ -156,7 +156,7 @@ def test_missing_feedback_blocks_operational_io_before_physics_or_helpful_comman
     assert feedback.torque_nm is None
     sensor = sample(0, 1)
     sensor.update(rgb=np.ones((1, 1, 3)), valid_depth=np.ones((1, 1), bool))
-    checks = ObservedControlChecks(SimpleNamespace(orientation_tolerance=0.1))
+    checks = ObservedControlChecks(SimpleNamespace(orientation_tolerance=0.1, max_joint_speed=0.5))
     reason = checks.check(
         sensor,
         estimate,
