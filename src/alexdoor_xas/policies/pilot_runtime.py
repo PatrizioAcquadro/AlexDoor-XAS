@@ -306,9 +306,9 @@ class PilotMotionEvidence:
             travel = self.model.point_travel_bound(PUSH_PARENT, matrices, points, arm_travel)
             # Contact evidence already covers current material and tool FK error.
             # Spend new interval motion and finger geometry allowance once.
-            lever = np.linalg.norm(points - patch.world_pose.origin, axis=1) + travel
+            distal_levers = np.linalg.norm(points - patch.world_pose.origin, axis=1) + travel
             distal_growth.append(
-                float(max(travel + temporal_p + lever * temporal_a))
+                float(np.max(travel + temporal_p + distal_levers * temporal_a))
                 + self.config["closed_jaw_bound_m"]
                 + self.config["robot_model_bound_m"]
             )
