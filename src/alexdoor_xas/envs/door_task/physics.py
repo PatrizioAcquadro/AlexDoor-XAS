@@ -24,7 +24,7 @@ def configure_purdue_physics(cfg):
         raise RuntimeError("Start AlexDoor with scripts/isaac-run.sh to load the Steel runtime")
     site = Path(wheel_site).resolve(strict=True)
     with prepare_import_worker(site) as worker:
-        install_wheel(site)
+        install_wheel(site, defer_optional=True)
         from .steel_contacts import SteelPurdueViews
 
         cfg.sim.physics = config(

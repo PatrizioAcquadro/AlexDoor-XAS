@@ -161,3 +161,15 @@ PhysX results of 37.15–37.50 s. Both backends passed each short trial. The
 optimized Steel runs each captured CUDA Graph and checked capacity on all
 2,620 native steps. Raw results and repeat commands are under
 `outputs/generated/alexdoor-steel-startup-20261112/`.
+
+Profiling the configuration boundary separately attributed most of its time
+to Newton imports. AlexDoor now loads Newton's viewer, controller and inverse
+kinematics APIs on first use. Isaac RTX and AlexDoor's own controller drive
+the short D4-N trial. Configuration fell from 1.64 s to 1.40–1.41 s in the
+two unprofiled pairs. Steel's totals were 37.01 and 37.53 s against 37.30
+and 37.16 s for PhysX. The two pairs used opposite backend orders and
+establish no repeatable total-time advantage for either engine. The
+optimized Steel runs each passed with 661 valid ZED frames, CUDA Graph
+active, and 2,644 capacity checks on 2,644 physics steps. Local timings,
+profiles and repeat commands are under
+`outputs/generated/alexdoor-steel-config-20261112/`.

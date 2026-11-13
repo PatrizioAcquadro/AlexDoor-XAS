@@ -8,10 +8,12 @@ import sys
 from contextlib import contextmanager
 from importlib.abc import MetaPathFinder
 from importlib.machinery import PathFinder
+from importlib.util import LazyLoader
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 _IMPORT_COMMAND = ("/usr/bin/python3", str(Path(__file__).with_name("steel_import.py")))
+_OPTIONAL_NEWTON_MODULES = {"newton.controllers", "newton.ik", "newton.viewer"}
 
 
 @contextmanager
@@ -30,7 +32,7 @@ def prepare_import_worker(site):
                 worker.kill()
 
 
-def install_wheel(site):
+def install_wheel(site, *, defer_optional=False):
     site = Path(site).resolve(strict=True)
     if not (site / "newton/__init__.py").is_file():
         raise ValueError("NEWTON_SITE must contain the Newton wheel and its OpenUSD dependencies")
@@ -43,12 +45,19 @@ def install_wheel(site):
             spec = PathFinder.find_spec(fullname, [str(parent)])
             if spec is None:
                 raise ModuleNotFoundError(fullname)
+            if defer_optional and fullname in _OPTIONAL_NEWTON_MODULES:
+                # Isaac RTX and AlexDoor control have their own implementations.
+                # Load these Newton APIs on first use of their public exports.
+                spec.loader = LazyLoader(spec.loader)
             return spec
 
     for name, module in tuple(sys.modules.items()):
-        if name.partition(".")[0] == "newton" and getattr(module, "__file__", None):
-            if not Path(module.__file__).resolve().is_relative_to(site / "newton"):
-                raise RuntimeError(f"Kit initialized another Newton wheel: {module.__file__}")
+        if name.partition(".")[0] == "newton":
+            # Bypass LazyLoader's attribute hook so repeat installation does
+            # not initialize unused modules.
+            origin = object.__getattribute__(module, "__dict__").get("__file__")
+            if origin and not Path(origin).resolve().is_relative_to(site / "newton"):
+                raise RuntimeError(f"Kit initialized another Newton wheel: {origin}")
     sys.meta_path.insert(0, WheelFinder())
 
 
