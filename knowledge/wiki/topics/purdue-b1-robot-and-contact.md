@@ -20,6 +20,30 @@ The source is
 `~/Desktop/Alex/assets/robots/alex_purdue/urdf/baseline/alex_purdue_wsg32_umi_v1_full_convex.urdf`.
 The factory defaults to SAKE when the end effector is omitted; select WSG explicitly.
 
+## Physics profile and reset
+
+Start the Purdue simulation through `scripts/isaac-run.sh`. The launcher uses
+Steel with CUDA Graph by default and selects the local Newton/Warp wheel site
+under `outputs/generated/isaac-steel-runtime/site`. Set `NEWTON_SITE` for a
+different installation. Set `ISAAC_PHYSICS_PROFILE=isaacsim_physx` to run a
+native GPU PhysX comparison or reproduce a historical PhysX run.
+
+The first native Steel step captures the graph. Each standard environment reset
+checks the latched solver status before restoring the scene. It clears solver
+warm-start state and contact counts in place and invalidates the host contact
+snapshot while keeping the buffers used by the graph. Reset restores the robot
+and hinge state and acquires a fresh ZED sample. Capacity checks continue at
+each native contact readout, including the first step after reset.
+
+On `main`, the launcher selected Steel without overrides on the RTX 4090.
+One session passed three short D4-N push, release, and stabilization cycles
+with Alex003, WSG32, and ZED RGB-D. One graph served 8,076 launches and
+capacity checks, including warm-up. All 1,983 cycle frames passed the ZED
+checks. The first control tick took 0.785 s at capture and 0.037–0.040 s
+after reset. An injected saturation flag caused a subsequent reset to raise
+before discarding solver or episode state. Local evidence and the repeat
+command are under `outputs/generated/alexdoor-d4n-standard-reset-20261113/`.
+
 ## Arm and Gripper
 
 The ordered active right-arm joints are `RIGHT_SHOULDER_Y`, `RIGHT_SHOULDER_X`,

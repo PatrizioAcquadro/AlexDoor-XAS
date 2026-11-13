@@ -72,10 +72,10 @@ policy, trains a model or establishes release qualification.
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke --output outputs/generated/b1/perception/NEW_SAM3_SMOKE
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py diagnose-scan --output outputs/generated/b1/perception/NEW_SCAN
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-smoke --output outputs/generated/b1/perception/NEW_P2P_SMOKE
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live-smoke --output outputs/generated/b1/perception/NEW_CONCURRENT
+scripts/isaac-run.sh scripts/perception.py point2pose-live-smoke --output outputs/generated/b1/perception/NEW_CONCURRENT
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-replay --output outputs/generated/b1/perception/NEW_REPLAY
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-offline --output outputs/generated/b1/perception/NEW_OFFLINE
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live --case camera --asset animated-door-1-88abf40 --output outputs/generated/b1/perception/NEW_LIVE
+scripts/isaac-run.sh scripts/perception.py point2pose-live --case camera --asset animated-door-1-88abf40 --output outputs/generated/b1/perception/NEW_LIVE
 ```
 
 `smoke` processes two distinct synchronized captures with the same SAM3 session.
@@ -104,7 +104,7 @@ training, manipulation or the four-recording/three-attempt serial campaign.
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-operational --episode datasets/recordings/b1/perception/engineering-v2/animated-door-1-88abf40/light/episode.hdf5 --mode wall-clock --selection outputs/evidence/b1/perception/sam3-operational-20261008/selection.json --output outputs/generated/b1/perception/NEW_CONTINUOUS
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live --case stationary --asset animated-door-1-88abf40 --duration-s 65 --selection outputs/evidence/b1/perception/sam3-operational-20261008/selection.json --output outputs/generated/b1/perception/NEW_STATIONARY_LIVE
+scripts/isaac-run.sh scripts/perception.py point2pose-live --case stationary --asset animated-door-1-88abf40 --duration-s 65 --selection outputs/evidence/b1/perception/sam3-operational-20261008/selection.json --output outputs/generated/b1/perception/NEW_STATIONARY_LIVE
 ```
 
 The example pixel is for its displayed pilot view, not a general selection rule.

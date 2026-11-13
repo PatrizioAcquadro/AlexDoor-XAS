@@ -232,9 +232,9 @@ These commands use the current configuration; reproducing the historical table
 requires its archived 45-degree `setup.json`, not the revised common config:
 
 ```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_synthetic_setup.py physics \
+scripts/isaac-run.sh scripts/verify_synthetic_setup.py physics \
   --viz none --device cuda:0 --output /tmp/synthetic-physics
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_synthetic_setup.py probe \
+scripts/isaac-run.sh scripts/verify_synthetic_setup.py probe \
   --config configs/purdue_synthetic_probe.json --repeats 2 \
   --cameras --viz none --device cuda:0 --output /tmp/synthetic-verification
 ```

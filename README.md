@@ -38,6 +38,11 @@ use isolated dependencies; follow [model setup](knowledge/wiki/topics/perception
 
 ## Verification
 
+Use `scripts/isaac-run.sh` for the AlexDoor simulation entry points. It loads
+Steel with CUDA Graph by default from the workstation's local Newton/Warp site.
+Set `ISAAC_PHYSICS_PROFILE=isaacsim_physx` to run native GPU PhysX.
+[Purdue runtime configuration](knowledge/wiki/topics/purdue-b1-robot-and-contact.md#physics-profile-and-reset).
+
 ```bash
 ruff check src scripts tests
 ruff format --check src scripts tests
@@ -56,7 +61,7 @@ establish simulator, perception or physical qualification.
 The complete Purdue runtime gate uses synthetic fixtures:
 
 ```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_purdue_runtime.py --viz none --device cuda:0
+scripts/isaac-run.sh scripts/verify_purdue_runtime.py --viz none --device cuda:0
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py
 ```
 
