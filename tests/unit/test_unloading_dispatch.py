@@ -13,6 +13,7 @@ from test_observed_contact import begin_elastic_unloading, establish, inputs, mo
 from alexdoor_xas.action.b1 import apply_pose_delta
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.kinematics.pose_control import bounded_joint_step
+from alexdoor_xas.perception.contact import ContactEvidence
 from alexdoor_xas.perception.contracts import OPERATIONAL_V1
 from alexdoor_xas.perception.control import ObservedControlChecks
 from alexdoor_xas.perception.local_admission import admit_local_action
@@ -213,6 +214,41 @@ def test_pose_preview_preserves_dispatch_quaternion_representation():
     io.preview(Command("pose", goal))
     torch.testing.assert_close(goals[0][1].norm(dim=-1), torch.ones(1))
     assert not torch.equal(goals[0][1][0], supplied)
+
+
+@pytest.mark.parametrize(
+    "growth,sweep,force,expected",
+    [
+        ((0.004, 0.003), 0.002, 0.0, True),
+        ((0.004, 0.005), 0.002, 0.0, False),
+        ((0.004, 0.006), 0.002, 0.0, False),
+        ((0.004, 0.003), None, 0.0, False),
+        ((0.004, 0.003), 0.002, 1.0, False),
+    ],
+)
+def test_free_release_requires_two_positive_swept_distal_gaps(growth, sweep, force, expected):
+    contact = monitor()
+    now, _, _, _, receipt = inputs(1.2)
+    contact.result = ContactEvidence(
+        "separated", "observed_geometric_separation", now, ((0.006, 0.020), (0.005, 0.019)), force
+    )
+    receipt = replace(
+        receipt,
+        local_evidence=replace(
+            receipt.local_evidence,
+            swept_collision_margin_m=sweep,
+            distal_interval_growth_m=growth,
+        ),
+    )
+    assert receipt.proposal.loaded and receipt.local_evidence.unloaded_separation_margin_m is None
+    intent = {"unloading_after": True}
+    if expected:
+        contact.require_release_motion(intent, receipt, free_motion=True)
+        assert intent["distal_interval_separation_m"] == pytest.approx((0.002, 0.002))
+        assert not intent["unloading_after"]
+    else:
+        with pytest.raises(ValueError, match="observed_release_separation_unverified"):
+            contact.require_release_motion(intent, receipt, free_motion=True)
 
 
 @pytest.mark.parametrize("failure", [None, "finger", "sweep", "stale", "load"])

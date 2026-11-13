@@ -935,10 +935,31 @@ def test_observed_separation_ends_elastic_state_and_allows_stationary_stabilizat
     for i in range(1, 31):
         values = inputs(1.35 + i / 60, force=0, x=0.003 - i * 0.002)
         result = m.update(*values)
-    assert result.status == "separated" and not m.elastic_unloading
+    assert result.status == "separated" and m.elastic_unloading
     now, estimate, tool, _, receipt = values
     intent = m.preview_unloading(now, estimate, tool, tool, tool, tool, receipt)
     assert not intent["unloading_after"]
+    m.commit_unloading(intent, tool, now + 1 / 60)
+    assert not m.elastic_unloading
+
+
+def test_aging_after_first_positive_gap_preserves_certified_withdrawal():
+    m = monitor()
+    begin_elastic_unloading(m)
+    for t in np.arange(1.2 + 1 / 60, 1.35, 1 / 60):
+        m.update(*inputs(float(t), force=0))
+    for i in range(1, 15):
+        now = 1.35 + i / 60
+        values = inputs(now, force=0, x=0.003 - i * 0.002)
+        if m.update(*values).status == "separated":
+            break
+    assert m.result.status == "separated"
+    values = inputs(now + 1 / 60, force=0, x=0.003, withdrawal=True)
+    now, estimate, tool, _, receipt = values
+    assert m.update(*values).status == "unloading"
+    target = receipt.proposal.world_poses[-1]
+    intent = m.preview_unloading(now, estimate, tool, target, tool, target, receipt)
+    assert intent["unloading_after"]
 
 
 def test_supported_forward_command_cancels_elastic_intent_before_later_accidental_loss():

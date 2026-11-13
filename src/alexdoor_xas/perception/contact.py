@@ -241,16 +241,28 @@ class ObservedContactMonitor:
         evidence = admission.local_evidence
         if intent["unloading_after"] and not free_motion:
             return
+        growth = evidence.distal_interval_growth_m
         if (
             self.result.status == "separated"
             and self.result.normal_force_lower_n is not None
             and self.result.normal_force_lower_n <= self.config.force_off_n
-            and min(lo for lo, _ in self.result.finger_separation_intervals_m) > 0
-            and not admission.proposal.loaded
-            and evidence.unloaded_separation_margin_m is not None
-            and evidence.unloaded_separation_margin_m > 0
+            and evidence.swept_collision_margin_m is not None
+            and evidence.swept_collision_margin_m > 0
+            and growth is not None
+            and len(growth) == len(self.result.finger_separation_intervals_m) == 2
+            and np.isfinite(growth).all()
+            and min(growth) >= 0
         ):
-            return
+            margins = tuple(
+                lower - reserve
+                for (lower, _), reserve in zip(
+                    self.result.finger_separation_intervals_m, growth, strict=True
+                )
+            )
+            if min(margins) > 0:
+                intent["distal_interval_separation_m"] = margins
+                intent["unloading_after"] = False
+                return
         raise ValueError("observed_release_separation_unverified")
 
     def commit_unloading(self, intent, delivered, completed_s):
@@ -555,8 +567,9 @@ class ObservedContactMonitor:
                 and force <= self.config.force_off_n
                 and min(lower for lower, _ in intervals) > 0
             ):
-                # Existing observed separation bound, not a target or phase label.
-                self.elastic_unloading = False
+                # A positive sample ends support. Keep the delivered withdrawal
+                # until a later command actually changes mode, since the gap can
+                # overlap zero again while that sample ages.
                 self.established = False
             # Maintaining contact requires a strictly positive lower force bound,
             # even when the operational off threshold is zero. Independent
@@ -596,12 +609,12 @@ class ObservedContactMonitor:
                 self.established = now - self.confirm_started >= self.config.confirmation_s - 1e-9
                 status = "contact" if self.established else "seeking"
                 reason = "supported_indirect_contact" if self.established else "confirming_contact"
-            elif self.elastic_unloading and force is not None:
-                status, reason = "unloading", "delivered_elastic_unloading"
             elif min(lower for lower, _ in intervals) > 0:
                 self.confirm_started = None
                 status, reason = "separated", "observed_geometric_separation"
                 self.releasing = False
+            elif self.elastic_unloading and force is not None:
+                status, reason = "unloading", "delivered_elastic_unloading"
             elif self.releasing:
                 status, reason = "unloading", "geometric_withdrawal"
             else:

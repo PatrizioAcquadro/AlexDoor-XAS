@@ -169,8 +169,14 @@ the published observation age and the material angular allowance for the
 next interval. The same admission covers collision, response, and stopping.
 The actual target and completed interval must match the receipt.
 Free release and stabilization require positive observed separation for both
-fingers and a whole-robot free-space proof. Loss of measured force alone
-leaves the monitor in unloading while geometric separation is unresolved.
+fingers across the control interval. Spend the calibrated joint travel and
+material motion against each finger's observed gap. The independent
+whole-robot collision and stop proof still applies, as does the separate
+position support check for the calibrated stop-load domain. A fresh positive
+gap can overlap zero again as the observation ages. In that case the monitor
+can continue a verified withdrawal from the previous delivered command.
+The reduced-opening component rotates at its withdrawn position to exercise
+this transition when the ordinary cycle's preceding open retreat pose is absent.
 
 Independent stop verification latches the measured joint anchor, applies
 the configured stop impedance, and advances the solver with gravity

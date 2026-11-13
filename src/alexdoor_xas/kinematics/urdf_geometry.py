@@ -521,3 +521,21 @@ class RobotGeometry:
                     extra += 2 * lever * np.sin(min(travel, np.pi) / 2)
             link = parent
         return center, radius + float(extra)
+
+    def point_travel_bound(self, link, matrices, points, joint_travel):
+        """Bound the displacement of each world point on a revolute tool chain."""
+        bound = np.zeros(len(points))
+        while link in self.parents:
+            joint = self.parents[link]
+            parent = joint.find("parent").get("link")
+            name = joint.get("name")
+            if name in self.moving_joints:
+                travel = joint_travel[name]
+                if joint.get("type") not in ("revolute", "continuous"):
+                    raise ValueError("Point travel requires a revolute moving chain")
+                frame = matrices[parent] @ self.joint_origins[link]
+                axis = frame[:3, :3] @ np.fromstring(joint.find("axis").get("xyz"), sep=" ")
+                lever = np.linalg.norm(np.cross(points - frame[:3, 3], axis), axis=1)
+                bound += 2 * lever * np.sin(min(travel, np.pi) / 2)
+            link = parent
+        return bound
