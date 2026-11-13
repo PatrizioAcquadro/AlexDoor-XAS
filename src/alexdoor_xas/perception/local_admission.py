@@ -357,6 +357,9 @@ class LocalActionSupport:
     # independently of normal-only separation and finite contact receipts.
     target_relief_exclusion: TargetReliefExclusion | None = None
     target_height_exclusions: tuple[TargetFrontHeightExclusion, ...] = ()
+    # Per-finger debit from the current observed distal gap for this interval.
+    # This is separate from the whole-robot collision and stop certificates.
+    distal_interval_growth_m: tuple[float, float] | None = None
 
 
 def _local_error_terms(patch, evidence, limits, now, duration):

@@ -10,7 +10,7 @@ from scipy.spatial import ConvexHull
 
 from alexdoor_xas.action.b1 import apply_pose_delta
 from alexdoor_xas.action.spaces import A1_JOINT_DELTA
-from alexdoor_xas.assets.purdue import ARM_JOINTS, derive_push_geometry
+from alexdoor_xas.assets.purdue import ARM_JOINTS, PUSH_PARENT, derive_push_geometry
 from alexdoor_xas.kinematics.self_clearance import RobotSelfClearance
 from alexdoor_xas.kinematics.urdf_geometry import RobotGeometry, stop_box_cover
 from alexdoor_xas.perception.admission import ActionAdmission, ActionLimits, ActionProposal
@@ -194,11 +194,13 @@ class PilotMotionEvidence:
         if np.max(abs(dq)) > self.config["max_joint_speed_rad_s"]:
             raise ValueError("outside_verified_motion_speed")
         matrices = self.model.transforms(positions, io.calibration["root_world"])
+        control_travel = abs(dq) * io.dt + 0.5 * self.acceleration * io.dt**2
+        arm_travel = dict(zip(ARM_JOINTS, control_travel, strict=True))
         joint_travel = dict(self.config["held_joint_travel"])
         joint_travel.update(
             zip(
                 ARM_JOINTS,
-                abs(dq) * io.dt + 0.5 * self.acceleration * io.dt**2 + self.stop,
+                control_travel + self.stop,
                 strict=True,
             )
         )
@@ -254,7 +256,7 @@ class PilotMotionEvidence:
         nonseparated_cell = None
         contact_free_stop_margin = np.inf
         checked = directional = 0
-        control_angle = float(abs(dq).sum() * io.dt + 0.5 * self.acceleration.sum() * io.dt**2)
+        control_angle = float(control_travel.sum())
 
         order = {}
         if self.background_mode:
@@ -298,6 +300,19 @@ class PilotMotionEvidence:
         # This is the target's remaining motion, not another robot sweep.
         temporal_p = self.config["relative_speed_bound_m_s"] * io.dt
         temporal_a = self.config["material_angular_speed_rad_s"] * io.dt
+        distal_growth = []
+        for face in self.faces:
+            points = face @ tool.rot.T + tool.origin
+            travel = self.model.point_travel_bound(PUSH_PARENT, matrices, points, arm_travel)
+            # Contact evidence already covers current material and tool FK error.
+            # Spend new interval motion and finger geometry allowance once.
+            lever = np.linalg.norm(points - patch.world_pose.origin, axis=1) + travel
+            distal_growth.append(
+                float(max(travel + temporal_p + lever * temporal_a))
+                + self.config["closed_jaw_bound_m"]
+                + self.config["robot_model_bound_m"]
+            )
+        diagnostics["distal_interval_growth_m"] = distal_growth
         foreground_by_key = {}
         surface_basis = None
         convex_motion = None
@@ -701,14 +716,7 @@ class PilotMotionEvidence:
                 and foreground is not None
                 and foreground > 0
             ):
-                travel = dict(
-                    zip(
-                        ARM_JOINTS,
-                        abs(dq) * io.dt + 0.5 * self.acceleration * io.dt**2,
-                        strict=True,
-                    )
-                )
-                _, motion_radius = self.model.world_ball(cell, matrices, travel)
+                _, motion_radius = self.model.world_ball(cell, matrices, arm_travel)
                 motion_radius -= np.linalg.norm(cell.upper - cell.lower) / 2
                 rotation_error = (
                     2 * self.shape_stop[cell.shape] * np.sin(min(control_angle, np.pi) / 2)
@@ -971,6 +979,7 @@ class PilotMotionEvidence:
             if relief_spheres
             else None,
             target_height_exclusions=tuple(height_certificates),
+            distal_interval_growth_m=tuple(distal_growth),
         )
         return admit_local_action(
             observation.estimate, proposal, evidence, limits, now, generation=observation.generation

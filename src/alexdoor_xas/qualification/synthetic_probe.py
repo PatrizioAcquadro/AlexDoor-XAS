@@ -840,6 +840,7 @@ def run_probe(
     task_hold=None,
     controller=None,
     full_cycle_correction=None,
+    rotate_at_withdrawal=False,
 ):
     import torch
     from scipy.spatial.transform import Rotation, Slerp
@@ -1891,6 +1892,12 @@ def run_probe(
             retreat_q = np.array(prior["tool_quaternion"])
         else:
             retreat_p, retreat_q = pre_p, Rotation.from_matrix(pre_r).as_quat()
+        current_p, current_q = [v[0].cpu().numpy() for v in env.tool_pose()]
+        current_r = Rotation.from_quat(current_q).as_matrix()
+        if rotate_at_withdrawal:
+            # A reduced opening can lack the preceding open pose used by the
+            # ordinary cycle. Exercise the same rotation at the withdrawn point.
+            retreat_p = current_p - setup.precontact_m * current_r[:, 0]
         if held_angle is not None and intermediate is None and hasattr(recorder, "observations"):
             if late_states:
                 late_state = late_states[0]
@@ -1915,7 +1922,6 @@ def run_probe(
                     setup=setup.to_dict(),
                 ),
             )
-        current_p, current_q = [v[0].cpu().numpy() for v in env.tool_pose()]
         release_slerp = Slerp([0, 1], Rotation.from_quat([current_q, retreat_q]))
         release_pause_started = False
         for tick in range(round(setup.release_s / dt)):
@@ -1924,7 +1930,7 @@ def run_probe(
             if held_angle is not None or family == "A":
                 goal_p, goal_r = release_reference(
                     current_p,
-                    Rotation.from_quat(current_q).as_matrix(),
+                    current_r,
                     retreat_p,
                     Rotation.from_quat(retreat_q).as_matrix(),
                     (tick + 1) * dt,

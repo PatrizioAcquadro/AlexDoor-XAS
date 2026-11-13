@@ -351,6 +351,7 @@ def collect(args, env, door, setup, recipe, episode, inspection, required_openin
                 inspection=inspection,
                 task_hold=task_hold,
                 controller=recorder.execute,
+                rotate_at_withdrawal=args.component_opening_deg is not None,
             )
             result = qualify_opening_requirement(result, opening)
             if result["passed"] and (reason := recorder.io.safety_reason("stabilize")):

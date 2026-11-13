@@ -401,9 +401,20 @@ class PurdueIO:
                     checks.last_failure = checks.pending_unloading_orientation
                     raise
             if command.stage in ("release", "release_free", "stabilize"):
-                monitor.require_release_motion(
-                    unloading, self.admission, free_motion=command.stage != "release"
-                )
+                try:
+                    monitor.require_release_motion(
+                        unloading, self.admission, free_motion=command.stage != "release"
+                    )
+                except ValueError as error:
+                    checks.last_failure = dict(
+                        time_s=now,
+                        reason=str(error),
+                        contact_status=monitor.result.status,
+                        finger_separation_intervals_m=monitor.result.finger_separation_intervals_m,
+                        distal_interval_growth_m=self.admission.local_evidence.distal_interval_growth_m,
+                        force_history_lower_n=monitor.result.normal_force_lower_n,
+                    )
+                    raise
         if command.kind == "joints":
             env.step_a1(command.value)
         elif command.kind in ("delta", "pose"):
