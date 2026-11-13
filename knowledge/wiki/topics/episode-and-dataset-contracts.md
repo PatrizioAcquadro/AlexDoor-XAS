@@ -19,6 +19,8 @@ caches sampled preprocessed frames with their source indices and keeps the
 online observation history bounded. Inspect, approach, contact, push, hold,
 release, and ordinary stabilization are reviewed from the closed HDF5
 recording. The independent stop traces remain separate from teacher actions.
+Reduced-opening component recordings are retained for review and excluded
+from demonstration coverage and supervised command selection.
 
 ## Matched Policy Data
 

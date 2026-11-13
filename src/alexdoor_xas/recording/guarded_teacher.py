@@ -141,6 +141,7 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
                 self.release_rotation = goal.rot.copy()
         except (ValueError, RuntimeError) as error:
             self.guard_refusal = str(error)
+            error.probe_exception_phase = phase
             raise
 
     def close(self):
