@@ -173,3 +173,23 @@ optimized Steel runs each passed with 661 valid ZED frames, CUDA Graph
 active, and 2,644 capacity checks on 2,644 physics steps. Local timings,
 profiles and repeat commands are under
 `outputs/generated/alexdoor-steel-config-20261112/`.
+
+On the same D4-N scene, Steel's warm-up baseline took 1.71 s. The ZED reset
+took 0.42 s and graph preparation and capture took 0.57 s inside the first
+control tick. CUDA's capture begin and end calls took roughly 36 microseconds
+combined. The eager preparation pass specialized collision kernels and loaded
+Warp modules before capture. Deferring Python cycle collection reduced that
+span to 0.37 s, with the saved time appearing in the remaining warm-up ticks.
+
+An adaptive ZED reset accepted three to five exposures instead of eight.
+The full depth images and validity masks matched the reference. The mean RGB
+difference reached 2.35 levels in an adaptive repetition and 2.87 in a second
+fixed reset, indicating variation across runs at either exposure count.
+Adaptive reset time remained near 0.42 s and warm-up did not improve
+consistently. The fixed reset and native graph path were retained. The
+experiment preserves the per-run timing and RGB-D evidence
+under `outputs/generated/alexdoor-steel-warmup-20261112/`.
+The final pair with the original reset took 37.44 s with Steel and
+37.01 s with PhysX, including startup and warm-up. Steel's loop took
+27.08 s and PhysX's took 29.88 s. Both passed; Steel ran all 2,644
+capacity checks with CUDA Graph active.
