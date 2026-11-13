@@ -77,3 +77,26 @@ constructors that create their own PhysX config need a physics-config input.
 The common benchmarks provide a runtime comparison and component evidence.
 Project-specific task or autonomy qualification requires each project's normal
 controller, observations, recorder, and evaluation.
+
+## AlexDoor D4-N contact readback
+
+The D4-N comparison adapter uses `SteelContactSnapshot` to batch the native
+contact transfers into pinned host buffers with one stream synchronization.
+The raw observer and the filtered finger/panel normal and friction views share
+one snapshot per physics step. The snapshot uses the solver's pre-step body
+poses for contact geometry and preserves pair orientation, signed forces,
+sensor ordering, and overflow checks.
+
+In the short D4-N replay with Alex003, WSG32 and ZED, the optimization reduced
+Steel's contact and state bucket from 26.90 s (previous two-run mean) to 23.06 s.
+The fresh pair completed 5,556 steps and 1,389 valid RGB-D frames each. Steel
+with CUDA Graph took 69.53 s for replay through stabilization versus 70.48 s
+for native PhysX GPU. Including startup and warm-up, Steel took 79.90 s versus
+77.10 s. Both reached roughly 3° after retreat; peak load during the push
+itself differed (0.27 N with Steel, 2.83 N with PhysX).
+
+The short run uses recorded joint targets. Opening to the task threshold,
+observed contact and release, and independent stop are evaluated separately
+with the live controller. Local commands, raw timing, and receipts are under
+`outputs/generated/alexdoor-steel-contact-20261112/`. The AlexDoor default is
+unchanged.
