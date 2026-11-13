@@ -193,3 +193,26 @@ The final pair with the original reset took 37.44 s with Steel and
 37.01 s with PhysX, including startup and warm-up. Steel's loop took
 27.08 s and PhysX's took 29.88 s. Both passed; Steel ran all 2,644
 capacity checks with CUDA Graph active.
+
+### Reusing the graph across D4-N resets
+
+The short near-panel trial ran three times in one Isaac session per backend
+on the RTX 4090. Each episode restored the seeded Alex003 and hinge state,
+acquired a new ZED RGB-D frame, ran 12 warm-up ticks, and used the same
+closed-loop push, release, and stabilization criteria. The Steel trial runner
+checked the preceding solver status and cleared the native solver history and
+contact snapshot in place before each repeated reset. It verified that the same
+graph object was launched on every native step after each reset.
+
+Both backends passed all six episodes over two pairs with reversed execution
+order. Steel took 92.26 s versus 103.03 s with PhysX in the first pair, and
+91.95 s versus 99.90 s in the second pair. Each total includes one startup,
+three resets and warm-ups, and three cycles. Steel spent about 18.43 s in
+physics per session versus 44.51–44.63 s with PhysX. Its first control tick
+took 0.77–0.79 s on initial capture and 0.038–0.043 s after reset. The log
+shows one capture per Steel session and 8,076 launches and capacity checks
+per session, including warm-up. The closed-loop completion tick can differ
+by backend. All cycle frames passed the RGB-D checks and the settled contact
+load was zero on both backends. The experiment covers repeated resets of the
+same scene in one process. The runner, raw data, and repeat command are under
+`outputs/generated/alexdoor-d4n-reused-graph-20261112/`.
