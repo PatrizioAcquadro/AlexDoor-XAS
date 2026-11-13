@@ -522,20 +522,36 @@ class RobotGeometry:
             link = parent
         return center, radius + float(extra)
 
-    def point_travel_bound(self, link, matrices, points, joint_travel):
-        """Bound the displacement of each world point on a revolute tool chain."""
-        bound = np.zeros(len(points))
+    def point_advance_bound(
+        self, link, matrices, points, velocity_step, acceleration_step, normal, normal_cone
+    ):
+        """Bound each point's inward advance under the calibrated joint interval."""
+        nominal = np.zeros_like(points)
+        acceleration = np.zeros(len(points))
+        travel = np.zeros(len(points))
+        angle = 0.0
+        lever = np.linalg.norm(points - matrices[link][:3, 3], axis=1)
+        max_lever = lever.copy()
         while link in self.parents:
             joint = self.parents[link]
             parent = joint.find("parent").get("link")
             name = joint.get("name")
+            lever += np.linalg.norm(self.joint_origins[link][:3, 3])
             if name in self.moving_joints:
-                travel = joint_travel[name]
                 if joint.get("type") not in ("revolute", "continuous"):
-                    raise ValueError("Point travel requires a revolute moving chain")
+                    raise ValueError("Point advance requires a revolute moving chain")
                 frame = matrices[parent] @ self.joint_origins[link]
                 axis = frame[:3, :3] @ np.fromstring(joint.find("axis").get("xyz"), sep=" ")
-                lever = np.linalg.norm(np.cross(points - frame[:3, 3], axis), axis=1)
-                bound += 2 * lever * np.sin(min(travel, np.pi) / 2)
+                jacobian = np.cross(axis, points - frame[:3, 3])
+                reach = abs(velocity_step[name]) + acceleration_step[name]
+                nominal += jacobian * velocity_step[name]
+                acceleration += abs(jacobian @ normal) * acceleration_step[name]
+                travel += np.linalg.norm(jacobian, axis=1) * reach
+                angle += reach
+                max_lever = lever.copy()
             link = parent
-        return bound
+        # A full downstream lever bounds every mixed point derivative, as for
+        # convex_velocity_sweep. The remainder covers every time in the interval.
+        remainder = 0.5 * max_lever * angle**2
+        direction_error = 2 * np.sin(min(normal_cone, np.pi) / 2) * (travel + remainder)
+        return np.maximum(0.0, nominal @ normal) + acceleration + remainder + direction_error

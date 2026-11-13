@@ -300,15 +300,29 @@ class PilotMotionEvidence:
         # This is the target's remaining motion, not another robot sweep.
         temporal_p = self.config["relative_speed_bound_m_s"] * io.dt
         temporal_a = self.config["material_angular_speed_rad_s"] * io.dt
+        velocity_step = dict(zip(ARM_JOINTS, dq * io.dt, strict=True))
+        acceleration_step = dict(zip(ARM_JOINTS, 0.5 * self.acceleration * io.dt**2, strict=True))
+        normal_cone = max(
+            patch.pose_support.rotation_bound_rad,
+            patch.normal_rotation_bound_rad or patch.geometry_support.rotation_bound_rad,
+        )
         distal_growth = []
         for face in self.faces:
             points = face @ tool.rot.T + tool.origin
-            travel = self.model.point_travel_bound(PUSH_PARENT, matrices, points, arm_travel)
+            advance = self.model.point_advance_bound(
+                PUSH_PARENT,
+                matrices,
+                points,
+                velocity_step,
+                acceleration_step,
+                normal,
+                normal_cone + temporal_a,
+            )
             # Contact evidence already covers current material and tool FK error.
             # Spend new interval motion and finger geometry allowance once.
-            distal_levers = np.linalg.norm(points - patch.world_pose.origin, axis=1) + travel
+            distal_levers = np.linalg.norm(points - patch.world_pose.origin, axis=1)
             distal_growth.append(
-                float(np.max(travel + temporal_p + distal_levers * temporal_a))
+                float(np.max(advance + temporal_p + distal_levers * temporal_a))
                 + self.config["closed_jaw_bound_m"]
                 + self.config["robot_model_bound_m"]
             )
