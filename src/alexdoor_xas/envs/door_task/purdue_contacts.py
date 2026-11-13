@@ -87,7 +87,16 @@ class ContactObserver:
     """All robot/pedestal contacts; normal forces only, with exact actor ownership."""
 
     def __init__(
-        self, sim, stage, robot_path, panel_path, pedestal_path, ground_path, wrist_from_base
+        self,
+        sim,
+        stage,
+        robot_path,
+        panel_path,
+        pedestal_path,
+        ground_path,
+        wrist_from_base,
+        *,
+        physics_view=None,
     ):
         from pxr import UsdPhysics
 
@@ -102,10 +111,11 @@ class ContactObserver:
         )
         if not self.actors:
             raise RuntimeError("No contact sensing bodies")
-        self.view = sim.physics_sim_view.create_rigid_contact_view(
+        physics_view = sim.physics_sim_view if physics_view is None else physics_view
+        self.view = physics_view.create_rigid_contact_view(
             self.actors, max_contact_data_count=128 * len(self.actors)
         )
-        self.bodies = sim.physics_sim_view.create_rigid_body_view(self.actors)
+        self.bodies = physics_view.create_rigid_body_view(self.actors)
         self.actors = list(self.bodies.prim_paths)
         # View orders must match; both are constructed from exact paths.
         if list(self.view.sensor_paths) != self.actors:

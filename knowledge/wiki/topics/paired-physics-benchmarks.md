@@ -108,3 +108,21 @@ passed and the partial recording passed integrity review. The task threshold,
 hold, release and stabilization remain unmeasured in that observed attempt.
 Local commands, timing, and receipts are under
 `outputs/generated/alexdoor-steel-contact-20261112/`.
+
+## AlexDoor default after the bounded D4-N test
+
+`scripts/isaac-run.sh` starts the Purdue environment with Newton Steel and
+CUDA Graph. Set `ISAAC_PHYSICS_PROFILE=isaacsim_physx` to use native PhysX GPU.
+The single-environment path imports the composed stage outside Kit and checks
+the solver's capacity at the contact readout boundary.
+
+Both backends passed a bounded D4-N cycle on the RTX 4090. Alex003 started
+unloaded 3.9 mm from the panel. The controller used the mounted ZED's depth to
+track opening and finger load to adjust normal motion. PhysX reached 2.86°
+and Steel reached 2.86° before withdrawal. Both ended unloaded and stable with
+about 27 mm of separation. The final pair measured 30.81 s with PhysX and
+31.92 s with Steel in the loop, or 37.93 s and 43.25 s including startup and
+warm-up. Steel passed without a backend or wheel-path override. The adoption
+gate was functional. The paired probe covers a few degrees on one prepared
+panel. Local logs, thresholds and repeat commands are under
+`outputs/generated/alexdoor-closed-loop-20261112/`.

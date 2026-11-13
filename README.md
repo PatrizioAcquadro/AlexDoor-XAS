@@ -32,6 +32,12 @@ describes separate A100/H100 deployment boundaries.
 
 ## Verification and diagnostics
 
+Use `scripts/isaac-run.sh` for the AlexDoor simulation entry points. It loads
+Newton Steel with CUDA Graph by default. On the workstation it uses the
+shared local wheel site at `outputs/generated/isaac-steel-runtime/site`.
+Set `NEWTON_SITE` if the site is installed elsewhere. Set
+`ISAAC_PHYSICS_PROFILE=isaacsim_physx` to select native GPU PhysX for comparison.
+
 ```bash
 ruff check src scripts tests
 ruff format --check src scripts tests
@@ -49,7 +55,7 @@ establishes software behavior, not simulator, perception or physical qualificati
 The full Purdue gate uses synthetic fixtures:
 
 ```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_purdue_runtime.py --viz none --device cuda:0
+scripts/isaac-run.sh scripts/verify_purdue_runtime.py --viz none --device cuda:0
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py
 ```
 

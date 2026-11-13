@@ -40,8 +40,10 @@ def config(
     constraint_capacity=None,
     velocity_limits=False,
     rigid_gap=None,
+    contact_view=None,
 ):
     import newton
+    import warp as wp
     from isaaclab.sim.utils import get_current_stage
     from isaaclab.utils.configclass import configclass
     from newton.selection import ArticulationView
@@ -91,7 +93,7 @@ def config(
             vars(builder).update(data)
             for name, value in values.items():
                 builder.custom_attributes[name].values = value
-            NewtonManager._num_envs = len(env_roots)
+            NewtonManager._num_envs = max(1, len(env_roots))
             cls.set_builder(builder)
 
         @classmethod
@@ -118,9 +120,22 @@ def config(
                     [cls._solver.ObservableKind.CONTACT_F],
                     contacts=cls._contacts,
                 )
+            if contact_view is not None:
+                cls.contact_poses = wp.clone(cls._state_0.body_q)
+                cls.contact_sim_view = contact_view(cls)
+
+        @classmethod
+        def _solver_specific_clear(cls):
+            super()._solver_specific_clear()
+            cls.observables = None
+            if contact_view is not None:
+                cls.contact_poses = None
+                cls.contact_sim_view = None
 
         @classmethod
         def _step_solver(cls, state_0, state_1, control, contacts, substep_dt):
+            if contact_view is not None:
+                wp.copy(cls.contact_poses, state_0.body_q)
             cls._solver.step(
                 state_0,
                 state_1,

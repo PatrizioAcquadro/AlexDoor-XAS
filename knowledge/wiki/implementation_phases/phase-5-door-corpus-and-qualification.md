@@ -213,7 +213,7 @@ attempt narrative; original downloads remain outside this checkout.
 ### Operational Command
 
 ```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/qualify_door.py \
+scripts/isaac-run.sh scripts/qualify_door.py \
   --asset-id <id> --device cuda:0 --headless
 ```
 

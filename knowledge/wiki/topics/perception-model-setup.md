@@ -74,7 +74,7 @@ policy, trains a model or establishes release qualification.
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-smoke --episode /absolute/path/to/pilot/nominal/episode.hdf5 --output outputs/generated/b1/perception/NEW_P2P_SMOKE
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-replay --episode /absolute/path/to/pilot/nominal/episode.hdf5 --output outputs/generated/b1/perception/NEW_REPLAY
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-offline --episode /absolute/path/to/pilot/nominal/episode.hdf5 --output outputs/generated/b1/perception/NEW_OFFLINE
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live --case camera --asset animated-door-1-88abf40 --output outputs/generated/b1/perception/NEW_LIVE
+scripts/isaac-run.sh scripts/perception.py point2pose-live --case camera --asset animated-door-1-88abf40 --output outputs/generated/b1/perception/NEW_LIVE
 ```
 
 All recorded diagnostics require one explicit existing pilot `--episode`; live requires both `--asset` and
@@ -111,7 +111,7 @@ training, manipulation or additional attempts.
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-operational --episode datasets/recordings/b1/perception/engineering-v2/animated-door-1-88abf40/light/episode.hdf5 --mode wall-clock --selection outputs/evidence/b1/perception/sam3-operational-20261008/selection.json --output outputs/generated/b1/perception/NEW_CONTINUOUS
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live --case stationary --asset animated-door-1-88abf40 --duration-s 65 --selection outputs/evidence/b1/perception/sam3-operational-20261008/selection.json --output outputs/generated/b1/perception/NEW_STATIONARY_LIVE
+scripts/isaac-run.sh scripts/perception.py point2pose-live --case stationary --asset animated-door-1-88abf40 --duration-s 65 --selection outputs/evidence/b1/perception/sam3-operational-20261008/selection.json --output outputs/generated/b1/perception/NEW_STATIONARY_LIVE
 ```
 
 The example pixel is for its displayed pilot view, not a general selection rule.
