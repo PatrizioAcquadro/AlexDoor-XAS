@@ -87,7 +87,8 @@ done
 The fixture limits the hinge to 4 degrees on the live stage and uses the
 near-panel Alex003 pose at 240 Hz physics and 60 Hz control and RGB-D. The
 nominal and varied runs use the same seed. Newton Warp's varied condition
-scales the linear RGB radiance of its directional light. Collection validates
+rotates the directional light in azimuth while retaining its elevation and
+the renderer's ambient light. Collection validates
 the ordinary B1 schema and excludes the fixture recordings from learning.
 The evaluator expects two controlled cycles and an `out_of_domain` result
 under the existing 45-degree rule. The two diagnostic resets share one

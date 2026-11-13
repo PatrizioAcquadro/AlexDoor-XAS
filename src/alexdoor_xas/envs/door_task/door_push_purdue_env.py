@@ -103,6 +103,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         ):
             raise ValueError("finite_tangent_requires_causal_pose_feedback")
         self._motion_impedance = []
+        self._native_arm_impedance = None
         self._mounted_camera = None
         self._native_contacts = None
         with configure_purdue_physics(cfg) as self._steel:
@@ -123,28 +124,34 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self.observed_ids = self.arm_ids + self.neck_ids
         self.targets = tensor(self.robot.data.default_joint_pos).clone()
         # Preserve the task impedance across reset; only a latched stop changes it.
-        for actuator in self.robot.actuators.values():
-            for name in ARM_JOINTS:
-                if name not in actuator.joint_names:
-                    continue
-                column = actuator.joint_names.index(name)
-                self._motion_impedance.append(
-                    (
-                        actuator,
-                        column,
-                        actuator.stiffness[:, column].clone(),
-                        actuator.damping[:, column].clone(),
+        if cfg.native_steel:
+            from .native_steel import NativeArmImpedance
+
+            self._native_arm_impedance = NativeArmImpedance(self.robot, ARM_JOINTS)
+            self._normal_transport_stiffness = self._native_arm_impedance.stiffness
+        else:
+            for actuator in self.robot.actuators.values():
+                for name in ARM_JOINTS:
+                    if name not in actuator.joint_names:
+                        continue
+                    column = actuator.joint_names.index(name)
+                    self._motion_impedance.append(
+                        (
+                            actuator,
+                            column,
+                            actuator.stiffness[:, column].clone(),
+                            actuator.damping[:, column].clone(),
+                        )
                     )
-                )
-        if len(self._motion_impedance) != len(ARM_JOINTS):
-            raise RuntimeError("stop impedance joints do not resolve uniquely")
-        motion_stiffness = {
-            actuator.joint_names[column]: stiffness
-            for actuator, column, stiffness, _ in self._motion_impedance
-        }
-        self._normal_transport_stiffness = torch.stack(
-            [motion_stiffness[name] for name in ARM_JOINTS], dim=-1
-        )
+            if len(self._motion_impedance) != len(ARM_JOINTS):
+                raise RuntimeError("stop impedance joints do not resolve uniquely")
+            motion_stiffness = {
+                actuator.joint_names[column]: stiffness
+                for actuator, column, stiffness, _ in self._motion_impedance
+            }
+            self._normal_transport_stiffness = torch.stack(
+                [motion_stiffness[name] for name in ARM_JOINTS], dim=-1
+            )
         self.limits = tensor(self.robot.data.joint_pos_limits)[:, self.arm_ids].clone()
         self.pose_limits = pose_target_limits(
             self.limits, cfg.pose_target_margin_rad, domain=cfg.pose_target_domain_rad
@@ -594,6 +601,10 @@ class DoorPushPurdueEnv(DirectRLEnv):
         # Allocate loaded-stop compliance across the complete arm. A shoulder-
         # only change leaves the low-stiffness wrist carrying most deflection.
         # Keep the motion gains, damping ratios and physical effort limits.
+        if self._native_arm_impedance is not None:
+            gains = self._native_arm_impedance
+            stiffness = torch.as_tensor(self.cfg.stop_stiffness, device=self.device)[None]
+            gains.write(stiffness, gains.damping * (stiffness / gains.stiffness).sqrt())
         for actuator, column, stiffness, damping in self._motion_impedance:
             name = actuator.joint_names[column]
             stop_stiffness = self.cfg.stop_stiffness[ARM_JOINTS.index(name)]
@@ -783,6 +794,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
         super()._reset_idx(env_ids)
         self.generation += 1
         self.command_event = None
+        if self.motion_stopped and self._native_arm_impedance is not None:
+            gains = self._native_arm_impedance
+            gains.write(gains.stiffness, gains.damping)
         self.motion_stopped = False
         for actuator, column, stiffness, damping in self._motion_impedance:
             actuator.stiffness[:, column] = stiffness

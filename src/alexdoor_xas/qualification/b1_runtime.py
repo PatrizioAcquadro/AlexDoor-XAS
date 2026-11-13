@@ -135,15 +135,25 @@ def light_parameters(condition, seed):
 
 
 def configure_native_light(env, condition, seed):
-    lighting = light_parameters(condition, seed)
-    lighting["model"] = "newton_warp_directional"
+    """Vary the direction of the tiled renderer's scene light."""
+    direction = np.array([-1.0, 1.0, -1.0]) / np.sqrt(3)
+    lighting = dict(model="newton_warp_directional", direction=direction.tolist())
     if condition == "nominal":
         return lighting
+
+    import warp as wp
+
+    # The tiled camera accepts a direction for its white directional light.
+    # Rotate it in azimuth while keeping its elevation and ambient light fixed.
+    rng = np.random.default_rng(seed)
+    azimuth_delta = float(rng.choice([-1, 1]) * rng.uniform(25, 45))
+    angle = np.deg2rad(azimuth_delta)
+    cosine, sine = np.cos(angle), np.sin(angle)
+    direction[:2] = [[cosine, -sine], [sine, cosine]] @ direction[:2]
     renderer = env.camera._renderer
-    radiance = [lighting["intensity_scale"] * color for color in lighting["color"]]
-    # Set the light before the first camera capture. The renderer's default light
-    # is directional and its RGB radiance is linear, independent of sensor exposure.
-    renderer.newton_sensor.create_default_light(
-        color=radiance, enable_shadows=renderer.cfg.enable_shadows
+    renderer.newton_sensor.utils.create_default_light(
+        direction=wp.vec3f(*direction), enable_shadows=renderer.cfg.enable_shadows
     )
-    return {**lighting, "linear_rgb_radiance": radiance}
+    return dict(
+        model=lighting["model"], direction=direction.tolist(), azimuth_delta_deg=azimuth_delta
+    )

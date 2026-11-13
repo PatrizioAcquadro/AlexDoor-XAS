@@ -147,11 +147,12 @@ def record(args, entry, env, door, setup, output, inspection, seed, stop):
     from alexdoor_xas.qualification.synthetic_probe import run_probe
     from alexdoor_xas.recording.b1_runtime import ExpertRecorder, camera_calibration
 
-    lighting = light_parameters(args.condition, seed)
     if native_selected():
         lighting = configure_native_light(env, args.condition, seed)
         print(json.dumps(dict(lighting=lighting)), flush=True)
-    elif args.condition == "light":
+    else:
+        lighting = light_parameters(args.condition, seed)
+    if not native_selected() and args.condition == "light":
         import omni.graph.core as og
         import omni.replicator.core as rep
         from pxr import UsdLux
@@ -208,7 +209,6 @@ def record(args, entry, env, door, setup, output, inspection, seed, stop):
                 hold_angle_deg=None,
                 scope="inspection_only_not_training_episode",
             )
-            recorder.finish(result)
             (output / "expert").mkdir()
             (output / "expert/inspection.json").write_text(json.dumps(audit, indent=2) + "\n")
         else:
@@ -221,6 +221,7 @@ def record(args, entry, env, door, setup, output, inspection, seed, stop):
                 capture_evidence=False,
                 inspection=inspection,
             )
+        recorder.finish(result)
     finally:
         recorder.close()
     if not args.inspection_only:

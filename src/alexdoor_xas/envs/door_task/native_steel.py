@@ -4,9 +4,11 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from types import SimpleNamespace
 
+import torch
 import warp as wp
 from ihmc_alex_isaaclab.robots.purdue_frames import ALEX_PURDUE_ASSET_ROOT
 from isaaclab.actuators import IdealPDActuatorCfg
+from isaaclab.actuators.newton import read_group_parameter, write_group_parameter
 from isaaclab.assets import ArticulationCfg
 from isaaclab.sim import UsdFileCfg
 
@@ -69,6 +71,31 @@ def robot_config(cache):
         soft_joint_pos_limit_factor=1.0,
         actuators=actuators,
     ), urdf
+
+
+class NativeArmImpedance:
+    """Read and write the live PD gains through Isaac Lab's Newton actuator API."""
+
+    def __init__(self, robot, arm_names):
+        self.collection = robot.actuators
+        _, group_names = robot.find_joints(robot.cfg.actuators["arms"].joint_names_expr)
+        self.columns = torch.tensor(
+            [group_names.index(name) for name in arm_names], device=robot.device
+        )
+        self.stiffness = read_group_parameter(self.collection, "arms", "drive", "kp")[
+            :, self.columns
+        ]
+        self.damping = read_group_parameter(self.collection, "arms", "drive", "kd")[:, self.columns]
+        if not bool(torch.all(self.stiffness > 0) and torch.all(self.damping > 0)):
+            raise RuntimeError("Native arm motion gains must be positive")
+
+    def write(self, stiffness, damping):
+        write_group_parameter(
+            self.collection, "arms", "drive", "kp", stiffness, joint_ids=self.columns
+        )
+        write_group_parameter(
+            self.collection, "arms", "drive", "kd", damping, joint_ids=self.columns
+        )
 
 
 class NativeSteelPurdueViews(SteelPurdueViews):
