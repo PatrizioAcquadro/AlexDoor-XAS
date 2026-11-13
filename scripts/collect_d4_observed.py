@@ -313,6 +313,8 @@ def collect(args, env, door, setup, recipe, episode, inspection, required_openin
         robot_asset=robot.to_dict(),
         setup=setup.to_dict(),
         inspection=inspection,
+        component_only=args.component_opening_deg is not None
+        or args.component_max_sim_s is not None,
     )
     opening = args.component_opening_deg or required_opening
     task_hold = dict(
@@ -351,6 +353,8 @@ def collect(args, env, door, setup, recipe, episode, inspection, required_openin
                 controller=recorder.execute,
             )
             result = qualify_opening_requirement(result, opening)
+            if result["passed"] and (reason := recorder.io.safety_reason("stabilize")):
+                result.update(passed=False, stop_reason=reason)
             recorder.finish(result)
             result["recording_complete"] = True
         except (Exception, KeyboardInterrupt) as error:
@@ -389,10 +393,12 @@ def collect(args, env, door, setup, recipe, episode, inspection, required_openin
         if recorder.path.exists()
         else dict(integrity_passed=False, complete=False, data_usable=False)
     )
+    component = metadata["component_only"]
+    recording_ok = result["recording_validation"].get(
+        "integrity_passed" if component else "required_scope_coverage"
+    )
     result["passed"] = bool(
-        result["task_success"]
-        and result["safety_stop_passed"]
-        and result["recording_validation"].get("required_scope_coverage")
+        result["task_success"] and result["safety_stop_passed"] and recording_ok
     )
     result["demonstration_qualified"] = bool(
         result["passed"] and args.component_opening_deg is None and args.component_max_sim_s is None

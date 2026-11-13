@@ -24,6 +24,8 @@ def teacher_eligibility(file):
         return result
     outcome = json.loads(file["metadata"].attrs.get("outcome", "{}"))
     metadata = json.loads(file["metadata"].attrs["episode"])
+    if metadata.get("component_only"):
+        return result
     subtask = metadata.get("subtask")
     if subtask is not None:
         # A named, physically qualified subtask is not a failed full-task attempt.
@@ -361,13 +363,18 @@ def review_native_collection(path):
                 unsupported_slots += int(absent.sum())
         return dict(
             report,
+            component_only=bool(metadata.get("component_only")),
             data_usable=bool(len(rows)),
             required_scope_coverage=full,
             full_demonstration_coverage=bool(
-                full and subtask is None and not metadata.get("intermediate_start")
+                full
+                and subtask is None
+                and not metadata.get("component_only")
+                and not metadata.get("intermediate_start")
             ),
             full_task_success=bool(
                 subtask is None
+                and not metadata.get("component_only")
                 and not metadata.get("intermediate_start")
                 and report["outcome"].get("passed")
                 and report["outcome"].get("released")
