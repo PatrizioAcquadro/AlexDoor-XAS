@@ -2,18 +2,27 @@
 
 import numpy as np
 
+_CORE_STATUS = {"disabled_tree_joint", "joint_friction_invalid", "constraint_overflow"}
+
 
 class SteelContactSnapshot:
     """Share a native contact sample between all views of the same solver step."""
 
-    def __init__(self, manager, shape_body, shape_owner):
+    def __init__(self, manager, shape_body, shape_owner, *, check_capacity=False):
         self.manager = manager
         self.shape_body = shape_body
         self.shape_owner = shape_owner
+        self.check_capacity = check_capacity
         self._step = None
         self._sources = ()
         self._host = ()
         self._arrays = ()
+
+    def _check_status(self, status):
+        # The native checker owns optional status semantics and failure diagnostics.
+        # Core statuses are sticky flags, so all zeros are exactly its fast path.
+        if status is None or any(buffer.numpy().any() for buffer in status):
+            self.manager._solver.check_constraint_capacity()
 
     def _refresh(self):
         import warp as wp
@@ -21,7 +30,7 @@ class SteelContactSnapshot:
 
         manager = self.manager
         contacts = manager._contacts
-        sources = (
+        geometry = (
             contacts.rigid_contact_count,
             contacts.rigid_contact_shape0,
             contacts.rigid_contact_shape1,
@@ -33,8 +42,13 @@ class SteelContactSnapshot:
             manager.observables.contact_f,
             manager.contact_poses,
         )
+        status = manager._solver._status_sources() if self.check_capacity else {}
+        core_status = status.keys() == _CORE_STATUS
+        sources = (*geometry, *status.values()) if core_status else geometry
         step = manager._sim.get_physics_step_count()
-        if not self._host or any(a is not b for a, b in zip(sources, self._sources, strict=True)):
+        if len(sources) != len(self._sources) or any(
+            a is not b for a, b in zip(sources, self._sources, strict=True)
+        ):
             self._host = tuple(wp.empty_like(array, device="cpu", pinned=True) for array in sources)
             self._sources = sources
             self._step = None
@@ -45,13 +59,15 @@ class SteelContactSnapshot:
         for host, source in zip(self._host, sources, strict=True):
             wp.copy(host, source, stream=stream)
         wp.synchronize_stream(stream)
+        if self.check_capacity:
+            self._check_status(self._host[len(geometry) :] if core_status else None)
         count = int(self._host[0].numpy()[0])
         if not 0 <= count < contacts.rigid_contact_max:
             raise RuntimeError("Steel contact buffer saturated or invalid")
         shape0, shape1, p0, p1, normal, margin0, margin1, force = (
-            host.numpy()[:count] for host in self._host[1:-1]
+            host.numpy()[:count] for host in self._host[1 : len(geometry) - 1]
         )
-        poses = self._host[-1].numpy()
+        poses = self._host[len(geometry) - 1].numpy()
         if any(np.any((s < 0) | (s >= len(self.shape_owner))) for s in (shape0, shape1)):
             raise RuntimeError("Steel contact has an invalid shape owner")
         p0, p1 = p0.copy(), p1.copy()

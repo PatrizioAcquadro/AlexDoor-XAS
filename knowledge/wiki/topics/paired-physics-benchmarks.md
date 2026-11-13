@@ -126,3 +126,20 @@ warm-up. Steel passed without a backend or wheel-path override. The adoption
 gate was functional. The paired probe covers a few degrees on one prepared
 panel. Local logs, thresholds and repeat commands are under
 `outputs/generated/alexdoor-closed-loop-20261112/`.
+
+The same short trial was profiled before and after optimizing contact
+readback. Initially Steel saved 8.55 s in physics but spent 10.73 s reading
+and classifying contacts versus 2.68 s with PhysX. CPU classification
+accounted for 8.08 s on Steel. The observer now reuses fingertip hulls, checks
+the active contact values in batches and only reads poses for fingertip
+contacts that can belong to the panel. Steel copies the sticky solver
+status flags with the geometry and invokes Newton's full check for flagged
+or optional statuses. The check still covers every observed native step.
+
+The optimized pair passed on both backends. Steel contact time fell to
+3.93 s, with 0.06 s spent interpreting the status flags on the host. Steel
+took 26.55 s for the loop versus 30.70 s with PhysX and both took about 37.85 s
+through the result including startup and warm-up. These timings cover one
+short D4-N cycle per backend per configuration. The closed-loop runs reached
+the opening criterion at different ticks. Timing breakdowns, step logs and
+commands are under `outputs/generated/alexdoor-closed-loop-timing-20261112/`.

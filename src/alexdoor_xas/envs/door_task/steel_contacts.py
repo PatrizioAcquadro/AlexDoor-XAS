@@ -29,7 +29,6 @@ class ContactView:
         return [self.adapter.owners[int(i)] for i in actor_ids.numpy()]
 
     def get_raw_contact_data(self, dt):
-        self.adapter.check_capacity()
         (force, point, normal, separation, other, _), counts, starts = self.adapter.snapshot.rows(
             dt, self.owner_indices, None, self.capacity
         )
@@ -55,14 +54,9 @@ class SteelPurdueViews:
                 name = "/World/Ground/CollisionPlane"
             self.owners.append(name)
         self.owner_ids = {p: i for i, p in enumerate(self.owners)}
-        self.snapshot = SteelContactSnapshot(manager, self.shape_body, self.shape_owner)
-        self._checked_step = None
-
-    def check_capacity(self):
-        step = self.manager._sim.get_physics_step_count()
-        if self._checked_step != step:
-            self.manager._solver.check_constraint_capacity()
-            self._checked_step = step
+        self.snapshot = SteelContactSnapshot(
+            manager, self.shape_body, self.shape_owner, check_capacity=True
+        )
 
     def create_rigid_body_view(self, paths):
         return BodyView(self, paths)
