@@ -216,3 +216,19 @@ by backend. All cycle frames passed the RGB-D checks and the settled contact
 load was zero on both backends. The experiment covers repeated resets of the
 same scene in one process. The runner, raw data, and repeat command are under
 `outputs/generated/alexdoor-d4n-reused-graph-20261112/`.
+
+The standard `DoorPushPurdueEnv.reset()` now checks Steel's latched solver
+status before resetting the scene. It clears solver warm-start state and the
+native contact counts in place and invalidates the host contact snapshot. The
+reset restores the robot and hinge state, refreshes the ZED sample, and keeps
+the captured graph bound to the same buffers. A reset that encounters a
+latched saturation error raises before discarding any episode state.
+
+On the RTX 4090, the standard launcher selected Steel with the project
+defaults and passed three short D4-N episodes in one session with Alex003
+and ZED RGB-D. One graph served all 8,052 native launches and capacity
+checks, including warm-up. All 1,977 cycle frames passed the ZED checks.
+The first control tick took 0.773 s at capture and 0.037 s after each reset.
+A deliberately latched saturation flag caused the next reset to raise
+with the flag and episode state intact. Local logs and the repeat command
+are under `outputs/generated/alexdoor-d4n-standard-reset-20261113/`.

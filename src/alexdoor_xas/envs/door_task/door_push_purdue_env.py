@@ -385,6 +385,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
         )
 
     def _reset_idx(self, env_ids):
+        if self._steel:
+            self.sim.physics_manager.contact_sim_view.reset()
+            self.contact_history = []
         super()._reset_idx(env_ids)
         for fixture in self.scene.rigid_objects.values():
             state = tensor(fixture.data.default_root_state).clone()

@@ -58,6 +58,16 @@ class SteelPurdueViews:
             manager, self.shape_body, self.shape_owner, check_capacity=True
         )
 
+    def reset(self):
+        """Clear solved state in place for the single AlexDoor environment."""
+        manager = self.manager
+        solver = manager._solver
+        # Report sticky failures before reset clears them. Preserve the buffers bound to the graph.
+        solver.check_constraint_capacity()
+        solver.reset(manager._state_0)
+        manager._contacts.clear()
+        self.snapshot.invalidate()
+
     def create_rigid_body_view(self, paths):
         return BodyView(self, paths)
 

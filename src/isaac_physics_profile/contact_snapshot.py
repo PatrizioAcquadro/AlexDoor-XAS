@@ -18,6 +18,10 @@ class SteelContactSnapshot:
         self._host = ()
         self._arrays = ()
 
+    def invalidate(self):
+        """Refresh on the next read even if the physics step count stayed fixed."""
+        self._step = None
+
     def _check_status(self, status):
         # The native checker owns optional status semantics and failure diagnostics.
         # Core statuses are sticky flags, so all zeros are exactly its fast path.
