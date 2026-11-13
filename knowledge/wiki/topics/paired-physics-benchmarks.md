@@ -95,8 +95,16 @@ for native PhysX GPU. Including startup and warm-up, Steel took 79.90 s versus
 77.10 s. Both reached roughly 3° after retreat; peak load during the push
 itself differed (0.27 N with Steel, 2.83 N with PhysX).
 
-The short run uses recorded joint targets. Opening to the task threshold,
-observed contact and release, and independent stop are evaluated separately
-with the live controller. Local commands, raw timing, and receipts are under
-`outputs/generated/alexdoor-steel-contact-20261112/`. The AlexDoor default is
-unchanged.
+The bounded loaded-stop comparison uses the first 9 s of recorded targets and
+then runs the existing measured-anchor stop evaluator for 2 s plus its 4 s
+continuation. Both backends passed from roughly 0.2 N of preload, with 900 valid
+ZED frames each. The complete short test took 51.45 s with PhysX and 56.25 s
+with Steel, including startup. The stop evaluator measures continuing physics
+at a fixed target, independently of the replay controller.
+
+The live observed Steel attempt reached confirmed contact and 0.84° of
+opening before the user ended the long test during push. Its independent stop
+passed and the partial recording passed integrity review. The task threshold,
+hold, release and stabilization remain unmeasured in that observed attempt.
+Local commands, timing, and receipts are under
+`outputs/generated/alexdoor-steel-contact-20261112/`.
