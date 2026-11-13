@@ -12,17 +12,22 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
+from alexdoor_xas.qualification.b1_runtime import (  # noqa: E402
+    configure_native_light,
+    launch_b1,
+    load_probe,
+    native_selected,
+    native_state,
+)
 from alexdoor_xas.qualification.door_geometry import PreparedAssetError  # noqa: E402
 from alexdoor_xas.qualification.expert import (  # noqa: E402
     continue_pair,
-    probe_config,
     publish_expert,
     qualify_pair,
     trial_summary,
     valid_reference_inputs,
     write_result,
 )
-from alexdoor_xas.qualification.synthetic_probe import ProbeSetup  # noqa: E402
 
 
 def capture_initial(env, output):
@@ -36,8 +41,6 @@ def capture_initial(env, output):
 
 
 def main():
-    from isaaclab.app import AppLauncher
-
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--asset-id", required=True)
     parser.add_argument("--rerun", action="store_true", help="Recheck an already qualified door")
@@ -45,21 +48,48 @@ def main():
         "--diagnostic", action="store_true", help="Run one cycle without changing prepared.json"
     )
     parser.add_argument("--_continue-pair", type=Path, help=argparse.SUPPRESS)
-    AppLauncher.add_app_launcher_args(parser)
+    parser.add_argument("--condition", choices=("nominal", "light"), default="nominal")
+    parser.add_argument(
+        "--bounded-diagnostic",
+        type=Path,
+        metavar="SETUP",
+        help="Run two short unpublished cycles and evaluate the pair",
+    )
+    parser.add_argument(
+        "--output-root", type=Path, default=Path.home() / ".cache/alexdoor-xas/verification/expert"
+    )
+    if native_selected():
+        parser.add_argument("--device", default="cuda:0")
+        parser.add_argument(
+            "--headless", action="store_true", help="Run without a viewer (default)"
+        )
+    else:
+        from isaaclab.app import AppLauncher
+
+        AppLauncher.add_app_launcher_args(parser)
     args = parser.parse_args()
     if Path(args.asset_id).name != args.asset_id or args.asset_id in (".", ".."):
         parser.error("asset-id must identify one published door")
     if not str(args.device).startswith("cuda"):
         parser.error("Qualification requires CUDA")
+    bounded = args.bounded_diagnostic is not None
+    if bounded and not args.diagnostic:
+        parser.error("A bounded diagnostic requires --diagnostic")
+    if args.condition == "light" and not (args.diagnostic and native_selected()):
+        parser.error("Varied-light evaluation requires a native diagnostic")
+
     folder = REPO / "datasets/doors/b1" / args.asset_id
     original = json.loads((folder / "prepared.json").read_text())
     if not valid_reference_inputs(original):
         parser.error("Door does not have completed preparation; do not qualify it")
     previous = original.get("expert_qualification", "not_run")
-    if isinstance(previous, dict) and previous.get("status") == "qualified" and not args.rerun:
+    if (
+        isinstance(previous, dict)
+        and previous.get("status") == "qualified"
+        and not (args.rerun or args.diagnostic)
+    ):
         parser.error("Door already qualified; use --rerun only for a justified recheck")
     config = REPO / "configs/purdue_synthetic_probe.json"
-    setup = ProbeSetup(**json.loads(config.read_text()))
     if args._continue_pair is not None:
         if args.diagnostic:
             parser.error("A diagnostic cannot continue a formal pair")
@@ -68,12 +98,14 @@ def main():
         print(f"Continue pair: {output}", flush=True)
     else:
         stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
-        output = Path.home() / ".cache/alexdoor-xas/verification/expert" / args.asset_id / stamp
+        output = args.output_root / args.asset_id / stamp
         output.mkdir(parents=True, exist_ok=False)
         print(f"Evidence: {output}", flush=True)
         for name in ("prepared.json", "recipe.json", "candidate.json"):
             (output / name).write_bytes((folder / name).read_bytes())
         (output / "setup.json").write_bytes(config.read_bytes())
+        if bounded:
+            (output / "diagnostic-setup.json").write_bytes(args.bounded_diagnostic.read_bytes())
         report = dict(
             asset_id=args.asset_id,
             status="unresolved",
@@ -86,74 +118,96 @@ def main():
             else "nominal_simulated_expert_reference_not_learning_data",
             previous_evidence=previous.get("evidence") if isinstance(previous, dict) else None,
             diagnostic_only=args.diagnostic,
-            trial_isolation="fresh_process",
+            trial_isolation="shared_session" if bounded else "fresh_process",
+            bounded_diagnostic=bounded,
+            condition=args.condition,
+            physics_profile=os.environ.get("ISAAC_PHYSICS_PROFILE"),
         )
         write_result(output / "report.json", report)
         trials = []
-    app, env = None, None
     try:
-        args.enable_cameras = True
-        app = AppLauncher(args).app
-        from alexdoor_xas.envs.door_task.door_push_purdue_env import DoorPushPurdueEnv
-        from alexdoor_xas.qualification.door_geometry import PreparedDoor
         from alexdoor_xas.qualification.synthetic_probe import run_probe
 
-        door = PreparedDoor(folder, original, json.loads((folder / "recipe.json").read_text()))
-        env = DoorPushPurdueEnv(probe_config(door, setup, args.device))
-        from alexdoor_xas.envs.door_task.door_push_purdue_env import PEDESTAL
+        door, setup, runtime = load_probe(
+            folder,
+            original,
+            config,
+            args.bounded_diagnostic,
+            seed=6100 if args.condition == "light" else None,
+        )
+        with launch_b1(door, setup, args, **runtime) as env:
+            if native_selected():
+                report["lighting"] = configure_native_light(env, args.condition, runtime["seed"])
+            from alexdoor_xas.envs.door_task.door_push_purdue_env import PEDESTAL
 
-        intersections = door.pedestal_intersections(env.sim.stage, PEDESTAL)
-        if intersections:
-            capture_initial(env, output)
-            report.update(
-                status="out_of_domain",
-                reason="closed_door_pedestal_intersection",
-                geometry_evidence=intersections,
-                qualification_scope="initial_setup_infeasible_no_expert_angle",
-            )
-            return 2
-        # Missing prescribed surface is diagnosed, never silently relocated.
-        contact, rotation = door.contact_pose(0.0, setup.contact_fraction, setup.contact_height)
-        faces = [face @ rotation.T + contact for face in env.push_geometry.distal_faces]
-        import numpy as np
-
-        if not door.footprint_inside(np.concatenate(faces), 0.0):
-            raise ValueError("Prescribed fingertip footprint has missing leaf surface")
-        obstructions = door.footprint_obstructions(faces, setup.position_tolerance, rotation[:, 0])
-        if obstructions:
-            capture_initial(env, output)
-            report.update(
-                status="out_of_domain",
-                reason="prescribed_footprint_obstructed",
-                geometry_evidence=obstructions,
-                qualification_scope="nominal_contact_pose_infeasible_no_expert_angle",
-            )
-            return 2
-        for number in range(len(trials) + 1, 2 if args.diagnostic else 3):
-            trial = run_probe(env, door, setup, output / f"repeat-{number}")
-            trials.append(trial)
-            report["trials"].append(trial_summary(trial, number))
-            write_result(output / "report.json", report)
-            print(json.dumps(report["trials"][-1]), flush=True)
-            if number == 1 and not args.diagnostic:
-                # Isolate both PhysX contact history and renderer state between trials.
-                env.close()
-                env = None
-                sys.stdout.flush()
-                sys.stderr.flush()
-                os.execv(
-                    sys.executable,
-                    [
-                        sys.executable,
-                        str(Path(__file__).resolve()),
-                        *sys.argv[1:],
-                        "--_continue-pair",
-                        str(output),
-                    ],
+            intersections = door.pedestal_intersections(env.sim.stage, PEDESTAL)
+            if intersections:
+                capture_initial(env, output)
+                report.update(
+                    status="out_of_domain",
+                    reason="closed_door_pedestal_intersection",
+                    geometry_evidence=intersections,
+                    qualification_scope="initial_setup_infeasible_no_expert_angle",
                 )
-        report.update(qualify_pair(trials))
-        if args.diagnostic:
-            report["reason"] = "single_diagnostic_no_expert_reference"
+                return 2
+            # Missing prescribed surface is diagnosed, never silently relocated.
+            contact, rotation = door.contact_pose(0.0, setup.contact_fraction, setup.contact_height)
+            faces = [face @ rotation.T + contact for face in env.push_geometry.distal_faces]
+            import numpy as np
+
+            if not door.footprint_inside(np.concatenate(faces), 0.0):
+                raise ValueError("Prescribed fingertip footprint has missing leaf surface")
+            obstructions = door.footprint_obstructions(
+                faces, setup.position_tolerance, rotation[:, 0]
+            )
+            if obstructions:
+                capture_initial(env, output)
+                report.update(
+                    status="out_of_domain",
+                    reason="prescribed_footprint_obstructed",
+                    geometry_evidence=obstructions,
+                    qualification_scope="nominal_contact_pose_infeasible_no_expert_angle",
+                )
+                return 2
+            graphs = None
+            repeats = 1 if args.diagnostic and not bounded else 2
+            for number in range(len(trials) + 1, repeats + 1):
+                trial = run_probe(env, door, setup, output / f"repeat-{number}")
+                if native_selected():
+                    state = native_state(env, stepped=True)
+                    if bounded:
+                        current = dict(env.sim.backend_manager.backend.graphs)
+                        if graphs is not None and (
+                            current.keys() != graphs.keys()
+                            or any(current[key] is not graph for key, graph in graphs.items())
+                        ):
+                            raise RuntimeError("Steel CUDA Graph changed after reset")
+                        graphs = current
+                    report.setdefault("runtime", []).append(state)
+                trials.append(trial)
+                report["trials"].append(trial_summary(trial, number))
+                write_result(output / "report.json", report)
+                print(json.dumps(report["trials"][-1]), flush=True)
+                if number == 1 and not args.diagnostic:
+                    # Isolate contact history and renderer state between formal trials.
+                    env.close()
+                    sys.stdout.flush()
+                    sys.stderr.flush()
+                    os.execv(
+                        sys.executable,
+                        [
+                            sys.executable,
+                            str(Path(__file__).resolve()),
+                            *sys.argv[1:],
+                            "--_continue-pair",
+                            str(output),
+                        ],
+                    )
+            report.update(qualify_pair(trials))
+            if bounded:
+                report["graph_reused_across_reset"] = graphs is not None
+            elif args.diagnostic:
+                report["reason"] = "single_diagnostic_no_expert_reference"
     except Exception as exc:
         traceback.print_exc()
         report.update(
@@ -173,10 +227,16 @@ def main():
             json.dumps({k: v for k, v in report.items() if k != "geometry_evidence"}, indent=2),
             flush=True,
         )
-        if env is not None:
-            env.close()
-        # Match maintained Kit CLIs: flush and exit without unreliable teardown.
-        del app
+    if bounded:
+        return (
+            0
+            if (
+                report["status"] == "out_of_domain"
+                and len(trials) == 2
+                and all(t["visibility"]["passed"] for t in trials)
+            )
+            else 1
+        )
     if args.diagnostic and len(trials) == 1:
         trial = trials[0]
         if trial["passed"] and trial["released"] and trial["hold_angle_deg"] is not None:

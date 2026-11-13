@@ -14,7 +14,7 @@ geometry. AlexDoor-XAS owns the task contact frame, control, sensing
 contracts, scene placement, and benchmark qualification. Do not copy Alex assets
 or generic integration code into this repository or Isaac Lab.
 
-Use `ihmc_alex_isaaclab.robots.alex_purdue.make_alex_purdue_cfg` with
+On the Kit stack, use `ihmc_alex_isaaclab.robots.alex_purdue.make_alex_purdue_cfg` with
 `fix_base=True`, `variant="full_convex"`, and `end_effector="wsg32_umi_v1"`.
 The source is
 `~/Desktop/Alex/assets/robots/alex_purdue/urdf/baseline/alex_purdue_wsg32_umi_v1_full_convex.urdf`.
@@ -22,11 +22,14 @@ The factory defaults to SAKE when the end effector is omitted; select WSG explic
 
 ## Physics profile and reset
 
-Start the Purdue simulation through `scripts/isaac-run.sh`. The launcher uses
-Steel with CUDA Graph by default and selects the local Newton/Warp wheel site
-under `outputs/generated/isaac-steel-runtime/site`. Set `NEWTON_SITE` for a
-different installation. Set `ISAAC_PHYSICS_PROFILE=isaacsim_physx` to run a
-native GPU PhysX comparison or reproduce a historical PhysX run.
+Start the Purdue simulation through `scripts/isaac-run.sh`. The B1
+`collect_perception.py` and `qualify_door.py` commands select Isaac Lab's
+`SteelSolverCfg` with CUDA Graph and the Newton Warp renderer. The remaining
+Kit commands use the local Steel wheel site under
+`outputs/generated/isaac-steel-runtime/site`. Select `newton_steel` explicitly
+through `ISAAC_PHYSICS_PROFILE` to use that Kit profile for the B1 commands.
+Set `NEWTON_SITE` for a different wheel site or select `isaacsim_physx` to
+reproduce a GPU PhysX run.
 
 The first native Steel step captures the graph. Each standard environment reset
 checks the latched solver status before restoring the scene. It clears solver
@@ -43,6 +46,53 @@ checks. The first control tick took 0.785 s at capture and 0.037–0.040 s
 after reset. An injected saturation flag caused a subsequent reset to raise
 before discarding solver or episode state. Local evidence and the repeat
 command are under `outputs/generated/alexdoor-d4n-standard-reset-20261113/`.
+
+### Install the native B1 runtime
+
+Check out NVIDIA Isaac Lab at `67fe12806afbdb8bf8e125866661dd201088a54d`.
+From that checkout, use its lockfile with
+`UV_PROJECT_ENVIRONMENT=/absolute/path/to/.venv uv sync --locked --python 3.12`.
+That lockfile selects Newton `7f0c13af6e4dd75253709c31dc65c0edcaf22b44`.
+Use persistent storage for the checkout, virtual environment, and package cache.
+Set `ALEXDOOR_NATIVE_PYTHON` to the resulting Python or put the environment at
+`outputs/generated/isaac-native-runtime/.venv`. The editable Alex source
+defaults to the sibling `Alex` checkout. Set `ALEXDOOR_ALEX_ROOT` if it lives elsewhere.
+
+Set `ALEXDOOR_USD_CACHE` to the existing converted robot and pedestal USD
+directory or place it under `outputs/generated/isaac-native-runtime/usd-cache`.
+The scene references the fixed-base Alex003 WSG32/UMI asset under
+`robot/alex_purdue_wsg32_umi_v1_full_convex/` and its pedestal under
+`pedestal/purdue_alex003_pedestal/`. Keep the companion layers alongside
+each root USDA. The native path uses the Alex URDF joint limits and Purdue
+actuator gains with Isaac Lab's current actuator fields. It applies Alex's
+collision filters, finger material, and ZED mount at scene composition.
+
+### Repeat the bounded B1 diagnostic
+
+Run from the repository root on the reserved RTX GPU. Use a fresh output
+directory with room for the RGB-D recordings.
+
+```bash
+asset=psx-interior-wood-002-02e442c
+fixture=configs/purdue_b1_bounded_diagnostic.json
+output=/absolute/path/to/fresh-results
+for condition in nominal light; do
+  scripts/isaac-run.sh scripts/collect_perception.py --asset-id "$asset" \
+    --bounded-diagnostic "$fixture" --condition "$condition" --output "$output/collection"
+  scripts/isaac-run.sh scripts/qualify_door.py --asset-id "$asset" --diagnostic \
+    --bounded-diagnostic "$fixture" --condition "$condition" --output-root "$output/evaluation"
+done
+```
+
+The fixture limits the hinge to 4 degrees on the live stage and uses the
+near-panel Alex003 pose at 240 Hz physics and 60 Hz control and RGB-D. The
+nominal and varied runs use the same seed. Newton Warp's varied condition
+scales the linear RGB radiance of its directional light. Collection validates
+the ordinary B1 schema and excludes the fixture recordings from learning.
+The evaluator expects two controlled cycles and an `out_of_domain` result
+under the existing 45-degree rule. The two diagnostic resets share one
+process and reuse the same physics CUDA Graph. Formal qualification uses a
+fresh process for each trial and publishes its result through the usual path.
 
 ## Arm and Gripper
 

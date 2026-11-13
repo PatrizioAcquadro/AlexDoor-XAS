@@ -107,7 +107,8 @@ def test_qualification_is_checked_even_if_record_digest_is_refreshed(frozen, fai
         load_corpus(path, root)
 
 
-def test_evidence_check_rejects_missing_capture_even_with_passing_results(frozen):
+@pytest.mark.parametrize("terminal_phase", ["release", "stabilize"])
+def test_evidence_check_rejects_missing_capture_even_with_passing_results(frozen, terminal_phase):
     root, _, corpus = frozen
     entry = corpus["doors"][0]
     folder = root / "datasets/doors/b1" / entry["asset_id"]
@@ -138,10 +139,11 @@ def test_evidence_check_rejects_missing_capture_even_with_passing_results(frozen
                 **reference["trials"][number - 1],
                 "case": entry["asset_id"],
                 "clearance_m": 0.0,
+                **({"stabilized": True} if terminal_phase == "stabilize" else {}),
             },
         )
         frames = reference["trials"][number - 1]["visibility"]["checked_frames"]
-        write(trial / "trace.json", [{"phase": "release"}] * frames)
+        write(trial / "trace.json", [{"phase": terminal_phase}] * frames)
         write(trial / "camera.json", {str(tick): {} for tick in range(30, frames + 1, 30)})
         # This unit test checks inventory, not image decoding or simulated physics.
         for tick in range(30, frames + 1, 30):
@@ -152,6 +154,6 @@ def test_evidence_check_rejects_missing_capture_even_with_passing_results(frozen
     with pytest.raises(ValueError, match="Incomplete RGB-D"):
         _validate_evidence(folder, entry, reference, setup, evidence_root)
     (output / "repeat-2/depth-00030.npy").touch()
-    write(output / "repeat-2/trace.json", [{"phase": "release"}] * 30)
+    write(output / "repeat-2/trace.json", [{"phase": terminal_phase}] * 30)
     with pytest.raises(ValueError, match="frame count mismatch"):
         _validate_evidence(folder, entry, reference, setup, evidence_root)

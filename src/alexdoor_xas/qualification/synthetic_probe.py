@@ -780,7 +780,7 @@ def prepare_probe(
     env.sim.stage.Export(str(output / "scene.usda"))
     from alexdoor_xas.kinematics.purdue_chain import PurdueChain
 
-    chain = PurdueChain(env.robot.cfg.spawn.asset_path, env.device)
+    chain = PurdueChain(env.robot_urdf_path, env.device)
     q_now = tensor(env.robot.data.joint_pos)[:, env.arm_ids]
     predicted, _ = chain.forward(q_now)
     root_p = tensor(env.robot.data.root_link_pos_w)[0].cpu().numpy()

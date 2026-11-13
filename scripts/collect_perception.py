@@ -13,6 +13,14 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
+from alexdoor_xas.qualification.b1_runtime import (  # noqa: E402
+    configure_native_light,
+    launch_b1,
+    light_parameters,
+    load_probe,
+    native_selected,
+    native_state,
+)
 from alexdoor_xas.qualification.corpus import load_corpus  # noqa: E402
 from alexdoor_xas.recording.b1 import validate_episode  # noqa: E402
 
@@ -23,6 +31,7 @@ def main():
     parser.add_argument("--asset-id")
     parser.add_argument("--condition", choices=("nominal", "light"))
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--bounded-diagnostic", type=Path, metavar="SETUP")
     parser.add_argument("--inspection", type=Path, help="Common camera mount and neck scan config")
     parser.add_argument(
         "--inspection-only", action="store_true", help="Camera diagnostic, no expert"
@@ -33,6 +42,9 @@ def main():
     parser.add_argument("--_worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args()
+    diagnostic = args.bounded_diagnostic is not None
+    if diagnostic and (not args.asset_id or args.resume or args.smoke or args.inspection):
+        parser.error("A bounded diagnostic requires one asset and fresh output")
     if args.inspection_only and (not args.inspection or args.resume):
         parser.error("Inspection-only requires --inspection and fresh recorded output")
     if not args.device.startswith("cuda"):
@@ -55,7 +67,7 @@ def main():
             for condition in [args.condition] if args.condition else ["nominal", "light"]:
                 path = args.output / entry["asset_id"] / condition / "episode.hdf5"
                 if args.resume and path.exists():
-                    summary = validate_episode(path)
+                    summary = validate_episode(path, diagnostic=diagnostic)
                     report = path.parent / "validation.json"
                     if not report.exists():
                         report.write_text(json.dumps(summary, indent=2) + "\n")
@@ -79,6 +91,8 @@ def main():
                 "--device",
                 args.device,
             ]
+            if diagnostic:
+                command.extend(["--bounded-diagnostic", str(args.bounded_diagnostic.resolve())])
             if args.inspection:
                 command.extend(["--inspection", str(args.inspection.resolve())])
             if args.inspection_only:
@@ -95,7 +109,7 @@ def main():
                 if not (path.parent / "expert/inspection.json").is_file():
                     raise RuntimeError("Worker did not finish inspection")
             else:
-                validate_episode(path)
+                validate_episode(path, diagnostic=diagnostic)
             print(json.dumps(dict(completed=entry["asset_id"], condition=condition)), flush=True)
 
         for task in pending_tasks:
@@ -106,46 +120,42 @@ def main():
     entry = entries[0]
     output = args.output / entry["asset_id"] / args.condition
     output.mkdir(parents=True, exist_ok=False)
-    from isaaclab.app import AppLauncher
-
-    app = AppLauncher(
-        headless=True, enable_cameras=True, device=args.device, width=1280, height=720
-    ).app
-    from alexdoor_xas.envs.door_task.door_push_purdue_env import DoorPushPurdueEnv
-    from alexdoor_xas.qualification.door_geometry import PreparedDoor
-    from alexdoor_xas.qualification.expert import probe_config
-    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, run_probe
-    from alexdoor_xas.recording.b1_runtime import ExpertRecorder, camera_calibration
-
     folder = REPO / "datasets/doors/b1" / entry["asset_id"]
-    door = PreparedDoor(
+    door, setup, runtime = load_probe(
         folder,
         json.loads((folder / "prepared.json").read_text()),
-        json.loads((folder / "recipe.json").read_text()),
+        REPO / corpus["setup"]["path"],
+        args.bounded_diagnostic,
+        seed=6100 if entry["split"] == "train" else 6200,
     )
-    setup = ProbeSetup(**json.loads((REPO / corpus["setup"]["path"]).read_text()))
     inspection = None
     if args.inspection:
         from alexdoor_xas.perception.inspection import load_inspection
 
         inspection = load_inspection(args.inspection)
         setup.neck = tuple(inspection["waypoints"][-1][1:])
-    env_config = probe_config(door, setup, args.device)
-    if inspection:
-        env_config.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
-    env = DoorPushPurdueEnv(env_config)
-    seed = 6100 if entry["split"] == "train" else 6200
-    lighting = dict(intensity_scale=1.0, color=[1.0, 1.0, 1.0])
-    if args.condition == "light":
-        import numpy as np
+        runtime["pitch"] = inspection["mount_pitch_rad"]
+    with launch_b1(door, setup, args, **runtime) as env:
+        return record(
+            args, entry, env, door, setup, output, inspection, runtime["seed"], runtime["stop"]
+        )
+
+
+def record(args, entry, env, door, setup, output, inspection, seed, stop):
+    import numpy as np
+
+    from alexdoor_xas.qualification.synthetic_probe import run_probe
+    from alexdoor_xas.recording.b1_runtime import ExpertRecorder, camera_calibration
+
+    lighting = light_parameters(args.condition, seed)
+    if native_selected():
+        lighting = configure_native_light(env, args.condition, seed)
+        print(json.dumps(dict(lighting=lighting)), flush=True)
+    elif args.condition == "light":
         import omni.graph.core as og
         import omni.replicator.core as rep
         from pxr import UsdLux
 
-        rng = np.random.default_rng(seed)
-        lighting = dict(
-            intensity_scale=float(rng.uniform(0.8, 1.2)), color=rng.uniform(0.9, 1.0, 3).tolist()
-        )
         lights = [
             prim
             for prim in env.sim.stage.Traverse()
@@ -179,6 +189,9 @@ def main():
         setup=setup.to_dict(),
         teacher="frozen_arm_expert_with_inspection" if inspection else "frozen_phase5_expert",
         inspection=inspection,
+        bounded_diagnostic=stop is not None,
+        diagnostic_hinge_stop_deg=stop,
+        physics_profile=os.environ.get("ISAAC_PHYSICS_PROFILE") or env.cfg.physics_profile,
     )
     recorder = ExpertRecorder(output / "episode.hdf5", metadata)
     recorder.calibration = camera_calibration(env)
@@ -211,11 +224,11 @@ def main():
     finally:
         recorder.close()
     if not args.inspection_only:
-        summary = validate_episode(output / "episode.hdf5")
+        summary = validate_episode(output / "episode.hdf5", diagnostic=stop is not None)
         (output / "validation.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(dict(asset_id=door.name, condition=args.condition, result=result)), flush=True)
-    env.close()
-    del app
+    if native_selected():
+        print(json.dumps(native_state(env, stepped=not args.inspection_only)), flush=True)
     return 0 if result["passed"] and (args.inspection_only or result["released"]) else 1
 
 

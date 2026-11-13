@@ -13,6 +13,7 @@ class SteelContactSnapshot:
         self.shape_body = shape_body
         self.shape_owner = shape_owner
         self.check_capacity = check_capacity
+        self.capacity_checks = 0
         self._step = None
         self._sources = ()
         self._host = ()
@@ -65,6 +66,7 @@ class SteelContactSnapshot:
         wp.synchronize_stream(stream)
         if self.check_capacity:
             self._check_status(self._host[len(geometry) :] if core_status else None)
+            self.capacity_checks += 1
         count = int(self._host[0].numpy()[0])
         if not 0 <= count < contacts.rigid_contact_max:
             raise RuntimeError("Steel contact buffer saturated or invalid")

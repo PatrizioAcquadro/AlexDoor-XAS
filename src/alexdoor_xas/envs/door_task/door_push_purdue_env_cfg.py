@@ -24,7 +24,8 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     num_rerenders_on_reset = 2
     reset_camera_frames: int = 8
     physics_profile: str | None = DEFAULT_PHYSICS_PROFILE
-    urdf_cache_dir: str | None = None
+    native_steel: bool = False
+    diagnostic_hinge_stop_deg: float | None = None
     observed_load_feedback: bool = False
     pose_held_surface: bool = False
     action_mode: str = "A2"

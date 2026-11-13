@@ -51,6 +51,11 @@ def test_causal_terminal_roundtrip_and_truth_separation(tmp_path):
         h5["metadata"].attrs["episode"] = json.dumps(dict(meta, split="test"))
     with pytest.raises(ValueError, match="Test recordings"):
         validate_episode(path)
+    with h5py.File(path, "r+") as h5:
+        h5["metadata"].attrs["episode"] = json.dumps(dict(meta, bounded_diagnostic=True))
+    with pytest.raises(ValueError, match="outside the learning corpus"):
+        validate_episode(path)
+    assert validate_episode(path, diagnostic=True)["observations"] == 2
 
 
 def test_invalid_masks_time_and_incomplete_recording(tmp_path):

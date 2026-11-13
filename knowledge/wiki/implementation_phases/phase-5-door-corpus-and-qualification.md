@@ -220,10 +220,10 @@ scripts/isaac-run.sh scripts/qualify_door.py \
 The command loads the published USD and the current common setup, acquires RGB-D
 and contact diagnostics, and runs two complete cycles. Each cycle starts in a
 fresh Isaac process and physics scene loaded from the same prepared asset and
-common setup. Joint
-position/velocity resets alone do not isolate PhysX contact history between
-reference trials. It exposes no per-door controller tuning. `--rerun` explicitly allows a justified recheck of an already
-qualified door. Unresolved doors may be rerun after diagnosis; every invocation
+common setup. The standard launcher uses the
+[[topics/purdue-b1-robot-and-contact|native Steel and Newton Warp B1 runtime]].
+The formal command exposes the common controller setup. `--rerun` allows a
+justified recheck of an already qualified door. Unresolved doors may be rerun after diagnosis; every invocation
 creates a new evidence directory under `~/.cache/alexdoor-xas/verification/expert/`.
 The report records the previous evidence directory. Earlier failed pairs remain
 available and cannot be mixed into a new pair.

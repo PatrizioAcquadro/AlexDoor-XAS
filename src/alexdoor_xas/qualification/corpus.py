@@ -62,7 +62,14 @@ def _validate_evidence(folder, entry, reference, setup, evidence_root):
             f"Trial/report mismatch: {trial}",
         )
         traces = _read(trial / "trace.json")
-        _require(bool(traces) and traces[-1]["phase"] == "release", f"Incomplete trace: {trial}")
+        # Legacy references end at release. Current probes record a stationary tail.
+        terminal_phase = "stabilize" if "stabilized" in result else "release"
+        _require(
+            bool(traces)
+            and traces[-1]["phase"] == terminal_phase
+            and result.get("stabilized", True),
+            f"Incomplete trace: {trial}",
+        )
         _require(
             len(traces) == result["visibility"]["checked_frames"],
             f"Trace/result frame count mismatch: {trial}",
