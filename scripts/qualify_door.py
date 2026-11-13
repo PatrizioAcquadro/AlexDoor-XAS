@@ -113,9 +113,13 @@ def main():
             reason="incomplete_execution",
             trials=[],
             device=args.device,
-            scope="single_diagnostic_not_learning_data"
-            if args.diagnostic
-            else "nominal_simulated_expert_reference_not_learning_data",
+            scope=(
+                "bounded_pair_diagnostic"
+                if bounded
+                else "single_diagnostic"
+                if args.diagnostic
+                else "nominal_simulated_expert_reference_not_learning_data"
+            ),
             previous_evidence=previous.get("evidence") if isinstance(previous, dict) else None,
             diagnostic_only=args.diagnostic,
             trial_isolation="shared_session" if bounded else "fresh_process",

@@ -89,6 +89,7 @@ class B1Writer:
                         dtype=h5py.string_dtype() if text else arr.dtype,
                         chunks=(1 if image else 128, *arr.shape),
                         compression="lzf",
+                        shuffle=key == "observations/depth_m",
                     )
                     if not image:
                         self._pending[key] = []
