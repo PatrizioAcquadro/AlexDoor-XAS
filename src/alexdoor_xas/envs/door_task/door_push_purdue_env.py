@@ -64,9 +64,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._time_s = 0.0
         self._pending_pose = None
         self._pending_joints = None
-        self._steel = configure_purdue_physics(cfg)
         self._mounted_camera = None
-        super().__init__(cfg, **kwargs)
+        with configure_purdue_physics(cfg) as self._steel:
+            super().__init__(cfg, **kwargs)
         self.arm_ids = self._resolve_joints(ARM_JOINTS)
         self.neck_ids = self._resolve_joints(NECK_JOINTS)
         self.observed_ids = self.arm_ids + self.neck_ids

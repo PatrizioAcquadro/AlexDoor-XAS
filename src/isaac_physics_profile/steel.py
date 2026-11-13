@@ -1,13 +1,33 @@
 """Select Steel in Isaac Lab beta2 and expose solved contact forces."""
 
+import json
 import os
 import pickle
 import subprocess
 import sys
+from contextlib import contextmanager
 from importlib.abc import MetaPathFinder
 from importlib.machinery import PathFinder
 from pathlib import Path
 from tempfile import TemporaryDirectory
+
+_IMPORT_COMMAND = ("/usr/bin/python3", str(Path(__file__).with_name("steel_import.py")))
+
+
+@contextmanager
+def prepare_import_worker(site):
+    """Load Newton and OpenUSD while Kit constructs the scene."""
+    with subprocess.Popen(
+        [*_IMPORT_COMMAND, "--stdin"],
+        env=dict(os.environ, PYTHONPATH=str(site)),
+        stdin=subprocess.PIPE,
+        text=True,
+    ) as worker:
+        try:
+            yield worker
+        finally:
+            if worker.poll() is None:
+                worker.kill()
 
 
 def install_wheel(site):
@@ -41,6 +61,7 @@ def config(
     velocity_limits=False,
     rigid_gap=None,
     contact_view=None,
+    import_worker=None,
 ):
     import newton
     import warp as wp
@@ -71,21 +92,25 @@ def config(
                 out = Path(scratch) / "builder.pkl"
                 if not stage.Export(str(usd)):
                     raise RuntimeError("Could not export the common fixture scene")
-                # The local importer writes its result into this private directory.
-                env = dict(os.environ, PYTHONPATH=str(site))
-                subprocess.run(
-                    [
-                        "/usr/bin/python3",
-                        str(Path(__file__).with_name("steel_import.py")),
-                        str(usd),
-                        str(out),
-                        "default" if rigid_gap is None else str(rigid_gap),
-                        *env_roots,
-                    ],
-                    env=env,
-                    timeout=60,
-                    check=True,
-                )
+                args = [str(usd), str(out), "default" if rigid_gap is None else str(rigid_gap)]
+                args.extend(env_roots)
+                if (
+                    import_worker is not None
+                    and import_worker.stdin is not None
+                    and not import_worker.stdin.closed
+                ):
+                    import_worker.communicate(json.dumps(args), timeout=60)
+                    if import_worker.returncode != 0:
+                        raise subprocess.CalledProcessError(
+                            import_worker.returncode, import_worker.args
+                        )
+                else:
+                    subprocess.run(
+                        [*_IMPORT_COMMAND, *args],
+                        env=dict(os.environ, PYTHONPATH=str(site)),
+                        timeout=60,
+                        check=True,
+                    )
                 data, values = pickle.loads(out.read_bytes())
             builder = cls.create_builder()
             if values.keys() != builder.custom_attributes.keys():

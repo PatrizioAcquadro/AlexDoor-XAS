@@ -143,3 +143,21 @@ through the result including startup and warm-up. These timings cover one
 short D4-N cycle per backend per configuration. The closed-loop runs reached
 the opening criterion at different ticks. Timing breakdowns, step logs and
 commands are under `outputs/generated/alexdoor-closed-loop-timing-20261112/`.
+
+### Steel startup and warm-up
+
+On the same short D4-N trial with warm runtime caches, Kit startup took about
+4.0 s on both backends. Steel spent 1.65 s configuring the backend and 1.80 s
+exporting and importing the Newton model. Reset with the ZED took 0.56 s and
+the first control tick included 0.39 s of solver preparation and CUDA Graph
+capture.
+
+AlexDoor now starts the isolated importer before configuring Steel so its
+library imports overlap with configuration and scene construction. Two
+optimized runs reduced the model export/import span to 1.00 s and Steel
+startup from 9.62 s to 8.88–8.89 s. Warm-up was 1.68 s. Steel's total through
+the result was 37.32–37.52 s versus the Steel baseline of 37.87 s and paired
+PhysX results of 37.15–37.50 s. Both backends passed each short trial. The
+optimized Steel runs each captured CUDA Graph and checked capacity on all
+2,620 native steps. Raw results and repeat commands are under
+`outputs/generated/alexdoor-steel-startup-20261112/`.
