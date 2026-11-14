@@ -110,6 +110,38 @@ class OperationalState:
 
 
 @dataclass(frozen=True)
+class NormalAlignmentEvidence:
+    """Simultaneous angular bounds at one decision clock, from the same material."""
+
+    evaluated_s: float
+    cones: tuple[tuple[tuple[float, float, float], float], ...]
+
+    def tool_bound(self, tool_normal, baseline):
+        """Return the center error and radius with the tightest safe sum."""
+        return min(
+            [baseline]
+            + [
+                (float(np.arccos(np.clip(tool_normal @ center, -1, 1))), radius)
+                for center, radius in self.cones
+            ],
+            key=sum,
+        )
+
+    def require(self, now):
+        if not np.isfinite(self.evaluated_s) or abs(self.evaluated_s - now) > TIME_ROUNDOFF_S:
+            raise ValueError("stale_normal_alignment_evidence")
+        if not self.cones or any(
+            np.shape(normal) != (3,)
+            or not np.isfinite(normal).all()
+            or not np.isclose(np.linalg.norm(normal), 1, atol=1e-7, rtol=0)
+            or not np.isfinite(radius)
+            or not 0 <= radius < np.pi / 2
+            for normal, radius in self.cones
+        ):
+            raise ValueError("invalid_normal_alignment_evidence")
+
+
+@dataclass(frozen=True)
 class LocalPatchState:
     """Measured material geometry, independent of a hinge or action permission.
 
@@ -144,6 +176,7 @@ class LocalPatchState:
     pose_uncertainty_sources: tuple[
         tuple[str, float | None, float | None, float | None, tuple[float, float, float]], ...
     ] = ()
+    normal_alignment: NormalAlignmentEvidence | None = None
 
 
 @dataclass(frozen=True)
@@ -200,6 +233,8 @@ def validate_local_contact(state, now, *, generation=None):
     patch.geometry_support.require_bounds(position=True, rotation=True)
     patch.pose_support.require_bounds(position=True, rotation=True)
     checked_pose(patch.world_pose)
+    if patch.normal_alignment is not None:
+        patch.normal_alignment.require(now)
     if patch.normal_uncertainty_sources:
         from alexdoor_xas.perception.admission import rotational_travel
 

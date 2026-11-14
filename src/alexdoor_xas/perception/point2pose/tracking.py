@@ -11,10 +11,12 @@ from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.admission import rotational_travel
 from alexdoor_xas.perception.contracts import (
     MAX_DYNAMIC_AGE_S,
+    TIME_ROUNDOFF_S,
     FieldSupport,
     LocalContactSelection,
     LocalMaterialState,
     LocalPatchState,
+    NormalAlignmentEvidence,
     validate_local_transition,
 )
 from alexdoor_xas.perception.geometry import (
@@ -28,7 +30,9 @@ from alexdoor_xas.perception.ipc import unpack_array
 from alexdoor_xas.perception.local_surface import (
     SurfacePose,
     constrained_surface_pose,
+    intersect_normal_cones,
     observed_basis,
+    select_planar_normal,
 )
 from alexdoor_xas.perception.material_zone import (
     BoundSource,
@@ -98,6 +102,7 @@ class PanelCandidate:
     local_certificate: LocalSurfaceCertificate | None = None
     local_surface: object | None = None
     material_cover: object | None = None
+    normal_observations: tuple[tuple[tuple[float, float, float], float, FieldSupport], ...] = ()
 
 
 def metric_registration_bound(source, current, transform, depth_error_m):
@@ -431,6 +436,8 @@ class PanelTracking:
         )
         validate_local_transition(self.selection, selection)
         self.selection = selection
+        for candidate in self.candidates:
+            candidate.normal_observations = ()
 
     def consume(self, captured, result, ready, *, clock=None):
         started = time.perf_counter()
@@ -573,6 +580,8 @@ class PanelTracking:
         )
         for candidate, raw in zip(self.candidates, result["objects"], strict=True):
             previous = getattr(candidate, "local_certificate", None)
+            pending_normal = None
+            planar_count = 0
             candidate.local_constraint = candidate.local_certificate = None
             normal_points = None
             try:
@@ -646,6 +655,14 @@ class PanelTracking:
                 if errors.count(min(errors)) != 1:
                     raise ValueError("missing_or_ambiguous_current_surface")
                 candidate.local_constraint = consistent[int(np.argmin(errors))][1]
+                fresh_pose = self._constrained_candidate(candidate, candidate.local_constraint).pose
+                pending_normal, planar_count = self.observe_planar_normal(
+                    candidate,
+                    captured,
+                    result.get("cue"),
+                    fresh_pose[:3, 0],
+                    candidate.local_constraint.normal_rotation_bound_rad,
+                )
                 self.retain_local_certificate(candidate, previous, captured)
                 candidate.local_constraint_reason = ""
             except (ValueError, KeyError) as error:
@@ -666,6 +683,27 @@ class PanelTracking:
                     result["local_surface_expansion_reason"] = str(error)
                     return self.constrain_local(captured, result)
                 candidate.local_constraint_reason = str(error)
+            if pending_normal is None or candidate.local_constraint is None:
+                candidate.normal_observations = ()
+            else:
+                history = candidate.normal_observations
+                clock = candidate.support.supported_s
+                if history and clock < history[-1][2].supported_s:
+                    history = ()
+                elif history and clock == history[-1][2].supported_s:
+                    history = history[:-1]
+                candidate.normal_observations = (
+                    *history[-2:],
+                    (tuple(pending_normal[0]), pending_normal[1], candidate.support),
+                )
+                try:
+                    self.normal_alignment(candidate, candidate.support.available_s)
+                except ValueError as error:
+                    # Block this observation. The next fresh frame must agree
+                    # with the new measurement before support can resume.
+                    candidate.normal_observations = candidate.normal_observations[-1:]
+                    candidate.local_constraint = candidate.local_certificate = None
+                    candidate.local_constraint_reason = str(error)
             self.diagnostics.setdefault("local_surface_constraint", {})[candidate.candidate_id] = {
                 "available": candidate.local_constraint is not None,
                 "reason": candidate.local_constraint_reason,
@@ -674,7 +712,73 @@ class PanelTracking:
                 "normal_rotation_bound_rad": None
                 if candidate.local_constraint is None
                 else candidate.local_constraint.normal_rotation_bound_rad,
+                "alignment_normal": None if pending_normal is None else pending_normal[0].tolist(),
+                "alignment_fit_bound_rad": None if pending_normal is None else pending_normal[1],
+                "alignment_input_points": planar_count,
             }
+
+    def observe_planar_normal(self, candidate, captured, cue, normal, radius):
+        """Select a tight, distributed core from the current tracked material."""
+        normal = normal / np.linalg.norm(normal)
+        if cue is None or candidate.sam3_id is None or candidate.sam3_id not in cue["ids"]:
+            return (normal, radius), 0
+        index = cue["ids"].index(candidate.sam3_id)
+        mask = np.unpackbits(
+            np.frombuffer(cue["masks"][index], np.uint8), count=np.prod(cue["shape"])
+        ).reshape(cue["shape"])
+        points = self.reobserved_material_points(candidate, captured, mask)
+        fit = select_planar_normal(
+            points,
+            int(captured["frame"]),
+            self.config["min_points"],
+            self.config["local_surface_constraint"]["point_error_m"],
+            normal,
+            radius,
+        )
+        return fit, len(points)
+
+    def publish_normal_support(self, captured_s, available_s):
+        """Use the final provider publication clock, retaining older clocks verbatim."""
+        for candidate in self.candidates:
+            history = candidate.normal_observations
+            if history and history[-1][2].acquired_s == captured_s:
+                normal, radius, support = history[-1]
+                candidate.normal_observations = (
+                    *history[:-1],
+                    (normal, radius, replace(support, available_s=available_s)),
+                )
+
+    def normal_alignment(self, candidate, now):
+        """Keep each measured cone and a tighter enclosure when they intersect."""
+        _, camera = self.calibration_bound or (None, None)
+        _, rate = self.relative_speed_bound or (None, None)
+        if (
+            camera is None
+            or rate is None
+            or not np.isfinite([camera, rate]).all()
+            or min(camera, rate) < 0
+        ):
+            return None
+        model = self.config["local_surface_constraint"]["normal_model_bound_rad"]
+        cones = []
+        for normal, radius, support in candidate.normal_observations:
+            if (
+                self.selection is not None
+                and support.acquired_s < self.selection.selected_s - TIME_ROUNDOFF_S
+            ):
+                continue
+            try:
+                support.require(now, self.generation, dynamic=True)
+            except ValueError:
+                continue
+            radius += model + camera + rate * (now - support.supported_s)
+            if 0 <= radius < np.pi / 2:
+                cones.append((normal, radius))
+        if not cones:
+            return None
+        if len(cones) > 1:
+            cones.append(intersect_normal_cones(cones))
+        return NormalAlignmentEvidence(now, tuple(cones))
 
     @staticmethod
     def _constrained_candidate(candidate, constraint):
@@ -842,7 +946,7 @@ class PanelTracking:
             ("temporal_growth", linear, angular, tuple(candidate.pose[:3, 3])),
         ), angle
 
-    def reobserved_material_points(self, candidate, sensor):
+    def reobserved_material_points(self, candidate, sensor, mask=None):
         """Fresh depth on the tracked seed; no other semantic component or old XYZ."""
         motion = candidate.pose @ np.linalg.inv(candidate.initial_world)
         predicted = candidate.surface.points @ motion[:3, :3].T + motion[:3, 3]
@@ -858,6 +962,8 @@ class PanelTracking:
             & np.isfinite(measured)
             & (abs(measured - z) <= 2 * self.config["plane_tolerance_m"])
         )
+        if mask is not None:
+            good &= mask[uv[:, 1], uv[:, 0]].astype(bool)
         pixels = np.unique(uv[good], axis=0)
         return deproject(
             sensor["depth_m"][pixels[:, 1], pixels[:, 0], 0],
@@ -1095,6 +1201,14 @@ class PanelTracking:
             normal_sources, normal_rotation_bound = (
                 self.local_normal_bounds(candidate, constraint, now) if fresh else ((), None)
             )
+            alignment = None
+            if fresh and constraint is not None and not reason:
+                try:
+                    alignment = self.normal_alignment(candidate, now)
+                except ValueError as error:
+                    fresh = False
+                    reason = str(error)
+                    identity = pose_support = None
             normal_position_bound = (
                 sum(
                     translation
@@ -1156,6 +1270,7 @@ class PanelTracking:
                     uncertainty_sources=tuple(
                         (s.name, s.position_m, s.rotation_rad, s.lever_m) for s in budget.sources
                     ),
+                    normal_alignment=alignment,
                 )
             )
             if not fresh:

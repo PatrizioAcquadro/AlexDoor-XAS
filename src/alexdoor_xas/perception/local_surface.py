@@ -1,8 +1,11 @@
 """Local rigid pose constrained by measured plane/edge geometry and native pairs."""
 
 from dataclasses import dataclass
+from itertools import combinations
 
 import numpy as np
+
+from alexdoor_xas.perception.geometry import plane_fit
 
 
 @dataclass(frozen=True)
@@ -62,41 +65,7 @@ def _normal_span_bound(points, normal, first, error):
     return float(np.arcsin(min(1.0, sine)))
 
 
-def observed_basis(surface, point_error_m, *, normal_points=None):
-    """Bound a plane/edge basis using finite baselines, not fit residual alone.
-
-    The caller must justify the metric point-error bound. A rigid planar surface
-    and a straight observed silhouette are explicit model assumptions. Missing or
-    poorly conditioned evidence remains unavailable; gravity only fixes edge sign.
-    """
-    if not np.isfinite(point_error_m) or point_error_m <= 0:
-        raise ValueError("missing_metric_point_error")
-    points = np.asarray(surface.points, float)
-    normal = np.asarray(surface.normal, float)
-    if (
-        points.ndim != 2
-        or points.shape[1:] != (3,)
-        or len(points) < 5
-        or not np.isfinite(points).all()
-        or normal.shape != (3,)
-        or not np.isfinite(normal).all()
-        or abs(np.linalg.norm(normal) - 1) > 1e-6
-    ):
-        raise ValueError("invalid_observed_plane")
-    normal_norm = np.linalg.norm(normal)
-    normal = normal / normal_norm
-    offset = surface.offset / normal_norm
-    # Additional normal baselines must be current depth measurements of this
-    # same tracked material. They never extend footprint or edge coverage.
-    if normal_points is not None:
-        points = np.asarray(normal_points, float)
-        if (
-            points.ndim != 2
-            or points.shape[1:] != (3,)
-            or len(points) < 5
-            or not np.isfinite(points).all()
-        ):
-            raise ValueError("invalid_observed_normal_support")
+def _planar_core_bound(points, normal, offset, point_error_m):
     # Orientation uses a finite measured planar core at the declared point
     # resolution. The wider surface/relief coverage and its original tolerance
     # remain unchanged at material consumers. Never interpret all shallow relief
@@ -135,7 +104,28 @@ def observed_basis(surface, point_error_m, *, normal_points=None):
         normal_bounds.append(bound)
     if not normal_bounds:
         raise ValueError("unconditioned_observed_plane")
-    normal_bound = min(normal_bounds)
+    return min(normal_bounds)
+
+
+def observed_basis(surface, point_error_m, *, normal_points=None):
+    """Bound a plane/edge basis using finite baselines and a metric error bound."""
+    if not np.isfinite(point_error_m) or point_error_m <= 0:
+        raise ValueError("missing_metric_point_error")
+    points = np.asarray(surface.points if normal_points is None else normal_points, float)
+    normal = np.asarray(surface.normal, float)
+    normal_norm = np.linalg.norm(normal)
+    if (
+        points.ndim != 2
+        or points.shape[1:] != (3,)
+        or len(points) < 5
+        or not np.isfinite(points).all()
+        or normal.shape != (3,)
+        or not np.isfinite(normal).all()
+        or abs(normal_norm - 1) > 1e-6
+    ):
+        raise ValueError("invalid_observed_plane")
+    normal = normal / normal_norm
+    normal_bound = _planar_core_bound(points, normal, surface.offset / normal_norm, point_error_m)
     alternatives = []
     for key, values in surface.edge_points.items():
         if not key.startswith("width_"):
@@ -178,6 +168,64 @@ def observed_basis(surface, point_error_m, *, normal_points=None):
     if bound >= np.pi / 2:
         raise ValueError("unconditioned_observed_basis")
     return basis, float(bound), float(normal_bound)
+
+
+def select_planar_normal(points, frame, minimum, point_error, reference, reference_radius):
+    """Refit the dominant tight plane of the reobserved original planar material."""
+    reference = np.asarray(reference, dtype=float)
+    reference = reference / np.linalg.norm(reference)
+    fit = plane_fit(points, point_error, minimum, np.random.default_rng(frame))
+    if fit is None:
+        return reference, reference_radius
+    normal, offset, support, _ = fit
+    # A narrow or minority strip can be a bevel. Use the dominant support and
+    # independently bound both directions with the full measured core.
+    if support.sum() <= len(points) / 2:
+        return reference, reference_radius
+    if normal @ reference < 0:
+        normal, offset = -normal, -offset
+    try:
+        radius = _planar_core_bound(points, normal, offset, point_error)
+    except ValueError:
+        return reference, reference_radius
+    if radius < reference_radius and _angle(normal, reference) <= radius + reference_radius:
+        return normal, radius
+    return reference, reference_radius
+
+
+def intersect_normal_cones(cones):
+    """Enclose the common unit normals by projecting onto their cap halfspaces."""
+    normals = np.asarray([normal for normal, _ in cones], dtype=float)
+    normals /= np.linalg.norm(normals, axis=1, keepdims=True)
+    radii = np.asarray([radius for _, radius in cones])
+    if not np.isfinite(radii).all() or (radii < 0).any() or (radii >= np.pi / 2).any():
+        raise ValueError("unconditioned_local_normal_cone")
+    cosines = np.cos(radii)
+    # In 3D the projection uses at most three linearly independent active planes.
+    # Its direction gives a bound via the same nonnegative dual weights.
+    roundoff = 64 * np.finfo(float).eps
+    best = None
+    for size in range(1, min(3, len(cones)) + 1):
+        for active in combinations(range(len(cones)), size):
+            selected, limits = normals[list(active)], cosines[list(active)]
+            try:
+                weights = np.linalg.solve(selected @ selected.T, limits)
+            except np.linalg.LinAlgError:
+                continue
+            if not np.isfinite(weights).all() or min(weights) < 0:
+                continue
+            point = weights @ selected
+            length = np.linalg.norm(point)
+            if (
+                length > 0
+                and (normals @ point >= cosines - roundoff).all()
+                and (best is None or length < best[0])
+            ):
+                best = length, point, float(weights @ limits / length)
+    if best is None or best[0] > 1 + roundoff:
+        raise ValueError("inconsistent_local_normal_observations")
+    length, point, lower_dot = best
+    return tuple(point / length), float(np.arccos(np.clip(lower_dot - roundoff, -1, 1)))
 
 
 def constrained_surface_pose(

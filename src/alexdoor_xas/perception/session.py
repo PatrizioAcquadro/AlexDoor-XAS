@@ -763,6 +763,7 @@ class SessionProvider:
                         if source["acquired_s"] == float(captured["time_s"]):
                             source["available_s"] = ready
         if self.tracking and result["objects"]:
+            self.tracking.publish_normal_support(float(captured["time_s"]), ready)
             for candidate in self.tracking.candidates:
                 if result["initial_candidates"]:
                     candidate.geometry = replace(candidate.geometry, available_s=ready)

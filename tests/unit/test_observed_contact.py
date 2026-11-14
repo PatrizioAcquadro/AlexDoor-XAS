@@ -440,6 +440,54 @@ def test_contact_orientation_still_applies_to_possible_contact_not_separated_app
     assert reason == expected
 
 
+def test_angular_evidence_is_used_at_the_observation_clock_and_keeps_five_degree_gate():
+    from types import SimpleNamespace
+
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.perception.contracts import OPERATIONAL_V1, NormalAlignmentEvidence
+    from alexdoor_xas.perception.control import ObservedControlChecks
+
+    now, estimate, tool, load, _ = inputs(1.0, x=0.003)
+    patch = estimate.local.patches[0]
+    tool = replace(tool, rot=Rotation.from_euler("z", 5.1, degrees=True).as_matrix())
+    checks = ObservedControlChecks(
+        SimpleNamespace(max_joint_speed=0.5, orientation_tolerance=np.deg2rad(5), force_limit_n=6),
+        contact_monitor=monitor(),
+    )
+    sensor = dict(
+        time_s=now,
+        joint_position=np.zeros(9),
+        joint_velocity=np.zeros(9),
+        valid_depth=np.ones((1, 1), bool),
+        rgb=np.ones((1, 1, 3), np.uint8),
+    )
+
+    def check(evidence):
+        local = replace(estimate.local, patches=(replace(patch, normal_alignment=evidence),))
+        return checks.check(
+            sensor,
+            replace(estimate, local=local),
+            tool,
+            np.tile([-2, 2], (7, 1)),
+            "push",
+            np.zeros(2),
+            profile=OPERATIONAL_V1,
+            feedback=load.feedback,
+            load=load,
+        )
+
+    center = tuple(Rotation.from_euler("z", 1.1, degrees=True).as_matrix()[:, 0])
+    assert check(None) == "observed_contact_orientation"
+    assert check(NormalAlignmentEvidence(now, ((center, np.deg2rad(0.99)),))) == (
+        "action_not_admitted"
+    )
+    assert check(NormalAlignmentEvidence(now, ((center, np.deg2rad(1.01)),))) == (
+        "observed_contact_orientation"
+    )
+    assert check(NormalAlignmentEvidence(now - 1 / 60, ((center, 0.0),))) == "invalid_perception"
+
+
 def test_zero_operational_off_threshold_still_requires_strictly_positive_bound():
     m = monitor()
     m.config = replace(m.config, force_off_n=0)

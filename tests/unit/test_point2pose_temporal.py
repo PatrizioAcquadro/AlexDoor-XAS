@@ -1,13 +1,16 @@
 """Causal queue timing, full process reset and transported-zone failure semantics."""
 
+from types import SimpleNamespace
+
 import numpy as np
 import pytest
 
 from alexdoor_xas.perception.contracts import FieldSupport
 from alexdoor_xas.perception.geometry import Surface, SurfaceObservation, deproject
 from alexdoor_xas.perception.ipc import pack_array
+from alexdoor_xas.perception.local_surface import select_planar_normal
 from alexdoor_xas.perception.point2pose.runtime import Point2PoseEngine
-from alexdoor_xas.perception.point2pose.tracking import PanelTracking
+from alexdoor_xas.perception.point2pose.tracking import PanelCandidate, PanelTracking
 from alexdoor_xas.recording.b1 import OBS_KEYS
 
 
@@ -99,6 +102,109 @@ def make_surface(captured):
         1.0,
         observations=(observation,),
     )
+
+
+def test_normal_refit_uses_dominant_distributed_core_on_tracked_material():
+    y, z = np.meshgrid(np.linspace(-0.12, 0.12, 18), np.linspace(-0.18, 0.18, 25))
+    face = np.c_[np.zeros(y.size), y.ravel(), z.ravel()]
+    bevel = face.copy()
+    bevel[:, 0] = 0.004 + 0.12 * (bevel[:, 1] + 0.12)
+    tilted_reference = np.array([np.cos(0.03), np.sin(0.03), 0.0])
+    normal, radius = select_planar_normal(
+        np.r_[face, bevel[::3]], 14, 120, 0.001, tilted_reference, 0.055
+    )
+    np.testing.assert_allclose(normal, [1, 0, 0], atol=1e-8)
+    assert radius < 0.011
+    _, ambiguous_radius = select_planar_normal(
+        np.r_[face, face + [0.008, 0, 0]], 14, 120, 0.001, tilted_reference, 0.055
+    )
+    assert ambiguous_radius == 0.055
+
+
+def test_normal_alignment_respects_publication_age_and_rejects_disjoint_frames():
+    tracker = PanelTracking(
+        SimpleNamespace(reset=lambda: None),
+        dict(local_surface_constraint=dict(point_error_m=0.001, normal_model_bound_rad=0.001)),
+        calibration_bound=(0.0, 0.002),
+        relative_speed_bound=(0.1, 0.15),
+    )
+    first = ((1.0, 0.0, 0.0), np.deg2rad(2), FieldSupport(1.0, 1.0, 1.0, 0))
+    other = ((0.0, 1.0, 0.0), np.deg2rad(2), FieldSupport(1.03, 1.04, 1.03, 0))
+    candidate = SimpleNamespace(normal_observations=(first, other))
+    tracker.candidates = [candidate]
+    tracker.publish_normal_support(1.03, 1.06)
+    assert tracker.normal_alignment(candidate, 1.05).cones == (
+        (first[0], pytest.approx(first[1] + 0.003 + 0.15 * 0.05)),
+    )
+    with pytest.raises(ValueError, match="inconsistent_local_normal_observations"):
+        tracker.normal_alignment(candidate, 1.06)
+    assert tracker.normal_alignment(candidate, 1.20) is None
+
+
+def test_local_tracker_publishes_normal_evidence_with_current_depth():
+    tracker = PanelTracking(
+        SimpleNamespace(reset=lambda: None),
+        dict(
+            local_surface_constraint=dict(point_error_m=0.001, normal_model_bound_rad=0.001),
+            min_points=120,
+            plane_tolerance_m=0.004,
+        ),
+        calibration_bound=(0.0, 0.001),
+        relative_speed_bound=(0.1, 0.15),
+    )
+    first = sensor(1, 1)
+    root = make_surface(first)
+    root.edge_points["width_0"] = root.points[::50]
+    root.observations[0].semantic_id = 0
+    initial = np.eye(4)
+    initial[0, 3] = 1.0
+    candidate = PanelCandidate(
+        "panel",
+        root,
+        initial,
+        np.linalg.inv(first["camera_world"]) @ initial,
+        np.eye(4),
+        FieldSupport(1.0, 1.0, 1.0, 0, 0.004, 0.001),
+        pose=initial,
+        camera_world=first["camera_world"],
+        state="tracked",
+        ownership="observed_rigid_material",
+        sam3_id=0,
+    )
+    tracker.candidates = [candidate]
+    tracker.select_zone("panel", 1.0, source="policy")
+    source = root.points[::100] @ first["camera_world"][:3, :3]
+    measured = np.ones(len(source), bool)
+    obj = dict(
+        source_points=source,
+        current_points=source,
+        inliers=measured,
+        measured_correspondences=measured,
+    )
+    for frame, timestamp in enumerate((1.0, 1.03), 1):
+        captured = sensor(timestamp, frame)
+        surface = make_surface(captured)
+        surface.edge_points["width_0"] = surface.points[::50]
+        observation = surface.observations[0]
+        observation.semantic_id = 0
+        candidate.support = FieldSupport(timestamp, timestamp, timestamp, 0)
+        tracker.constrain_local(
+            captured,
+            dict(
+                objects=[obj],
+                local_surfaces=[surface],
+                cue=dict(ids=[0], masks=[observation.support_mask], shape=observation.shape),
+            ),
+        )
+        tracker.publish_normal_support(timestamp, timestamp + 0.01)
+    patch = tracker.local_state(1.05).patches[0]
+    assert patch.tracking_state == "tracking"
+    assert len(patch.normal_alignment.cones) == 3
+    assert patch.normal_alignment.evaluated_s == 1.05
+    assert patch.normal_alignment.cones[-1][1] < np.deg2rad(1)
+    assert candidate.normal_observations[0][2].available_s == 1.01
+    tracker.select_zone("panel", 1.06, source="policy")
+    assert tracker.local_state(1.06).patches[0].normal_alignment is None
 
 
 def test_zone_without_local_texture_and_loss_does_not_refresh_support():

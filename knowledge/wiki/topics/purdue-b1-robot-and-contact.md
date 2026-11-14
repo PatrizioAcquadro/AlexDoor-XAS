@@ -225,7 +225,20 @@ the controller response and keep armature active in the solver. Contact
 partner, normal force and separation remain independent evaluator channels.
 
 The 5° orientation check protects aligned interaction while acquiring or
-maintaining support. During delivered elastic unloading, an over-limit
+maintaining support. The observed tracker refits the dominant planar core of
+the reobserved material using the configured metric point error and measured
+span in two directions. It uses the tighter normal when its cone agrees with
+the current material registration. The contact orientation check intersects
+up to three recent normal cones for that material after propagating each
+from its actual support clock with the configured angular rate. An empty
+intersection makes local support unavailable until a new consistent capture.
+The angular evidence applies to the orientation check. The registered pose,
+finite contact footprint, load projection, collision and stop proofs still
+use their existing bounds. On the saved D4-N prefix, the published normal
+cones reduced the final orientation check from 5.029° to 3.145°. The raw-depth
+check used a diagnostic region because the exact online support was unavailable.
+
+During delivered elastic unloading, an over-limit
 orientation can reach the dispatcher only after current geometry and load
 checks. The dispatcher requires the pose request, change from the previous
 delivered target, and measured-to-bounded-target displacement to withdraw

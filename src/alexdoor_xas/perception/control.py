@@ -83,6 +83,7 @@ class ObservedControlChecks:
             admission is not None and admission.proposal.loaded
         )
         if loaded:
+            normal_alignment = None
             if estimate.local is not None and (
                 estimate.operational is None
                 or admission is not None
@@ -94,6 +95,7 @@ class ObservedControlChecks:
                 contact = patch.world_pose
                 support = patch.pose_support
                 normal_bound = patch.normal_rotation_bound_rad
+                normal_alignment = patch.normal_alignment
             else:
                 from alexdoor_xas.action.frames import ObjectFrame
 
@@ -113,6 +115,12 @@ class ObservedControlChecks:
                 if support is not None
                 else 0
             )
+            if normal_alignment is not None:
+                # Each cap bounds the same feasible normal. Keep the tightest
+                # bound on tool alignment, including the original local bound.
+                alignment, orientation_bound = normal_alignment.tool_bound(
+                    tool.rot[:, 0], (alignment, orientation_bound)
+                )
             robot_rotation_bound = 0.0
             bound_source = "no_admission"
             if admission is not None:
