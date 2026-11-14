@@ -18,13 +18,20 @@ if [[ "$profile" != newton_steel_warp ]]; then
 fi
 case "$profile" in
     newton_steel_warp)
-        native_python="${ALEXDOOR_NATIVE_PYTHON:-$root/outputs/generated/isaac-native-runtime/.venv/bin/python}"
+        native_runtime="$root/outputs/generated/isaac-native-runtime"
+        native_python="${ALEXDOOR_NATIVE_PYTHON:-$native_runtime/.venv/bin/python}"
         if [[ ! -x "$native_python" ]]; then
             printf 'Set ALEXDOOR_NATIVE_PYTHON to the Isaac Lab native runtime Python (see the Purdue B1 wiki).\n' >&2
             exit 2
         fi
         export ISAAC_PHYSICS_PROFILE="$profile"
-        export ALEXDOOR_USD_CACHE="${ALEXDOOR_USD_CACHE:-$root/outputs/generated/isaac-native-runtime/usd-cache}"
+        export ALEXDOOR_USD_CACHE="${ALEXDOOR_USD_CACHE:-$native_runtime/usd-cache}"
+        # Keep runtime-generated files beside the installation on the same disk.
+        export TMPDIR="${TMPDIR:-$native_runtime/tmp}"
+        export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$native_runtime/cache}"
+        export CUDA_CACHE_PATH="${CUDA_CACHE_PATH:-$XDG_CACHE_HOME/cuda}"
+        export WARP_CACHE_PATH="${WARP_CACHE_PATH:-$XDG_CACHE_HOME/warp}"
+        mkdir -p "$TMPDIR" "$CUDA_CACHE_PATH" "$WARP_CACHE_PATH"
         export PYTHONPATH="$root/src:${ALEXDOOR_ALEX_ROOT:-$root/../Alex}/src:${PYTHONPATH:-}"
         exec "$native_python" "$@"
         ;;

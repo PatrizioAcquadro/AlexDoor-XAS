@@ -54,9 +54,14 @@ From that checkout, use its lockfile with
 `UV_PROJECT_ENVIRONMENT=/absolute/path/to/.venv uv sync --locked --python 3.12`.
 That lockfile selects Newton `7f0c13af6e4dd75253709c31dc65c0edcaf22b44`.
 Use persistent storage for the checkout, virtual environment, and package cache.
-Set `ALEXDOOR_NATIVE_PYTHON` to the resulting Python or put the environment at
-`outputs/generated/isaac-native-runtime/.venv`. The editable Alex source
-defaults to the sibling `Alex` checkout. Set `ALEXDOOR_ALEX_ROOT` if it lives elsewhere.
+The launcher uses `outputs/generated/isaac-native-runtime/.venv` by default.
+The workstation links `outputs/generated/isaac-native-runtime` to
+`/media/pacquadr/DATA/AlexDoor-XAS/isaac-native-runtime`. Mount the local DATA
+volume before launching after a restart. The launcher defaults to `cache/` and
+`tmp/` under that installation for Warp, CUDA, and temporary files.
+Use `ALEXDOOR_NATIVE_PYTHON` to select another interpreter. The editable Alex
+source defaults to the sibling `Alex` checkout. Set `ALEXDOOR_ALEX_ROOT` if it
+lives elsewhere.
 
 Set `ALEXDOOR_USD_CACHE` to the existing converted robot and pedestal USD
 directory or place it under `outputs/generated/isaac-native-runtime/usd-cache`.
