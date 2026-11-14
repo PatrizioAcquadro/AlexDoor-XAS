@@ -50,10 +50,22 @@ command are under `outputs/generated/alexdoor-d4n-standard-reset-20261113/`.
 ### Install the native B1 runtime
 
 Check out NVIDIA Isaac Lab at `67fe12806afbdb8bf8e125866661dd201088a54d`.
-From that checkout, use its lockfile with
-`UV_PROJECT_ENVIRONMENT=/absolute/path/to/.venv uv sync --locked --python 3.12`.
-That lockfile selects Newton `7f0c13af6e4dd75253709c31dc65c0edcaf22b44`.
-Use persistent storage for the checkout, virtual environment, and package cache.
+Use a dedicated checkout and persistent storage for the virtual environment
+and package cache. The upstream lock selects Newton
+`7f0c13af6e4dd75253709c31dc65c0edcaf22b44`. It also selects NumPy 2.5.1,
+while its Numba 0.64.0 requires NumPy below 2.5. Resolve just NumPy with
+`uv` before creating or updating the B1 environment.
+
+```bash
+uv lock --python /usr/bin/python3.12 --upgrade-package 'numpy==2.4.6'
+UV_PROJECT_ENVIRONMENT=/absolute/path/to/.venv \
+  uv sync --locked --python /usr/bin/python3.12 --extra ovrtx
+uv pip check --python /absolute/path/to/.venv/bin/python
+```
+
+The resulting lock retains the other upstream package versions, including
+Numba 0.64.0, llvmlite 0.46.0 and Warp 1.17.0. Keep this generated lock in the
+dedicated checkout for subsequent `uv sync --locked`.
 The launcher uses `outputs/generated/isaac-native-runtime/.venv` by default.
 The workstation links `outputs/generated/isaac-native-runtime` to
 `/media/pacquadr/DATA/AlexDoor-XAS/isaac-native-runtime`. Mount the local DATA
