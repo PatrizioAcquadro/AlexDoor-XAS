@@ -24,7 +24,7 @@ def camera_calibration(env):
     """Serialize fixed mount + URDF neck chain, never a per-door camera reset cache."""
     from pxr import UsdGeom
 
-    root = ET.parse(env.robot.cfg.spawn.asset_path).getroot()
+    root = ET.parse(env.robot_urdf_path).getroot()
     parents = {j.find("child").get("link"): j for j in root.findall("joint")}
     joints, link = [], "HEAD_LINK"
     while link in parents:
@@ -42,14 +42,16 @@ def camera_calibration(env):
             )
         )
         link = joint.find("parent").get("link")
-    stage = env.sim.stage
-    # The authored rigid mount is constant, independent of door identity/state.
-    head = next(p for p in stage.Traverse() if p.GetName() == "HEAD_LINK")
-    camera = stage.GetPrimAtPath(env.camera.cfg.prim_path)
-    head_w = np.array(UsdGeom.Xformable(head).ComputeLocalToWorldTransform(0)).T
-    camera_w = np.array(UsdGeom.Xformable(camera).ComputeLocalToWorldTransform(0)).T
-    head_camera = np.linalg.inv(head_w) @ camera_w
-    head_camera[:3, :3] /= np.linalg.norm(head_camera[:3, :3], axis=0)
+    # Use the fixed authored mount captured before the native camera starts moving.
+    head_camera = getattr(env, "authored_camera_from_head", None)
+    if head_camera is None:
+        stage = env.sim.stage
+        head = next(p for p in stage.Traverse() if p.GetName() == "HEAD_LINK")
+        camera = stage.GetPrimAtPath(env.camera.cfg.prim_path)
+        head_w = np.array(UsdGeom.Xformable(head).ComputeLocalToWorldTransform(0)).T
+        camera_w = np.array(UsdGeom.Xformable(camera).ComputeLocalToWorldTransform(0)).T
+        head_camera = np.linalg.solve(head_w, camera_w)
+        head_camera[:3, :3] /= np.linalg.norm(head_camera[:3, :3], axis=0)
     head_camera = head_camera @ np.diag([1, -1, -1, 1])  # USD optical -> ROS optical
     state = array(env.robot.data.default_root_state)[0]
     root_world = np.eye(4)
@@ -61,6 +63,7 @@ def camera_calibration(env):
         root_world=root_world.tolist(),
         joint_names=list(ARM_JOINTS + NECK_JOINTS),
         depth_interval_m=[env.capture.near_m, env.capture.far_m],
+        pixel_center_offset_xy=[0.5, 0.5],  # Both renderers sample pixel centers.
         optical_convention="ROS",
         depth_kind="distance_to_image_plane_m",
     )

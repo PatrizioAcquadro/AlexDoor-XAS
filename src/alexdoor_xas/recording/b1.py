@@ -118,12 +118,14 @@ class B1Writer:
         self.file.close()
 
 
-def validate_episode(path, *, images=True):
+def validate_episode(path, *, images=True, diagnostic=False):
     """Reject unfinished/unsynchronized artifacts; return compact collection evidence."""
     with h5py.File(path, "r") as h5:
         if h5.attrs.get("schema") != SCHEMA or not h5.attrs.get("complete", False):
             raise ValueError(f"Incomplete or unsupported B1 episode: {path}")
         meta = json.loads(h5["metadata"].attrs["episode"])
+        if bool(meta.get("bounded_diagnostic")) != diagnostic:
+            raise ValueError("Bounded diagnostic recordings are outside the learning corpus")
         if meta["split"] not in ("train", "development"):
             raise ValueError("Test recordings cannot enter perception preparation")
         obs, commands, labels = (h5[k] for k in ("observations", "commands", "annotations"))

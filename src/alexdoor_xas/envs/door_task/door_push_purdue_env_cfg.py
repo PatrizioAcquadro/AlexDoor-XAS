@@ -21,6 +21,9 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     scene = InteractiveSceneCfg(num_envs=1, env_spacing=3.0, replicate_physics=False)
     num_rerenders_on_reset = 2
     reset_camera_frames: int = 8
+    native_steel: bool = False
+    urdf_cache_dir: str | None = None
+    diagnostic_hinge_stop_deg: float | None = None
     action_mode: str = "A2"
     cameras: bool = True
     camera_mount_pitch_rad: float = 0.0

@@ -20,6 +20,25 @@ The source is
 `~/Desktop/Alex/assets/robots/alex_purdue/urdf/baseline/alex_purdue_wsg32_umi_v1_full_convex.urdf`.
 The factory defaults to SAKE when the end effector is omitted; select WSG explicitly.
 
+## Native B1 collection and qualification
+
+From the repository root, run `./scripts/install-isaac-native.sh` with Python
+3.12 and `uv` on PATH. The installer checks the pinned Isaac Lab lock and
+installs the Newton runtime with the NumPy compatibility correction.
+
+Use `./scripts/isaac-run.sh scripts/collect_perception.py` and
+`./scripts/isaac-run.sh scripts/qualify_door.py` with the usual asset and output
+arguments. The launcher selects NVIDIA's `SteelSolverCfg` with CUDA Graph
+enabled and the Newton Warp renderer for the ZED X Mini RGB-D camera.
+The native runtime reads the Alex source from the sibling `Alex` checkout.
+Supply the converted Alex003 and pedestal USD files under
+`outputs/generated/isaac-native-runtime/usd-cache/{robot,pedestal}` along with
+the prepared door assets.
+
+The bounded diagnostic in `configs/purdue_b1_bounded_diagnostic.json` limits
+the door to 4 degrees. Its recording is excluded from the B1 learning corpus.
+Use `--diagnostic` for evaluation to preserve the published door record.
+
 ## Arm and Gripper
 
 The ordered active right-arm joints are `RIGHT_SHOULDER_Y`, `RIGHT_SHOULDER_X`,

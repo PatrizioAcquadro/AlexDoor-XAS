@@ -1,6 +1,7 @@
 """Contact ownership and distal-face classification on the imported rigid bodies."""
 
 from dataclasses import dataclass
+from functools import cached_property
 
 import numpy as np
 
@@ -23,21 +24,25 @@ class DistalSurface:
     vertices: np.ndarray
     forward: np.ndarray
 
-    def contains(self, point, normal, tolerance=DISTAL_CONTACT_TOLERANCE_M):
-        """Convex hull inclusion, forward extremum, and opposing surface normal."""
-        points = self.vertices
-        if abs(np.dot(point, self.forward) - np.max(points @ self.forward)) > tolerance:
-            return False
-        if abs(np.dot(normal, self.forward)) < 0.7:
-            return False
-        triangles = points.reshape(-1, 3, 3)
+    @cached_property
+    def hull(self):
+        triangles = self.vertices.reshape(-1, 3, 3)
         normals = np.cross(triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0])
         lengths = np.linalg.norm(normals, axis=1)
         keep = lengths > 1e-12
         normals = normals[keep] / lengths[keep, None]
         anchors = triangles[keep, 0]
-        sign = np.sum(normals * (points.mean(axis=0) - anchors), axis=1) > 0
+        sign = np.sum(normals * (self.vertices.mean(axis=0) - anchors), axis=1) > 0
         normals[sign] *= -1
+        return np.max(self.vertices @ self.forward), anchors, normals
+
+    def contains(self, point, normal, tolerance=DISTAL_CONTACT_TOLERANCE_M):
+        """Convex hull inclusion, forward extremum, and opposing surface normal."""
+        front, anchors, normals = self.hull
+        if abs(np.dot(point, self.forward) - front) > tolerance:
+            return False
+        if abs(np.dot(normal, self.forward)) < 0.7:
+            return False
         return bool(np.all(np.sum(normals * (point - anchors), axis=1) <= tolerance))
 
 
@@ -87,11 +92,23 @@ class ContactObserver:
     """All robot/pedestal contacts; normal forces only, with exact actor ownership."""
 
     def __init__(
-        self, sim, stage, robot_path, panel_path, pedestal_path, ground_path, wrist_from_base
+        self,
+        sim,
+        stage,
+        robot_path,
+        panel_path,
+        pedestal_path,
+        ground_path,
+        wrist_from_base,
+        *,
+        physics_view=None,
     ):
         from pxr import UsdPhysics
 
         self.surfaces = imported_surfaces(stage, robot_path, wrist_from_base)
+        self._surfaces_by_actor = {}
+        for surface in self.surfaces:
+            self._surfaces_by_actor.setdefault(surface.actor, []).append(surface)
         self.panel_path = panel_path
         roots = (robot_path, pedestal_path, robot_path.rsplit("/", 1)[0] + "/Zed")
         self.actors = sorted(
@@ -102,11 +119,13 @@ class ContactObserver:
         )
         if not self.actors:
             raise RuntimeError("No contact sensing bodies")
-        self.view = sim.physics_sim_view.create_rigid_contact_view(
+        physics_view = sim.physics_sim_view if physics_view is None else physics_view
+        self.view = physics_view.create_rigid_contact_view(
             self.actors, max_contact_data_count=128 * len(self.actors)
         )
-        self.bodies = sim.physics_sim_view.create_rigid_body_view(self.actors)
+        self.bodies = physics_view.create_rigid_body_view(self.actors)
         self.actors = list(self.bodies.prim_paths)
+        self._actor_set = set(self.actors)
         # View orders must match; both are constructed from exact paths.
         if list(self.view.sensor_paths) != self.actors:
             raise RuntimeError("Contact and pose sensor ownership orders differ")
@@ -132,42 +151,43 @@ class ContactObserver:
             raise RuntimeError("Invalid contact sensor ranges")
         if np.any(starts + counts > len(force)) or counts.sum() >= len(force):
             raise RuntimeError("Contact buffer incomplete or saturated")
-        active = np.concatenate([np.arange(s, s + c) for s, c in zip(starts, counts, strict=True)])
-        ids = np.unique(other[active])
+        active = np.repeat(np.arange(len(self.actors)), counts)
+        offsets = np.cumsum(counts, dtype=np.intp) - counts
+        slots = np.arange(len(active)) - offsets[active] + starts[active]
+        if not all(np.isfinite(a[slots]).all() for a in (force, point, normal, separation)):
+            raise RuntimeError("Contact ownership or data unavailable")
+        ids = np.unique(other[slots])
         paths = self.view.get_other_actor_paths_from_ids(
             wp.array(ids, dtype=wp.uint64, device="cpu")
         )
         mapping = dict(zip(ids.tolist(), map(str, paths), strict=True))
-        poses = self.bodies.get_transforms().numpy()
+        poses = None
         forces = {name: np.zeros(3) for name in ("negative", "positive")}
         contacts = []
         for index, actor in enumerate(self.actors):
-            rotation = quat_to_rot_matrix(poses[index, 3:])
+            rotation = None
+            surfaces = self._surfaces_by_actor.get(actor, ())
             for slot in range(starts[index], starts[index] + counts[index]):
                 partner = mapping.get(int(other[slot]), "")
-                if (
-                    not partner
-                    or not np.isfinite(
-                        np.r_[force[slot], point[slot], normal[slot], separation[slot]]
-                    ).all()
-                ):
+                if not partner:
                     raise RuntimeError("Contact ownership or data unavailable")
                 # Internal pairs appear from both bodies; retain one physical record.
-                if partner in self.actors and actor > partner:
+                if partner in self._actor_set and actor > partner:
                     continue
-                local_point = rotation.T @ (point[slot] - poses[index, :3])
-                local_normal = rotation.T @ normal[slot]
-                matches = [
-                    s
-                    for s in self.surfaces
-                    if s.actor == actor and s.contains(local_point, local_normal)
-                ]
                 category = "forbidden"
                 if frozenset((actor, partner)) in self.structural_pairs:
                     category = "support"
-                elif partner == self.panel_path and len(matches) == 1:
-                    category = matches[0].finger
-                    forces[category] += force[slot] * normal[slot]
+                elif partner == self.panel_path and surfaces:
+                    if poses is None:
+                        poses = self.bodies.get_transforms().numpy()
+                    if rotation is None:
+                        rotation = quat_to_rot_matrix(poses[index, 3:]).T
+                    local_point = rotation @ (point[slot] - poses[index, :3])
+                    local_normal = rotation @ normal[slot]
+                    matches = [s for s in surfaces if s.contains(local_point, local_normal)]
+                    if len(matches) == 1:
+                        category = matches[0].finger
+                        forces[category] += force[slot] * normal[slot]
                 contacts.append(
                     dict(
                         actor=actor,

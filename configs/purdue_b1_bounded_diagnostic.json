@@ -1,0 +1,40 @@
+{
+  "asset_id": "psx-interior-wood-002-02e442c",
+  "hinge_stop_deg": 4.0,
+  "camera_mount_pitch_rad": -0.17453292519943295,
+  "physics_substeps": 4,
+  "probe": {
+    "floor_pose": [
+      -0.577,
+      0.4396142640261285,
+      0.12
+    ],
+    "initial_joints": {
+      "NECK_Z": -0.6999661922454834,
+      "LEFT_SHOULDER_Y": 0.5,
+      "RIGHT_SHOULDER_Y": -0.19230733811855316,
+      "NECK_Y": 0.2233130931854248,
+      "LEFT_SHOULDER_X": 9.772993081469394e-08,
+      "RIGHT_SHOULDER_X": -1.0130529403686523,
+      "LEFT_SHOULDER_Z": 2.0136578626761548e-08,
+      "RIGHT_SHOULDER_Z": 0.6801434755325317,
+      "LEFT_ELBOW_Y": -1.0,
+      "RIGHT_ELBOW_Y": -2.1974904537200928,
+      "LEFT_WRIST_Z": -6.980541922274597e-09,
+      "RIGHT_WRIST_Z": 2.221043586730957,
+      "LEFT_WRIST_X": 9.232431708028344e-09,
+      "RIGHT_WRIST_X": 1.1151695251464844,
+      "LEFT_GRIPPER_Y": -2.230949291970319e-08,
+      "RIGHT_GRIPPER_Y": 0.08180288225412369
+    },
+    "contact_fraction": 0.2603751027736617,
+    "contact_height": 1.1549991673502589,
+    "neck": [
+      -0.6999661922454834,
+      0.2233130931854248
+    ],
+    "approach_s": 2.0,
+    "horizon_s": 15.0
+  },
+  "seed": 6100
+}

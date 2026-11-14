@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -11,7 +12,6 @@ from ihmc_alex_isaaclab.platforms.purdue_alex003_pedestal import (
     load_purdue_alex003_pedestal_spec,
     make_purdue_alex003_pedestal_cfg,
 )
-from ihmc_alex_isaaclab.robots.alex_purdue import make_alex_purdue_cfg
 from ihmc_alex_isaaclab.sensors.zed_x_mini import (
     author_alex_purdue_zed_x_mini_mount,
     make_zed_x_mini_cfgs,
@@ -61,7 +61,14 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._time_s = 0.0
         self._pending_pose = None
         self._pending_joints = None
+        self._native_contacts = None
         super().__init__(cfg, **kwargs)
+        if cfg.native_steel:
+            from .native_steel import NativeSteelPurdueViews
+
+            self.sim.backend_manager.set_decimation(1)
+            self._physics_handles_decimation = False
+            self._native_contacts = NativeSteelPurdueViews(self.sim, self.panel_path)
         self.arm_ids = self._resolve_joints(ARM_JOINTS)
         self.neck_ids = self._resolve_joints(NECK_JOINTS)
         self.observed_ids = self.arm_ids + self.neck_ids
@@ -79,6 +86,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
             PEDESTAL,
             "/World/Ground/CollisionPlane",
             self.push_geometry.wrist_from_base,
+            physics_view=self._native_contacts,
         )
         if cfg.cameras:
             camera_prim = self.sim.stage.GetPrimAtPath(self.camera.cfg.prim_path)
@@ -96,20 +104,49 @@ class DoorPushPurdueEnv(DirectRLEnv):
         import isaaclab.sim as sim_utils
 
         spec = load_purdue_alex003_pedestal_spec()
-        pedestal = make_purdue_alex003_pedestal_cfg(PEDESTAL)
+        cache = (
+            Path(self.cfg.urdf_cache_dir).expanduser().resolve()
+            if self.cfg.urdf_cache_dir
+            else None
+        )
+        if self.cfg.native_steel:
+            from isaaclab import cloner
+            from isaaclab.assets import AssetBaseCfg
+
+            from .native_steel import PEDESTAL_ASSET, converted_usd, robot_config
+
+            paths = (PEDESTAL, ROBOT, ROOT + "/Door", "/World/Ground", "/World/Light")
+            if self.cfg.cameras:
+                paths += (ROOT + "/Zed",)
+            plan = cloner.clone_plan_from_env_0(
+                self.scene.cloner_cfg,
+                [AssetBaseCfg(prim_path=path) for path in paths],
+                self.cfg.scene.num_envs,
+                self.cfg.scene.env_spacing,
+            )
+            pedestal_spawn = converted_usd(cache, "pedestal", PEDESTAL_ASSET)
+            robot_cfg, self.robot_urdf_path = robot_config(cache)
+        else:
+            from ihmc_alex_isaaclab.robots.alex_purdue import make_alex_purdue_cfg
+
+            pedestal_spawn = make_purdue_alex003_pedestal_cfg(PEDESTAL).spawn
+            robot_cfg = make_alex_purdue_cfg(
+                fix_base=True, variant="full_convex", end_effector="wsg32_umi_v1"
+            )
+            if cache is not None:
+                pedestal_spawn.usd_dir = str(cache / "pedestal")
+                robot_cfg.spawn.usd_dir = str(cache / "robot")
+            self.robot_urdf_path = Path(robot_cfg.spawn.asset_path)
         x, y, yaw = self.cfg.floor_pose
         floor_quat = (0.0, 0.0, float(np.sin(yaw / 2)), float(np.cos(yaw / 2)))
-        pedestal.spawn.func(
-            PEDESTAL, pedestal.spawn, translation=(x, y, 0.0), orientation=floor_quat
+        pedestal_spawn.func(
+            PEDESTAL, pedestal_spawn, translation=(x, y, 0.0), orientation=floor_quat
         )
         schemas.activate_contact_sensors(PEDESTAL)
-        robot_cfg = make_alex_purdue_cfg(
-            fix_base=True, variant="full_convex", end_effector="wsg32_umi_v1"
-        )
         robot_cfg.prim_path = ROBOT
         robot_cfg.init_state.pos = (x, y, spec.alex_root_world_z_m)
         robot_cfg.init_state.rot = floor_quat
-        joints = ET.parse(robot_cfg.spawn.asset_path).getroot().findall("joint")
+        joints = ET.parse(self.robot_urdf_path).getroot().findall("joint")
         defaults = {j.get("name"): 0.0 for j in joints if j.get("type") != "fixed"}
         robot_cfg.init_state.joint_pos = {
             **defaults,
@@ -117,8 +154,21 @@ class DoorPushPurdueEnv(DirectRLEnv):
             **alex_purdue_wsg32_targets(0.0, "left"),
             **alex_purdue_wsg32_targets(0.0, "right"),
         }
-        self.push_geometry = derive_push_geometry(robot_cfg.spawn.asset_path)
+        self.push_geometry = derive_push_geometry(self.robot_urdf_path)
         self.robot = Articulation(robot_cfg)
+        if self.cfg.native_steel:
+            from ihmc_alex_isaaclab.end_effectors.weiss_wsg32 import (
+                author_wsg32_finger_physics_material,
+            )
+            from ihmc_alex_isaaclab.robots.purdue_physics import (
+                ALEX_PURDUE_WSG32_SELF_COLLISION_FILTER_PAIRS,
+                author_alex_purdue_self_collision_filters,
+            )
+
+            author_alex_purdue_self_collision_filters(
+                self.sim.stage, ROBOT, ALEX_PURDUE_WSG32_SELF_COLLISION_FILTER_PAIRS
+            )
+            author_wsg32_finger_physics_material(self.sim.stage, ROBOT)
         for prim in Usd.PrimRange(self.sim.stage.GetPrimAtPath(ROBOT)):
             if prim.HasAPI(UsdPhysics.RigidBodyAPI):
                 schemas.activate_contact_sensors(str(prim.GetPath()))
@@ -139,6 +189,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
             if self.cfg.prepared_door is not None:
                 spawn = sim_utils.UsdFileCfg(usd_path=str(geometry.usd))
                 spawn.func(root, spawn)
+                if self.cfg.diagnostic_hinge_stop_deg is not None:
+                    joint = UsdPhysics.RevoluteJoint(self.sim.stage.GetPrimAtPath(root + "/Hinge"))
+                    joint.GetUpperLimitAttr().Set(self.cfg.diagnostic_hinge_stop_deg)
                 geometry.load_stage(self.sim.stage, root)
             else:
                 author_synthetic_door(self.sim.stage, root, geometry)
@@ -198,16 +251,34 @@ class DoorPushPurdueEnv(DirectRLEnv):
             left.update_latest_camera_pose = True
             optic = stage.GetPrimAtPath(left.prim_path)
             body = stage.GetPrimAtPath(model.prim_path)
+            if self.cfg.native_steel:
+                from isaaclab_newton.renderers import NewtonWarpRendererCfg
+
+                body = next(
+                    p
+                    for p in Usd.PrimRange(stage.GetPrimAtPath(ROBOT))
+                    if p.GetName() == "HEAD_LINK"
+                )
+                left.renderer_cfg = NewtonWarpRendererCfg()
             world_body = np.array(UsdGeom.Xformable(body).ComputeLocalToWorldTransform(0)).T
             world_optic = np.array(UsdGeom.Xformable(optic).ComputeLocalToWorldTransform(0)).T
-            local_optic = np.linalg.inv(world_body) @ world_optic
+            if self.cfg.native_steel:
+                world_body, world_optic = world_body.copy(), world_optic.copy()
+                for transform in (world_body, world_optic):
+                    transform[:3, :3] /= np.linalg.norm(transform[:3, :3], axis=0)
+            local_optic = np.linalg.solve(world_body, world_optic)
+            if self.cfg.native_steel:
+                self.authored_camera_from_head = local_optic
             self._optical_translation = local_optic[:3, 3].copy()
             rotation = local_optic[:3, :3]
             rotation = rotation / np.linalg.norm(rotation, axis=0)
             self._optical_quaternion = Rotation.from_matrix(rotation).as_quat()
             self.camera = Camera(left)
             self.scene.sensors["head_rgbd"] = self.camera
-        self.scene.clone_environments(copy_from_source=False)
+        if self.cfg.native_steel:
+            cloner.replicate(plan)
+        else:
+            self.scene.clone_environments(copy_from_source=False)
 
     def tool_pose(self):
         index = self.robot.body_names.index(self._tool_body_name)
@@ -325,8 +396,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
         if self.capture is not None:
             # Fabric does not propagate the attached ZED's camera descendant pose.
             # Bridge the canonical optical transform from the measured rigid-body pose.
-            self.sim.forward()
-            index = self.robot.body_names.index("Zed")
+            if not self.cfg.native_steel:
+                self.sim.forward()
+            index = self.robot.body_names.index("HEAD_LINK" if self.cfg.native_steel else "Zed")
             position, orientation = combine_frame_transforms(
                 tensor(self.robot.data.body_link_pos_w)[:, index],
                 tensor(self.robot.data.body_link_quat_w)[:, index],
@@ -364,6 +436,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
         )
 
     def _reset_idx(self, env_ids):
+        if self._native_contacts is not None:
+            self._native_contacts.reset()
+            self.contact_history = []
         super()._reset_idx(env_ids)
         for fixture in self.scene.rigid_objects.values():
             state = tensor(fixture.data.default_root_state).clone()
