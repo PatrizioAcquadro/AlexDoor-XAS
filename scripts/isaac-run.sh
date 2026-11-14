@@ -21,7 +21,7 @@ case "$profile" in
         native_runtime="$root/outputs/generated/isaac-native-runtime"
         native_python="${ALEXDOOR_NATIVE_PYTHON:-$native_runtime/.venv/bin/python}"
         if [[ ! -x "$native_python" ]]; then
-            printf 'Set ALEXDOOR_NATIVE_PYTHON to the Isaac Lab native runtime Python (see the Purdue B1 wiki).\n' >&2
+            printf 'Install the B1 runtime with scripts/install-isaac-native.sh or set ALEXDOOR_NATIVE_PYTHON.\n' >&2
             exit 2
         fi
         export ISAAC_PHYSICS_PROFILE="$profile"
