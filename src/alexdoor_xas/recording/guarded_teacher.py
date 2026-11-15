@@ -12,7 +12,9 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
     contact and load admission; evaluator annotations never reach that runtime.
     """
 
-    def __init__(self, *args, operational_recipe, robot_asset, **kwargs):
+    def __init__(
+        self, *args, operational_recipe, robot_asset, record_tracker_stream=False, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.operational_recipe = operational_recipe
         self.robot_asset = robot_asset
@@ -22,6 +24,8 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
         self.guard_refusal = None
         self.brake_anchor = None
         self.release_rotation = None
+        self.record_tracker_stream = record_tracker_stream
+        self.tracker_stream = None
 
     def start(self, env, door, setup, phase="approach"):
         from alexdoor_xas.action.spaces import A1_JOINT_DELTA
@@ -49,12 +53,26 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
         self.observer.reset()
         self.geometry.engine.interruption_check = getattr(env, "collection_check", None)
         self.io.safety.reset()
+        if self.record_tracker_stream:
+            from alexdoor_xas.recording.tracker_stream import TrackerStream
+
+            self.tracker_stream = TrackerStream(output / "tracker-stream.hdf5")
+        self._observe()
+
+    def _observe(self):
         self.latest_observation = self.observer.update(self.io.observe())
+        if self.tracker_stream is not None:
+            self.tracker_stream.append(
+                self.geometry,
+                self.latest_observation.estimate,
+                generation=self.env.generation,
+                phase=self.phase,
+            )
 
     def _state(self):
         super()._state()
         if self.observer is not None:
-            self.latest_observation = self.observer.update(self.io.observe())
+            self._observe()
             if self.phase == "inspect" and (reason := self.io.safety_reason("inspect")):
                 self.guard_refusal = reason
                 raise ValueError(reason)
@@ -146,6 +164,9 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
 
     def close(self):
         super().close()
+        if self.tracker_stream is not None:
+            self.tracker_stream.close()
+            self.tracker_stream = None
         if self.operational is not None:
             _, _, geometry, motion, load_log, contact_log = self.operational
             from alexdoor_xas.perception.evaluation import write_json

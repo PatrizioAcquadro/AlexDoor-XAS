@@ -138,6 +138,7 @@ def main():
     parser.add_argument("--operational-recipe", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--urdf-cache-dir", type=Path)
+    parser.add_argument("--record-tracker-stream", action="store_true")
     parser.add_argument("--component-opening-deg", type=float)
     parser.add_argument("--component-max-sim-s", type=float)
     args = parser.parse_args()
@@ -233,6 +234,7 @@ def main():
                 gpu=torch.cuda.get_device_name(),
                 cuda_visible_devices=os.environ.get("CUDA_VISIBLE_DEVICES"),
                 graph_requested=cfg.sim.physics.use_cuda_graph,
+                record_tracker_stream=args.record_tracker_stream,
                 control_dt=env.step_dt,
                 physics_dt=cfg.sim.dt,
                 component=component,
@@ -335,6 +337,7 @@ def collect(args, env, door, setup, recipe, episode, inspection, required_openin
         metadata,
         operational_recipe=args.operational_recipe,
         robot_asset=robot,
+        record_tracker_stream=args.record_tracker_stream,
         cache_temporal_frames=True,
         image_compression="lzf",
     )

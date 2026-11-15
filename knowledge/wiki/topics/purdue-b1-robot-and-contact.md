@@ -216,6 +216,14 @@ The launcher uses Steel and records one 60 Hz controller target across four
 native interval. The teacher proposes poses, then observed RGB-D, joint state,
 load, and full-robot sweep and stop evidence determine admission.
 
+With `--record-tracker-stream`, the D4 collector writes
+`operational/tracker-stream.hdf5` for the frames consumed by the perception
+worker. It stores lossless RGB-D, the filtered depth validity map, calibrated
+intrinsics, proprioception, packed SAM3 masks, and normal evidence with the
+acquisition and publication clocks. Use this stream to replay the configured
+perception cadence. The separate teacher recording serves the 10 Hz image
+stream used by the policy.
+
 Steel's joint-output feedback projects solved parent wrenches about the
 link center of mass onto the corresponding joint motion axes. The residual
 model compares those wrenches against rigid-link inverse dynamics. The
