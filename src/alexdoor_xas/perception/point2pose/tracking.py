@@ -24,15 +24,14 @@ from alexdoor_xas.perception.geometry import (
     deproject,
     project,
     similar_surface,
-    surfaces,
 )
 from alexdoor_xas.perception.ipc import unpack_array
 from alexdoor_xas.perception.local_surface import (
     SurfacePose,
     constrained_surface_pose,
     intersect_normal_cones,
+    measured_material_surface,
     observed_basis,
-    select_planar_normal,
 )
 from alexdoor_xas.perception.material_zone import (
     BoundSource,
@@ -573,115 +572,75 @@ class PanelTracking:
         config = self.config.get("local_surface_constraint")
         if config is None:
             return
-        self.diagnostics["local_surface_query"] = dict(
-            expanded="local_surface_expansion_reason" in result,
-            reason=result.get("local_surface_expansion_reason"),
-            surfaces=len(result.get("local_surfaces") or []),
-        )
         for candidate, raw in zip(self.candidates, result["objects"], strict=True):
-            previous = getattr(candidate, "local_certificate", None)
+            previous = candidate.local_certificate
             pending_normal = None
-            planar_count = 0
+            fit = dict(alignment_input_points=0, component_root_points=[], measured_edges=[])
             candidate.local_constraint = candidate.local_certificate = None
-            normal_points = None
             try:
                 if candidate.state != "tracked" or candidate.material_recovery_unverified:
                     raise ValueError("unavailable_native_material_identity")
-                normal_points = self.reobserved_material_points(candidate, captured)
-                choices = [
-                    s
-                    for s in (result.get("local_surfaces") or [])
-                    if s.observations[0].semantic_id == candidate.sam3_id and abs(s.normal[2]) < 0.3
-                ]
-                if not choices:
+                support = candidate.support
+                captured_s = float(captured["time_s"])
+                if (
+                    support is None
+                    or support.acquired_s != captured_s
+                    or support.supported_s != captured_s
+                ):
+                    raise ValueError("unsynchronized_local_surface")
+                support.require(support.available_s, self.generation, dynamic=True)
+                cue = result["cue"]
+                ids = cue["ids"]
+                if candidate.sam3_id is None or ids.count(candidate.sam3_id) != 1:
                     raise ValueError("missing_or_ambiguous_current_surface")
+                mask = (
+                    np.unpackbits(
+                        np.frombuffer(cue["masks"][ids.index(candidate.sam3_id)], np.uint8),
+                        count=np.prod(cue["shape"]),
+                    )
+                    .reshape(cue["shape"])
+                    .astype(bool)
+                )
+                motion = candidate.pose @ np.linalg.inv(candidate.initial_world)
+                predicted = candidate.surface.points @ motion[:3, :3].T + motion[:3, 3]
+                current = measured_material_surface(
+                    captured,
+                    mask,
+                    self._reobserved_material_pixels(
+                        captured, predicted, self.config["plane_tolerance_m"]
+                    ),
+                    predicted,
+                    motion[:3, :3] @ candidate.surface.normal,
+                    self.config,
+                    fit,
+                )
                 obj = {
                     k: unpack_array(v) if isinstance(v, dict) and "data" in v else v
                     for k, v in raw.items()
                 }
                 measured = obj["measured_correspondences"] & obj["inliers"]
-                initial_camera = candidate.initial_world @ np.linalg.inv(candidate.map_from_object)
-                reference_points = (
-                    candidate.surface.points - initial_camera[:3, 3]
-                ) @ initial_camera[:3, :3]
-                consistent, failures = [], []
-                # Every candidate must independently retain the original material.
-                # Rank complete pose uncertainty over the entire observed root,
-                # rather than optimizing only the current fingertip normal. The
-                # original normal and full-pose gates still consume their own
-                # unchanged bounds at each actual action and response.
-                for current in sorted(
-                    choices, key=lambda s: int(s.observations[0].mask().sum()), reverse=True
-                ):
-                    try:
-                        observation = current.observations[0]
-                        if observation.frame != int(
-                            captured["frame"]
-                        ) or observation.acquired_s != float(captured["time_s"]):
-                            raise ValueError("unsynchronized_local_surface")
-                        constraint = constrained_surface_pose(
-                            candidate.surface,
-                            current,
-                            candidate.initial_world @ np.linalg.inv(candidate.map_from_object),
-                            captured["camera_world"],
-                            obj["source_points"][measured],
-                            obj["current_points"][measured],
-                            config["point_error_m"],
-                            current_normal_points=normal_points,
-                            map_anchor=(candidate.map_from_object @ candidate.object_from_zone)[
-                                :3, 3
-                            ],
-                        )
-                        local = self._constrained_candidate(candidate, constraint)
-                        # Identity belongs to the original measured seed.
-                        # A coverage atlas contains other partial views whose
-                        # occlusion today cannot invalidate that seed's match.
-                        if not self.root_consistent(
-                            replace(local, surface=candidate.surface), captured
-                        ):
-                            raise ValueError("local_surface_material_inconsistent")
-                        lever = np.linalg.norm(
-                            reference_points - constraint.registration_origin_map, axis=1
-                        ).max()
-                        error = constraint.position_bound_m + rotational_travel(
-                            lever, constraint.rotation_bound_rad
-                        )
-                        consistent.append((error, constraint))
-                    except (ValueError, KeyError) as error:
-                        failures.append(str(error))
-                if not consistent:
-                    raise ValueError(failures[0])
-                errors = [error for error, _ in consistent]
-                if errors.count(min(errors)) != 1:
-                    raise ValueError("missing_or_ambiguous_current_surface")
-                candidate.local_constraint = consistent[int(np.argmin(errors))][1]
-                fresh_pose = self._constrained_candidate(candidate, candidate.local_constraint).pose
-                pending_normal, planar_count = self.observe_planar_normal(
-                    candidate,
-                    captured,
-                    result.get("cue"),
-                    fresh_pose[:3, 0],
-                    candidate.local_constraint.normal_rotation_bound_rad,
+                current_constraint = constrained_surface_pose(
+                    candidate.surface,
+                    current,
+                    candidate.initial_world @ np.linalg.inv(candidate.map_from_object),
+                    captured["camera_world"],
+                    obj["source_points"][measured],
+                    obj["current_points"][measured],
+                    config["point_error_m"],
+                    map_anchor=(candidate.map_from_object @ candidate.object_from_zone)[:3, 3],
                 )
+                local = self._constrained_candidate(candidate, current_constraint)
+                # Identity belongs to the original measured seed. Occlusion of
+                # other atlas views does not invalidate this seed's match.
+                if not self.root_consistent(replace(local, surface=candidate.surface), captured):
+                    raise ValueError("local_surface_material_inconsistent")
+                candidate.local_constraint = current_constraint
+                pending_normal = (current.normal, current_constraint.normal_rotation_bound_rad)
+                fit["registration_pairs"] = current_constraint.pairs
                 self.retain_local_certificate(candidate, previous, captured)
                 candidate.local_constraint_reason = ""
             except (ValueError, KeyError) as error:
-                if (
-                    candidate.state == "tracked"
-                    and not candidate.material_recovery_unverified
-                    and result.get("local_surfaces_dominant", False)
-                    and result.get("cue") is not None
-                ):
-                    # Relief may hide the selected material from the first-plane
-                    # query. Reuse every current measured component, retaining
-                    # the same conditioning, identity and ambiguity checks.
-                    self.diagnostics["local_surface_query_expansions"] = (
-                        self.diagnostics.get("local_surface_query_expansions", 0) + 1
-                    )
-                    result["local_surfaces"] = surfaces(result["cue"], captured, self.config)
-                    result["local_surfaces_dominant"] = False
-                    result["local_surface_expansion_reason"] = str(error)
-                    return self.constrain_local(captured, result)
+                candidate.local_constraint = candidate.local_certificate = None
                 candidate.local_constraint_reason = str(error)
             if pending_normal is None or candidate.local_constraint is None:
                 candidate.normal_observations = ()
@@ -708,34 +667,13 @@ class PanelTracking:
                 "available": candidate.local_constraint is not None,
                 "reason": candidate.local_constraint_reason,
                 "native_pose_unchanged": True,
-                "reobserved_normal_points": 0 if normal_points is None else len(normal_points),
                 "normal_rotation_bound_rad": None
                 if candidate.local_constraint is None
                 else candidate.local_constraint.normal_rotation_bound_rad,
                 "alignment_normal": None if pending_normal is None else pending_normal[0].tolist(),
                 "alignment_fit_bound_rad": None if pending_normal is None else pending_normal[1],
-                "alignment_input_points": planar_count,
+                **fit,
             }
-
-    def observe_planar_normal(self, candidate, captured, cue, normal, radius):
-        """Select a tight, distributed core from the current tracked material."""
-        normal = normal / np.linalg.norm(normal)
-        if cue is None or candidate.sam3_id is None or candidate.sam3_id not in cue["ids"]:
-            return (normal, radius), 0
-        index = cue["ids"].index(candidate.sam3_id)
-        mask = np.unpackbits(
-            np.frombuffer(cue["masks"][index], np.uint8), count=np.prod(cue["shape"])
-        ).reshape(cue["shape"])
-        points = self.reobserved_material_points(candidate, captured, mask)
-        fit = select_planar_normal(
-            points,
-            int(captured["frame"]),
-            self.config["min_points"],
-            self.config["local_surface_constraint"]["point_error_m"],
-            normal,
-            radius,
-        )
-        return fit, len(points)
 
     def publish_normal_support(self, captured_s, available_s):
         """Use the final provider publication clock, retaining older clocks verbatim."""
@@ -946,10 +884,9 @@ class PanelTracking:
             ("temporal_growth", linear, angular, tuple(candidate.pose[:3, 3])),
         ), angle
 
-    def reobserved_material_points(self, candidate, sensor, mask=None):
-        """Fresh depth on the tracked seed; no other semantic component or old XYZ."""
-        motion = candidate.pose @ np.linalg.inv(candidate.initial_world)
-        predicted = candidate.surface.points @ motion[:3, :3].T + motion[:3, 3]
+    @staticmethod
+    def _reobserved_material_pixels(sensor, predicted, tolerance):
+        """Project the tracked seed and require fresh depth at the predicted range."""
         uv, z = project(predicted, sensor["intrinsics"], sensor["camera_world"])
         good = np.isfinite(uv).all(1) & np.isfinite(z) & (z > 0)
         uv, z = np.rint(uv[good]).astype(int), z[good]
@@ -960,11 +897,19 @@ class PanelTracking:
         good = (
             sensor["valid_depth"][uv[:, 1], uv[:, 0], 0]
             & np.isfinite(measured)
-            & (abs(measured - z) <= 2 * self.config["plane_tolerance_m"])
+            & (abs(measured - z) <= 2 * tolerance)
+        )
+        return np.unique(uv[good], axis=0)
+
+    def reobserved_material_points(self, candidate, sensor, mask=None):
+        """Fresh depth on the tracked seed; no other semantic component or old XYZ."""
+        motion = candidate.pose @ np.linalg.inv(candidate.initial_world)
+        predicted = candidate.surface.points @ motion[:3, :3].T + motion[:3, 3]
+        pixels = self._reobserved_material_pixels(
+            sensor, predicted, self.config["plane_tolerance_m"]
         )
         if mask is not None:
-            good &= mask[uv[:, 1], uv[:, 0]].astype(bool)
-        pixels = np.unique(uv[good], axis=0)
+            pixels = pixels[mask[pixels[:, 1], pixels[:, 0]].astype(bool)]
         return deproject(
             sensor["depth_m"][pixels[:, 1], pixels[:, 0], 0],
             pixels,

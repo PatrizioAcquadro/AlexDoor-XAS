@@ -4,8 +4,9 @@ from dataclasses import dataclass
 from itertools import combinations
 
 import numpy as np
+from scipy.ndimage import binary_opening, label
 
-from alexdoor_xas.perception.geometry import plane_fit
+from alexdoor_xas.perception.geometry import Surface, deproject, extent_edges, plane_fit
 
 
 @dataclass(frozen=True)
@@ -170,27 +171,60 @@ def observed_basis(surface, point_error_m, *, normal_points=None):
     return basis, float(bound), float(normal_bound)
 
 
-def select_planar_normal(points, frame, minimum, point_error, reference, reference_radius):
-    """Refit the dominant tight plane of the reobserved original planar material."""
-    reference = np.asarray(reference, dtype=float)
-    reference = reference / np.linalg.norm(reference)
-    fit = plane_fit(points, point_error, minimum, np.random.default_rng(frame))
+def measured_material_surface(sensor, mask, pixels, predicted, reference, config, diagnostics):
+    """Associate measured components to the transported seed before measuring edges."""
+    depth = sensor["depth_m"][..., 0]
+    valid = sensor["valid_depth"][..., 0] & np.isfinite(depth) & (depth > 0)
+    intrinsics, camera = sensor["intrinsics"], sensor["camera_world"]
+    minimum = config["min_points"]
+    point_error = config["local_surface_constraint"]["point_error_m"]
+    u, v = pixels.T
+    inside = mask[v, u] & valid[v, u]
+    u, v = u[inside], v[inside]
+    points = deproject(depth[v, u], np.c_[u, v], intrinsics, camera)
+    diagnostics["alignment_input_points"] = len(points)
+    fit = plane_fit(points, point_error, minimum, np.random.default_rng(int(sensor["frame"])))
     if fit is None:
-        return reference, reference_radius
-    normal, offset, support, _ = fit
-    # A narrow or minority strip can be a bevel. Use the dominant support and
-    # independently bound both directions with the full measured core.
-    if support.sum() <= len(points) / 2:
-        return reference, reference_radius
+        raise ValueError("missing_measured_planar_core")
+    normal, offset, inliers, residual = fit
+    if inliers.sum() <= len(points) / 2:
+        raise ValueError("ambiguous_measured_material_plane")
     if normal @ reference < 0:
         normal, offset = -normal, -offset
-    try:
-        radius = _planar_core_bound(points, normal, offset, point_error)
-    except ValueError:
-        return reference, reference_radius
-    if radius < reference_radius and _angle(normal, reference) <= radius + reference_radius:
-        return normal, radius
-    return reference, reference_radius
+    if abs(normal[2]) >= 0.3:
+        raise ValueError("invalid_observed_plane")
+
+    vv, uu = np.nonzero(mask & valid)
+    dense = deproject(depth[vv, uu], np.c_[uu, vv], intrinsics, camera)
+    on_plane = abs(dense @ normal - offset) <= point_error
+    raster = np.zeros_like(mask)
+    raster[vv[on_plane], uu[on_plane]] = True
+    components, _ = label(binary_opening(raster))
+    root_labels = components[v[inliers], u[inliers]]
+    counts = np.bincount(root_labels)
+    associated = np.flatnonzero(counts[1:] >= minimum) + 1
+    diagnostics["component_root_points"] = counts[associated].tolist()
+    if counts[associated].sum() <= len(points) / 2:
+        raise ValueError("insufficient_connected_material_support")
+    core = points[inliers][np.isin(root_labels, associated)]
+    # An occlusion or shallow relief may split one leaf. Each part needs its
+    # own projected seed support. Never bridge a gap to manufacture an edge.
+    edges = {}
+    dense_labels = components[vv, uu]
+    for component in associated:
+        part = components == component
+        _, lines = extent_edges(
+            dense[dense_labels == component],
+            normal,
+            part,
+            sensor,
+            config["plane_tolerance_m"],
+            return_points=True,
+            foreground_reference=predicted,
+        )
+        edges.update((f"{key}_{component}", line) for key, line in lines.items())
+    diagnostics["measured_edges"] = list(edges)
+    return Surface(core, normal, offset, residual, len(core) / len(points), edge_points=edges)
 
 
 def intersect_normal_cones(cones):
@@ -238,7 +272,6 @@ def constrained_surface_pose(
     point_error_m,
     *,
     map_anchor,
-    current_normal_points=None,
 ):
     """Use all supplied measured native inliers; recompute their residual envelope.
 
@@ -247,9 +280,7 @@ def constrained_surface_pose(
     model disagreement remain separate contributions at the consumer.
     """
     initial_basis, initial_error, _ = observed_basis(initial_surface, point_error_m)
-    current_basis, current_error, normal_error = observed_basis(
-        current_surface, point_error_m, normal_points=current_normal_points
-    )
+    current_basis, current_error, normal_error = observed_basis(current_surface, point_error_m)
     source, current = np.asarray(source_points, float), np.asarray(current_points, float)
     anchor = np.asarray(map_anchor, float)
     cameras = (np.asarray(initial_camera, float), np.asarray(current_camera, float))

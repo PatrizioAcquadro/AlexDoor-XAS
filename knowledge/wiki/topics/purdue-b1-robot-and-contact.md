@@ -234,9 +234,16 @@ partner, normal force and separation remain independent evaluator channels.
 
 The 5° orientation check protects aligned interaction while acquiring or
 maintaining support. The observed tracker refits the dominant planar core of
-the reobserved material using the configured metric point error and measured
-span in two directions. It uses the tighter normal when its cone agrees with
-the current material registration. The contact orientation check intersects
+the reobserved material within the selected SAM3 mask. It labels connected
+parts at the configured metric point error and associates them through
+reprojections of the original seed. Each associated part must have the
+configured minimum seed support, and their union must retain a majority of
+the reobserved samples. An edge can come from any associated part. Foreground
+discontinuities inside the projected seed extent indicate occlusion unless
+they are within the existing edge-proximity tolerance. The tracker bounds the
+shared plane over two measured directions and still requires a conditioned
+vertical edge, measured native inliers, and a depth-consistent registered seed.
+The contact orientation check intersects
 up to three recent normal cones for that material after propagating each
 from its actual support clock with the configured angular rate. An empty
 intersection makes local support unavailable until a new consistent capture.

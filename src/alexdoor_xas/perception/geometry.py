@@ -163,7 +163,15 @@ class Surface:
 
 
 def extent_edges(
-    points, normal, mask, sensor, tolerance, *, return_points=False, return_support=False
+    points,
+    normal,
+    mask,
+    sensor,
+    tolerance,
+    *,
+    return_points=False,
+    return_support=False,
+    foreground_reference=None,
 ):
     """Keep measured RGB-D silhouette lines independently of interior point sampling.
 
@@ -181,6 +189,8 @@ def extent_edges(
         return ({}, {}, np.empty((0, 3))) if return_support else ({}, {}) if return_points else {}
     cloud = deproject(depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
     offset = np.median(points @ normal)
+    view_side = np.sign(offset - sensor["camera_world"][:3, 3] @ normal)
+    reference = None if foreground_reference is None else foreground_reference @ basis
     on_plane = abs(cloud @ normal - offset) <= tolerance
     support = np.zeros((h, w), bool)
     support[v[on_plane], u[on_plane]] = True
@@ -218,7 +228,15 @@ def extent_edges(
             beyond = deproject(
                 depth[vv, uu], np.c_[uu, vv], sensor["intrinsics"], sensor["camera_world"]
             )
-            indices = indices[abs(beyond @ normal - offset) > 2 * tolerance]
+            distance = beyond @ normal - offset
+            discontinuity = abs(distance) > 2 * tolerance
+            if reference is not None:
+                # Foreground can border a material edge (e.g. a door frame).
+                # If the seed extends beyond the line, it is an interior occlusion.
+                outer = (min if side == 0 else max)(reference[:, axis])
+                near_reference_edge = sign * (outer - local[indices, axis]) <= 3 * tolerance
+                discontinuity &= (view_side * distance > 0) | near_reference_edge
+            indices = indices[discontinuity]
             # Horizontal/vertical metric edge lines must span observable support.
             # Search the outermost supported line, rather than an area-weighted quantile.
             coordinates = local[indices, axis]

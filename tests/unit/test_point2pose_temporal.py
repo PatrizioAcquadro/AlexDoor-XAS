@@ -8,7 +8,6 @@ import pytest
 from alexdoor_xas.perception.contracts import FieldSupport
 from alexdoor_xas.perception.geometry import Surface, SurfaceObservation, deproject
 from alexdoor_xas.perception.ipc import pack_array
-from alexdoor_xas.perception.local_surface import select_planar_normal
 from alexdoor_xas.perception.point2pose.runtime import Point2PoseEngine
 from alexdoor_xas.perception.point2pose.tracking import PanelCandidate, PanelTracking
 from alexdoor_xas.recording.b1 import OBS_KEYS
@@ -104,23 +103,6 @@ def make_surface(captured):
     )
 
 
-def test_normal_refit_uses_dominant_distributed_core_on_tracked_material():
-    y, z = np.meshgrid(np.linspace(-0.12, 0.12, 18), np.linspace(-0.18, 0.18, 25))
-    face = np.c_[np.zeros(y.size), y.ravel(), z.ravel()]
-    bevel = face.copy()
-    bevel[:, 0] = 0.004 + 0.12 * (bevel[:, 1] + 0.12)
-    tilted_reference = np.array([np.cos(0.03), np.sin(0.03), 0.0])
-    normal, radius = select_planar_normal(
-        np.r_[face, bevel[::3]], 14, 120, 0.001, tilted_reference, 0.055
-    )
-    np.testing.assert_allclose(normal, [1, 0, 0], atol=1e-8)
-    assert radius < 0.011
-    _, ambiguous_radius = select_planar_normal(
-        np.r_[face, face + [0.008, 0, 0]], 14, 120, 0.001, tilted_reference, 0.055
-    )
-    assert ambiguous_radius == 0.055
-
-
 def test_normal_alignment_respects_publication_age_and_rejects_disjoint_frames():
     tracker = PanelTracking(
         SimpleNamespace(reset=lambda: None),
@@ -141,7 +123,7 @@ def test_normal_alignment_respects_publication_age_and_rejects_disjoint_frames()
     assert tracker.normal_alignment(candidate, 1.20) is None
 
 
-def test_local_tracker_publishes_normal_evidence_with_current_depth():
+def local_tracker_fixture():
     tracker = PanelTracking(
         SimpleNamespace(reset=lambda: None),
         dict(
@@ -181,21 +163,27 @@ def test_local_tracker_publishes_normal_evidence_with_current_depth():
         inliers=measured,
         measured_correspondences=measured,
     )
+    observation = root.observations[0]
+    cue = dict(ids=[0], masks=[observation.support_mask], shape=observation.shape)
+    return tracker, candidate, dict(objects=[obj], cue=cue)
+
+
+def test_local_tracker_publishes_normal_evidence_from_associated_components():
+    tracker, candidate, result = local_tracker_fixture()
     for frame, timestamp in enumerate((1.0, 1.03), 1):
         captured = sensor(timestamp, frame)
-        surface = make_surface(captured)
-        surface.edge_points["width_0"] = surface.points[::50]
-        observation = surface.observations[0]
-        observation.semantic_id = 0
+        # Shallow relief separates two same-plane regions. Only the smaller
+        # one borders the visible vertical edge. The foreground surrounds
+        # that edge and is distinct from a missing or interior boundary.
+        captured["depth_m"][:, 54:58] = 1.004
+        captured["depth_m"][:, 65:] = 0.96
         candidate.support = FieldSupport(timestamp, timestamp, timestamp, 0)
-        tracker.constrain_local(
-            captured,
-            dict(
-                objects=[obj],
-                local_surfaces=[surface],
-                cue=dict(ids=[0], masks=[observation.support_mask], shape=observation.shape),
-            ),
-        )
+        tracker.constrain_local(captured, result)
+        assert not candidate.local_constraint_reason
+        fit = tracker.diagnostics["local_surface_constraint"]["panel"]
+        larger, smaller = fit["component_root_points"]
+        assert larger > 3 * smaller
+        assert fit["measured_edges"] == ["width_0_2"]
         tracker.publish_normal_support(timestamp, timestamp + 0.01)
     patch = tracker.local_state(1.05).patches[0]
     assert patch.tracking_state == "tracking"
@@ -205,6 +193,46 @@ def test_local_tracker_publishes_normal_evidence_with_current_depth():
     assert candidate.normal_observations[0][2].available_s == 1.01
     tracker.select_zone("panel", 1.06, source="policy")
     assert tracker.local_state(1.06).patches[0].normal_alignment is None
+
+
+@pytest.mark.parametrize(
+    ("case", "reason"),
+    [
+        ("no_edge", "missing_conditioned_observed_edge"),
+        ("occluded", "missing_conditioned_observed_edge"),
+        ("wrong_plane", "missing_measured_planar_core"),
+        ("degenerate", "missing_measured_planar_core"),
+        ("ambiguous_plane", "ambiguous_measured_material_plane"),
+        ("ambiguous_id", "missing_or_ambiguous_current_surface"),
+        ("stale", "stale_dynamic_support"),
+        ("missing_pairs", "missing_measured_surface_correspondences"),
+    ],
+)
+def test_local_tracker_rejects_unsupported_material(case, reason):
+    tracker, candidate, result = local_tracker_fixture()
+    captured = sensor(1.03, 2)
+    candidate.support = FieldSupport(1.03, 1.03, 1.03, 0)
+    if case == "occluded":
+        captured["depth_m"][:, :40] = 0.96
+    elif case == "wrong_plane":
+        captured["depth_m"][:] = 1.02
+    elif case == "degenerate":
+        captured["valid_depth"][:40] = captured["valid_depth"][41:] = False
+    elif case == "ambiguous_plane":
+        captured["depth_m"][:, :40] = 1.0075
+        captured["depth_m"][:, 40:] = 0.9925
+    elif case == "ambiguous_id":
+        result["cue"]["ids"] = [0, 0]
+        result["cue"]["masks"] *= 2
+    elif case == "stale":
+        candidate.support = FieldSupport(1.03, 1.23, 1.03, 0)
+    elif case == "missing_pairs":
+        captured["depth_m"][:, 65:] = 0.96
+        result["objects"][0]["measured_correspondences"][:] = False
+    tracker.constrain_local(captured, result)
+    assert candidate.local_constraint is None
+    assert candidate.local_constraint_reason == reason
+    assert not candidate.normal_observations
 
 
 def test_zone_without_local_texture_and_loss_does_not_refresh_support():
