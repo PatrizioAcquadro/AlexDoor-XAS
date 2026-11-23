@@ -1,7 +1,6 @@
 """Serial acquisition-time evaluation; no operational scheduler or contact publication."""
 
 import json
-import subprocess
 import time
 from collections import Counter
 from pathlib import Path
@@ -11,7 +10,6 @@ import numpy as np
 
 from alexdoor_xas.perception.diagnostics.metrics import evaluate_bounds
 from alexdoor_xas.perception.diagnostics.replay import pose_error, truth_panel, visible_references
-from alexdoor_xas.perception.diagnostics.scan import PILOTS
 from alexdoor_xas.perception.diagnostics.smoke import sensor_at
 from alexdoor_xas.perception.evaluation import json_safe, quantiles, write_json
 from alexdoor_xas.perception.ipc import unpack_array
@@ -202,16 +200,12 @@ def summarize_candidate(frames, candidate_id, seed_row):
     )
 
 
-def capture_schedule(times, config, initialization_only, capture_window_s):
-    end_s = (
-        config["inspection"]["sample_times_s"][-1] + 1 if initialization_only else float(times[-1])
-    )
+def capture_schedule(times, capture_window_s):
+    end_s = float(times[-1])
     first_s = float(times[0])
     if capture_window_s is not None:
-        if (
-            initialization_only
-            or not np.isfinite(capture_window_s).all()
-            or not (times[0] <= capture_window_s[0] <= capture_window_s[1] <= times[-1])
+        if not np.isfinite(capture_window_s).all() or not (
+            times[0] <= capture_window_s[0] <= capture_window_s[1] <= times[-1]
         ):
             raise ValueError("invalid_offline_capture_window")
         first_s, end_s = capture_window_s
@@ -232,21 +226,16 @@ def offline_episode(
     output,
     models,
     *,
-    initialization_only=False,
     selection=None,
     capture_window_s=None,
     registration_diagnostics=False,
     use_key_frame_graph=None,
     allow_partial_reference_batch=None,
-    refit_seed_rollback=False,
-    selected_registration_only=False,
     performance_controls=None,
     sam3_frontend=None,
     reference_depth_edge_filter=None,
 ):
     """One fresh attempt, retaining terminal failures in the scheduled denominator."""
-    if refit_seed_rollback or selected_registration_only:
-        raise ValueError("retired_point2pose_variant")
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     config = recipe.config
@@ -261,9 +250,7 @@ def offline_episode(
     initialization = dict(native_completed=False, integration_checks=[], seed_row=None)
     with h5py.File(path, "r") as h5:
         times, frame_ids = h5["observations/time_s"][:], h5["observations/frame"][:]
-        scheduled, first_s, end_s = capture_schedule(
-            times, config, initialization_only, capture_window_s
-        )
+        scheduled, first_s, end_s = capture_schedule(times, capture_window_s)
         calibration = json.loads(h5["metadata"].attrs["calibration"])
         try:
             if (
@@ -376,8 +363,6 @@ def offline_episode(
                                 seed_truth = truth_panel(h5, row)
                                 initialization["seed_row"] = row
                                 initialization["seed_time_s"] = float(t)
-                                if initialization_only:
-                                    end_s = float(t) + 1.0
                                 write_json(
                                     output / "selection.json",
                                     dict(
@@ -477,7 +462,7 @@ def offline_episode(
                             time_s=float(t),
                             seed_row=seed_row,
                             failure=failure,
-                            initialization_only=initialization_only,
+                            initialization_only=False,
                         )
                         write_json(output / "status.json", status)
                         print(
@@ -523,7 +508,7 @@ def offline_episode(
         summaries = candidate_summaries(frames, candidates, seed_row)
         report = dict(
             source=str(path),
-            initialization_only=initialization_only,
+            initialization_only=False,
             capture_window_s=capture_window_s,
             registration_diagnostics=registration_diagnostics,
             recorded_rows=len(times),
@@ -582,81 +567,3 @@ def offline_episode(
                 ),
             )
         return report
-
-
-def run_offline(paths, recipe, output, models, *, selection=None):
-    expected = {(pilot, condition) for pilot in PILOTS for condition in ("nominal", "light")}
-    if len(paths) != 4 or {(p.parent.parent.name, p.parent.name) for p in paths} != expected:
-        raise ValueError("Exactly the four authorized pilot recordings are required")
-    recorded_rows = {}
-    for path in paths:
-        with h5py.File(path, "r") as h5:
-            recorded_rows[str(path)] = len(h5["observations/time_s"])
-    output = Path(output)
-    output.mkdir(parents=True, exist_ok=False)
-    write_json(
-        output / "protocol.json",
-        dict(
-            mode="point2pose-offline",
-            cadence_hz=60,
-            stride=1,
-            initialization_attempts_per_episode=3,
-            extra_initialization_window_s=1.0,
-            episodes=[str(p) for p in paths],
-            recorded_rows=recorded_rows,
-            recipe=recipe.to_dict(),
-            annotations="evaluator only",
-            latency_affects_outcome=False,
-            source_commit=subprocess.check_output(
-                ["git", "rev-parse", "HEAD"], cwd=Path(__file__).resolve().parents[4], text=True
-            ).strip(),
-            loaded_contact_admitted=False,
-            official_qualification_evaluated=False,
-        ),
-    )
-    reports = []
-    for path in paths:
-        for attempt in range(1, 4):
-            reports.append(
-                offline_episode(
-                    path,
-                    recipe,
-                    output / path.parent.parent.name / path.parent.name / f"attempt-{attempt}",
-                    models,
-                    selection=selection,
-                    initialization_only=attempt > 1,
-                )
-            )
-            write_json(
-                output / "report.json",
-                dict(
-                    attempts=reports,
-                    completed_attempts=sum(r["complete"] for r in reports),
-                    finished_attempts=len(reports),
-                    not_started_attempts=12 - len(reports),
-                    expected_attempts=12,
-                    complete=len(reports) == 12 and all(r["complete"] for r in reports),
-                    full_recording_frames=sum(
-                        r["scheduled_rows"] for r in reports if not r["initialization_only"]
-                    ),
-                    expected_full_recording_frames=sum(recorded_rows.values()),
-                    not_processed_full_recording_frames=sum(recorded_rows.values())
-                    - sum(r["inspected_rows"] for r in reports if not r["initialization_only"]),
-                    native_initializations=sum(
-                        r["initialization"]["native_completed"] for r in reports
-                    ),
-                    integration_initializations=sum(
-                        r["initialization"]["native_completed"]
-                        and all(c["accepted"] for c in r["initialization"]["integration_checks"])
-                        for r in reports
-                    ),
-                    qualified=False,
-                    offline_passed=False,
-                    dynamic_passed=False,
-                    loaded_contact_admitted=False,
-                    termination=reports[-1].get("termination"),
-                ),
-            )
-            if reports[-1].get("termination") == "user_requested_stop":
-                return reports
-    return reports

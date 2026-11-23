@@ -5,15 +5,10 @@ from dataclasses import replace
 import numpy as np
 import pytest
 
-from alexdoor_xas.action.b1 import relative_pose
 from alexdoor_xas.action.frames import ObjectFrame
-from alexdoor_xas.action.spaces import A2_EE_DELTA
 from alexdoor_xas.assets.purdue import ARM_JOINTS
 from alexdoor_xas.perception.admission import (
-    ActionLimits,
-    ActionProposal,
     ContactCandidate,
-    HypothesisActionSupport,
     RotationLevers,
     admit_action,
     admit_load,
@@ -23,86 +18,12 @@ from alexdoor_xas.perception.admission import (
 )
 from alexdoor_xas.perception.contracts import (
     OPERATIONAL_V1,
-    ContactSelection,
-    DoorEstimate,
     FieldSupport,
-    HingeHypothesis,
-    OperationalState,
     RobotFeedback,
     geometric_admission,
     validate_contact_transition,
 )
-
-
-def operational_estimate(time=0.0, generation=0, count=1, bound=0.001):
-    """Declared numerical support; these values are not a measured robot recipe."""
-    support = FieldSupport(time, time, time, generation, bound, bound)
-    hinge = ObjectFrame(np.zeros(3), np.eye(3))
-    local = ObjectFrame(np.array([0.0, 0.3, 1.0]), np.eye(3))
-    hypotheses = tuple(
-        HingeHypothesis(
-            f"h{i}", ObjectFrame(np.array([0.0, i * 0.3, 0.0]), np.eye(3)), 0.0, support
-        )
-        for i in range(count)
-    )
-    contact = ContactSelection("selection-1", "patch-1", time, local, local, support, support)
-    state = OperationalState(
-        "observed-leaf-1",
-        generation,
-        "tracking" if count == 1 else "ambiguous",
-        support,
-        hypotheses,
-        "h0",
-        support,
-        support,
-        contact,
-    )
-    return DoorEstimate(
-        time,
-        False,
-        "legacy_incomplete",
-        frame=hinge,
-        panel_rotation=np.eye(3),
-        signed_angle=0.0,
-        contact_position=local.origin,
-        contact_rotation=local.rot,
-        operational=state,
-    )
-
-
-def action_inputs(estimate):
-    contact = estimate.operational.contact
-    poses = (contact.world_pose, ObjectFrame(contact.world_pose.origin + [0.001, 0, 0], np.eye(3)))
-    now = estimate.timestamp_s
-    proposal = ActionProposal(
-        "diagnostic",
-        A2_EE_DELTA,
-        np.array([0.001, 0, 0, 0, 0, 0]),
-        np.array([now, now + 0.1]),
-        poses,
-        contact.selection_id,
-        True,
-    )
-    support = estimate.operational.identity_support
-    evidence = tuple(
-        HypothesisActionSupport(
-            hinge.hypothesis_id,
-            relative_pose(
-                contact.world_pose, ObjectFrame(hinge.frame.origin, estimate.panel_rotation)
-            ),
-            poses,
-            support,
-            (0.1, 0.1),
-            0.1,
-            False,
-            0.001,
-            0.001,
-            RotationLevers(1.1, 0.31, 1.1, 0.04, 0.1, 0.04, 1.1),
-        )
-        for hinge in estimate.operational.hypotheses
-    )
-    limits = ActionLimits(0.2, 0.01, 0.1, 0.1, 0.001, 0.001, 0.01, 0.001)
-    return proposal, evidence, limits
+from perception_helpers import action_inputs, operational_estimate
 
 
 def decide(estimate, proposal=None, evidence=None, limits=None, now=None):

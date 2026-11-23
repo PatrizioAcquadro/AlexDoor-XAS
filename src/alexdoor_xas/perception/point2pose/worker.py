@@ -44,6 +44,8 @@ class OfficialPipeline:
     def __init__(self, root, request):
         if request.get("refit_seed_rollback") or request.get("selected_registration_only"):
             raise ValueError("retired_point2pose_variant")
+        if not request.get("external_masks", True):
+            raise ValueError("separate_sam2_frontend_retired")
         import numpy as np
         import torch
         from omegaconf import OmegaConf
@@ -55,9 +57,6 @@ class OfficialPipeline:
         if not torch.cuda.is_available():
             raise RuntimeError("Point2Pose requires CUDA; no CPU fallback")
         native_fixes = patch_tracking(root)
-        self.external_masks = bool(request.get("external_masks", True))
-        if not self.external_masks:
-            raise ValueError("separate_sam2_frontend_retired")
         torch.set_num_threads(4)
         config = OmegaConf.load(root / "upstream/configs/ycbinisaac/eccv_final.yaml")
         params = config.pipeline.params
@@ -100,8 +99,6 @@ class OfficialPipeline:
         self.pipeline.sdf_builder = builder(config.reconstructor.params)
         self.reference_depth_edge_filter = bool(request.get("reference_depth_edge_filter", False))
         if self.reference_depth_edge_filter:
-            if not self.external_masks:
-                raise ValueError("reference_depth_edge_filter_requires_external_masks")
             from alexdoor_xas.perception.point2pose.sampling import (
                 install_reference_depth_edge_filter,
             )
@@ -153,7 +150,7 @@ class OfficialPipeline:
             native_fixes=native_fixes,
             active_reference_budget=self.renewal.budget,
             allow_partial_reference_batch=request.get("allow_partial_reference_batch", False),
-            refit_seed_rollback=request.get("refit_seed_rollback", False),
+            refit_seed_rollback=False,
             config=self.config,
             training_started=False,
             qualified=False,
@@ -161,7 +158,7 @@ class OfficialPipeline:
             registration_diagnostics=self.trace is not None,
             selected_registration_only=False,
             performance_controls=request.get("performance_controls"),
-            external_masks=self.external_masks,
+            external_masks=True,
             legacy_sam2_imported=False,
             **({"reference_depth_edge_filter": True} if self.reference_depth_edge_filter else {}),
             cuda_math=dict(
@@ -185,18 +182,17 @@ class OfficialPipeline:
         depth[~sensor["valid_depth"].squeeze(-1).astype(bool)] = 0
         masks = request.get("masks")
         if masks is not None:
-            if (self.initialized and not self.external_masks) or (
-                request["mask_frame"] != int(sensor["frame"])
-                or request["mask_time_s"] != float(sensor["time_s"])
+            if request["mask_frame"] != int(sensor["frame"]) or request["mask_time_s"] != float(
+                sensor["time_s"]
             ):
                 raise ValueError("unsynchronized_point2pose_initialization")
             masks = np.stack([unpack_array(mask) for mask in masks]).astype(bool)
-            if self.external_masks and masks.shape != (
+            if masks.shape != (
                 self.pipeline.num_obj,
                 *sensor["rgb"].shape[:2],
             ):
                 raise ValueError("external_mask_identity_or_shape_changed")
-        elif not self.initialized or self.external_masks:
+        else:
             raise ValueError("missing_automatic_candidate_masks")
         frame = Frame(
             id=self.index,
@@ -205,7 +201,7 @@ class OfficialPipeline:
             intrinsics=sensor["intrinsics"],
             depth_factor=1.0,
             timestamp=float(sensor["time_s"]),
-            mask=None if masks is None else torch.as_tensor(masks[:, None], device="cuda"),
+            mask=torch.as_tensor(masks[:, None], device="cuda"),
         )
         if self.trace is not None:
             self.trace.begin(sensor["frame"], sensor["time_s"], self.index, self.pipeline.objects)

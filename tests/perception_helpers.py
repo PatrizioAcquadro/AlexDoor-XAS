@@ -254,3 +254,27 @@ def load_inputs(*, verified=True, stop=True):
         feedback, np.zeros(7), jac, np.zeros(7), np.zeros(7), np.zeros(7), [1, 0, 0]
     )
     return model, jac, estimate
+
+
+class StaticSam:
+    """External image-worker boundary for real static-session regressions."""
+
+    runtime = {}
+
+    def __init__(self):
+        self.inputs = []
+        self.closed = False
+
+    def infer(self, rgb, frame, time_s):
+        self.inputs.append(int(rgb[0, 0, 0]))
+        self.all_masks = np.empty((0, *rgb.shape[:2]), bool)
+        return dict(
+            ids=[],
+            masks=[],
+            shape=rgb.shape[:2],
+            latency_s=0.05,
+            sam3=dict(frame=int(frame), time_s=float(time_s)),
+        )
+
+    def close(self):
+        self.closed = True

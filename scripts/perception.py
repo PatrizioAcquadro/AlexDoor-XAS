@@ -1,250 +1,126 @@
 #!/usr/bin/env python
-"""Frozen-model, static B1 and Point2Pose smoke/replay diagnostics."""
+"""One explicit frozen-model perception diagnostic per invocation."""
 
 import argparse
-import hashlib
 import os
-import subprocess
 import sys
 from pathlib import Path
 
-# Geometry stays in Isaac; native SAM3 uses the isolated worker.
 os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 os.environ.setdefault("OMP_NUM_THREADS", "4")
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 
-def run_live_matrix(args, recipe):
-    from alexdoor_xas.perception.diagnostics.scan import PILOTS
-    from alexdoor_xas.perception.evaluation import write_json
-
-    args.output.mkdir(parents=True, exist_ok=False)
-    write_json(
-        args.output / "protocol.json",
-        dict(
-            mode="point2pose-observer-matrix",
-            source_commit=subprocess.check_output(
-                ["git", "rev-parse", "HEAD"], cwd=REPO, text=True
-            ).strip(),
-            assets=[args.asset] if args.asset else list(PILOTS),
-            cases=["camera", "panel", "combined", "visibility"],
-            recipe=recipe.to_dict(),
-            useful_availability_min=0.95,
-            p95_position_limit_m=0.01,
-            p95_rotation_limit_deg=5.0,
-            max_dynamic_age_s=0.15,
-            single_isaac=True,
-            fresh_process=True,
-            loaded_contact_admitted=False,
-            official_qualification_evaluated=False,
-        ),
-    )
-    reports = []
-    for asset in (args.asset,) if args.asset else PILOTS:
-        for case in ("camera", "panel", "combined", "visibility"):
-            folder = args.output / asset / case
-            with (args.output / f"{asset}-{case}.log").open("w") as log:
-                result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(Path(__file__).resolve()),
-                        "point2pose-live",
-                        "--output",
-                        str(folder),
-                        "--models",
-                        str(args.models),
-                        "--config",
-                        str(args.config),
-                        "--case",
-                        case,
-                        "--asset",
-                        asset,
-                        *(["--selection", str(args.selection)] if args.selection else []),
-                    ],
-                    stdout=log,
-                    stderr=subprocess.STDOUT,
-                )
-            reports.append(
-                dict(
-                    asset=asset,
-                    case=case,
-                    returncode=result.returncode,
-                    report=str(folder / "report.json"),
-                    complete=(folder / "report.json").exists(),
-                    failed=(folder / "failure.json").exists(),
-                )
-            )
-            write_json(args.output / "runs.json", reports)
-    return int(any(r["returncode"] or not r["complete"] or r["failed"] for r in reports))
-
-
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "command",
-        choices=(
-            "smoke",
-            "diagnose-scan",
-            "point2pose-smoke",
-            "point2pose-live-smoke",
-            "point2pose-replay",
-            "point2pose-offline",
-            "point2pose-live",
-            "point2pose-operational",
-        ),
+    from alexdoor_xas.perception.diagnostics.scan import PILOTS
+
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
+    commands = parser.add_subparsers(dest="command", required=True)
+    recorded = (
+        "smoke",
+        "diagnose-scan",
+        "point2pose-smoke",
+        "point2pose-replay",
+        "point2pose-offline",
+        "point2pose-operational",
     )
-    parser.add_argument("--output", required=True, type=Path)
-    parser.add_argument(
-        "--data", type=Path, default=REPO / "datasets/recordings/b1/perception/engineering-v2"
-    )
-    parser.add_argument("--config", type=Path, default=REPO / "configs/perception_geometry.json")
-    parser.add_argument("--models", type=Path, default=REPO / "models/perception")
-    parser.add_argument(
-        "--seed", type=Path, help="Reuse an automatic smoke seed from its source capture"
-    )
-    parser.add_argument(
-        "--case", choices=("stationary", "camera", "panel", "combined", "visibility")
-    )
-    parser.add_argument("--asset", help="Authorized pilot asset for a live case")
-    parser.add_argument("--selection", type=Path, help="Explicit observed geometric reference JSON")
-    parser.add_argument(
-        "--episode", type=Path, help="Single authorized recording for operational measurement"
-    )
-    parser.add_argument("--mode", choices=("wall-clock", "replay"), default="wall-clock")
-    parser.add_argument(
-        "--duration-s", type=float, default=65, help="Live stationary observation window"
-    )
+    for command in (*recorded, "point2pose-live"):
+        sub = commands.add_parser(command, allow_abbrev=False)
+        sub.add_argument("--output", required=True, type=Path)
+        sub.add_argument("--config", type=Path, default=REPO / "configs/perception_geometry.json")
+        sub.add_argument("--models", type=Path, default=REPO / "models/perception")
+        if command in recorded:
+            sub.add_argument(
+                "--episode", required=True, type=Path, help="Single authorized pilot recording"
+            )
+        else:
+            sub.add_argument("--asset", required=True, choices=PILOTS)
+            sub.add_argument(
+                "--case",
+                required=True,
+                choices=("stationary", "camera", "panel", "combined", "visibility"),
+            )
+            sub.add_argument(
+                "--duration-s", type=float, default=65, help="Live stationary observation window"
+            )
+        if command.startswith("point2pose-"):
+            sub.add_argument("--selection", type=Path, help="Observed reference JSON")
+        if command == "point2pose-smoke":
+            sub.add_argument("--seed", type=Path, help="Verify a cached source capture")
+        if command == "point2pose-operational":
+            sub.add_argument("--mode", choices=("wall-clock", "replay"), default="wall-clock")
     args = parser.parse_args(argv)
+    if args.output.exists():
+        parser.error("Output must be a fresh directory")
+
+    from alexdoor_xas.perception.provider import load_recipe
     from alexdoor_xas.perception.selection import load_selection
 
-    selection = load_selection(args.selection)
-    import h5py
-
-    from alexdoor_xas.perception.diagnostics.scan import PILOTS, run_scan_diagnostics
-    from alexdoor_xas.perception.evaluation import write_json
-    from alexdoor_xas.perception.provider import load_recipe
-    from alexdoor_xas.perception.sam3.runtime import Sam3Worker
-    from alexdoor_xas.qualification.corpus import load_corpus
-    from alexdoor_xas.recording.b1 import episode_paths
-
     recipe = load_recipe(args.config, REPO)
-    if args.command == "point2pose-operational":
-        from alexdoor_xas.perception.diagnostics.operational import recorded_operational
+    selection = load_selection(getattr(args, "selection", None))
+    if args.command == "point2pose-live":
+        from alexdoor_xas.perception.diagnostics.live import run_live
 
-        if args.episode is None or args.episode.parent.parent.name not in PILOTS:
-            parser.error("Operational measurement requires one authorized pilot --episode")
-        recorded_operational(
-            args.episode,
+        report = run_live(
             recipe,
             args.output,
             args.models,
+            args.asset,
+            case=args.case,
             selection=selection,
-            replay=args.mode == "replay",
+            duration_s=args.duration_s,
         )
-        return 0
-    if args.command == "point2pose-live":
-        if args.asset and args.asset not in PILOTS:
-            parser.error("Live diagnostics are restricted to the two authorized pilots")
-        if args.case:
-            from alexdoor_xas.perception.diagnostics.live import run_live_smoke
+    else:
+        from alexdoor_xas.qualification.corpus import load_corpus
+        from alexdoor_xas.recording.b1 import episode_paths
 
-            run_live_smoke(
+        if not args.episode.is_file() or args.episode.parent.parent.name not in PILOTS:
+            parser.error("This diagnostic requires one existing authorized pilot --episode")
+        episode = episode_paths(
+            args.episode,
+            load_corpus(REPO / "datasets/doors/b1/corpus.json", REPO),
+            complete_campaign=False,
+        )[0]
+        if args.command == "smoke":
+            from alexdoor_xas.perception.diagnostics.smoke import run_sam3_smoke
+
+            report = run_sam3_smoke(episode, recipe, args.output, args.models)
+        elif args.command == "diagnose-scan":
+            from alexdoor_xas.perception.diagnostics.scan import run_scan_diagnostic
+
+            report = run_scan_diagnostic(episode, recipe, args.output, args.models)
+        elif args.command == "point2pose-smoke":
+            from alexdoor_xas.perception.diagnostics.smoke import run_point2pose_smoke
+
+            report = run_point2pose_smoke(
+                episode, recipe, args.output, args.models, seed=args.seed, selection=selection
+            )
+        elif args.command == "point2pose-offline":
+            from alexdoor_xas.perception.diagnostics.offline import offline_episode
+
+            report = offline_episode(episode, recipe, args.output, args.models, selection=selection)
+        elif args.command == "point2pose-replay":
+            from alexdoor_xas.perception.diagnostics.replay import run_replay
+
+            report = run_replay(episode, recipe, args.output, args.models, selection=selection)
+        else:
+            from alexdoor_xas.perception.diagnostics.operational import recorded_operational
+
+            report = recorded_operational(
+                episode,
                 recipe,
                 args.output,
                 args.models,
-                args.asset or PILOTS[1],
-                case=args.case,
                 selection=selection,
-                duration_s=args.duration_s,
+                replay=args.mode == "replay",
             )
-        else:
-            return run_live_matrix(args, recipe)
-        return 0
-    if args.command == "point2pose-live-smoke":
-        from alexdoor_xas.perception.diagnostics.live import run_live_smoke
-
-        print(
-            run_live_smoke(recipe, args.output, args.models, PILOTS[1], selection=selection),
-            flush=True,
-        )
-        return 0
-    paths = episode_paths(args.data, load_corpus(REPO / "datasets/doors/b1/corpus.json", REPO))
-    paths = [p for p in paths if p.parent.parent.name in PILOTS]
-    if args.command == "point2pose-offline":
-        from alexdoor_xas.perception.diagnostics.offline import run_offline
-
-        reports = run_offline(paths, recipe, args.output, args.models, selection=selection)
-        return 0 if all(r["complete"] for r in reports) else 1
-    if args.command == "point2pose-replay":
-        from alexdoor_xas.perception.diagnostics.replay import run_replay
-
-        run_replay(paths, recipe, args.output, args.models, selection=selection)
-        return 0
-    if args.command == "diagnose-scan":
-        return run_scan_diagnostics(paths, recipe, args.output, args.models)
-    if args.command == "point2pose-smoke":
-        from alexdoor_xas.perception.diagnostics.smoke import run_point2pose_smoke
-
-        print(
-            run_point2pose_smoke(
-                paths[0], recipe, args.output, args.models, seed=args.seed, selection=selection
-            ),
-            flush=True,
-        )
-        return 0
-    args.output.mkdir(parents=True, exist_ok=False)
-    write_json(
-        args.output / "protocol.json",
-        dict(
-            recipe=recipe.to_dict(),
-            data=str(args.data),
-            selected_episode=str(paths[0]),
-            source_row=240,
-            mode="smoke",
-            source_commit=subprocess.check_output(
-                ["git", "rev-parse", "HEAD"], cwd=REPO, text=True
-            ).strip(),
-            recipe_sha256=hashlib.sha256(recipe.recipe_json.encode()).hexdigest(),
-            training_started=False,
-            collection_started=False,
-            sealed_test_evaluated=False,
-            qualified=False,
-        ),
+    # Execution completion is independent of scientific quality and qualification.
+    return int(
+        not report.get("complete", False)
+        or bool(report.get("failure"))
+        or (args.output / "failure.json").exists()
     )
-    with (args.output / "models.log").open("w") as log:
-        worker = Sam3Worker(
-            args.models, recipe.config["point2pose_selected"]["sam3_frontend"], log=log
-        )
-        try:
-            write_json(args.output / "runtime.json", worker.runtime)
-            with h5py.File(paths[0], "r") as h5:
-                first = worker.infer(
-                    h5["observations/rgb"][240],
-                    h5["observations/frame"][240],
-                    h5["observations/time_s"][240],
-                )
-                result = worker.infer(
-                    h5["observations/rgb"][243],
-                    h5["observations/frame"][243],
-                    h5["observations/time_s"][243],
-                )
-            write_json(
-                args.output / "smoke.json",
-                dict(
-                    **worker.runtime,
-                    masks=len(result["masks"]),
-                    shape=result["shape"],
-                    cold_latency_s=first["latency_s"],
-                    warm_latency_s=result["latency_s"],
-                    error=result.get("error"),
-                    qualified=False,
-                ),
-            )
-            print((args.output / "smoke.json").read_text(), flush=True)
-            return 0
-        finally:
-            worker.close()
 
 
 if __name__ == "__main__":

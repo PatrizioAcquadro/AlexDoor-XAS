@@ -37,3 +37,26 @@ def b1_binding():
             frozen=True,
         )
     )
+
+
+@pytest.fixture
+def static_provider(tmp_path):
+    from alexdoor_xas.perception.point2pose.runtime import Point2PoseEngine
+    from alexdoor_xas.perception.session import PerceptionSession, SessionProvider
+    from perception_helpers import StaticSam, recipe
+
+    def factory(_):
+        return PerceptionSession(
+            "unused",
+            recipe(),
+            {},
+            tmp_path / "session",
+            tracking=False,
+            sam_worker=StaticSam(),
+            generation=engine.generation - 1,
+        )
+
+    engine = Point2PoseEngine(factory, replay=True, capture_session=True)
+    provider = SessionProvider(recipe(), engine, tracking=False)
+    yield provider
+    provider.close()

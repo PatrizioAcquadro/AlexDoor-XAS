@@ -69,14 +69,18 @@ Choose a fresh output directory. No command admits contact, executes a learned
 policy, trains a model or establishes release qualification.
 
 ```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke --output outputs/generated/b1/perception/NEW_SAM3_SMOKE
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py diagnose-scan --output outputs/generated/b1/perception/NEW_SCAN
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-smoke --output outputs/generated/b1/perception/NEW_P2P_SMOKE
-scripts/isaac-run.sh scripts/perception.py point2pose-live-smoke --output outputs/generated/b1/perception/NEW_CONCURRENT
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-replay --output outputs/generated/b1/perception/NEW_REPLAY
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-offline --output outputs/generated/b1/perception/NEW_OFFLINE
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke --episode /absolute/path/to/pilot/nominal/episode.hdf5 --output outputs/generated/b1/perception/NEW_SAM3_SMOKE
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py diagnose-scan --episode /absolute/path/to/pilot/nominal/episode.hdf5 --output outputs/generated/b1/perception/NEW_SCAN
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-smoke --episode /absolute/path/to/pilot/nominal/episode.hdf5 --output outputs/generated/b1/perception/NEW_P2P_SMOKE
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-replay --episode /absolute/path/to/pilot/nominal/episode.hdf5 --output outputs/generated/b1/perception/NEW_REPLAY
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-offline --episode /absolute/path/to/pilot/nominal/episode.hdf5 --output outputs/generated/b1/perception/NEW_OFFLINE
 scripts/isaac-run.sh scripts/perception.py point2pose-live --case camera --asset animated-door-1-88abf40 --output outputs/generated/b1/perception/NEW_LIVE
 ```
+
+All recorded diagnostics require one explicit existing pilot `--episode`; live requires both `--asset` and
+`--case`. Every invocation starts one attempt. Historical campaign orchestration
+and the concurrent smoke alias remain at `24a2aa7`, alongside the retired temporal
+renewal evaluator. Scientific limits and saved evidence are unchanged.
 
 `smoke` processes two distinct synchronized captures with the same SAM3 session.
 P2P smoke uses 12 samples at stride three and deliberately starts at its bounded
@@ -89,10 +93,13 @@ or explicit `reference_pixel: [u, v]` and optional `after_s`. The same
 `select_object`/`select` API applies the request. Choose against the actual displayed
 view; alternatives and applied seed capture remain in the results. No first-root
 selection is enabled by this option.
-Static scan processes the prescribed inspection without P2P. Operational replay
+Static scan processes only the supplied episode’s prescribed inspection without P2P;
+its canonical result is `scan/report.json` below the fresh output directory.
+`--data` and implicit batches are retired. `--seed` is specific to P2P smoke,
+`--mode` to operational measurement, and live options to the live subcommand. Operational replay
 uses stride three and measured availability/replaceable latest inputs. Serial
-offline processes every original 60 Hz frame; its four-pilot/three-attempt campaign
-is a deliberate command, not automatically resumed work. Live commands use fresh
+offline processes every original 60 Hz frame of the one supplied episode.
+The historical four-recording/three-attempt campaign is retired at `24a2aa7`. Live commands use fresh
 Isaac processes, require other Isaac sessions closed and do not enumerate recordings.
 Live observer cases follow the common inspection before their observer-only motion;
 `camera|panel|combined|visibility` remain diagnostic cases, without contact.
@@ -100,7 +107,7 @@ Live observer cases follow the common inspection before their observer-only moti
 ## Continuous operational measurement
 
 Use one authorized recording and an explicit observed request; this does not start
-training, manipulation or the four-recording/three-attempt serial campaign.
+training, manipulation or additional attempts.
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-operational --episode datasets/recordings/b1/perception/engineering-v2/animated-door-1-88abf40/light/episode.hdf5 --mode wall-clock --selection outputs/evidence/b1/perception/sam3-operational-20261008/selection.json --output outputs/generated/b1/perception/NEW_CONTINUOUS

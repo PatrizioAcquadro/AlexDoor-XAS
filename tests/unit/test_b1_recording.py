@@ -6,20 +6,7 @@ import numpy as np
 import pytest
 
 from alexdoor_xas.recording.b1 import B1Writer, robot_feedback_at, validate_episode
-
-
-def obs(t=0, frame=1):
-    return dict(
-        time_s=t,
-        frame=frame,
-        rgb=np.full((4, 6, 3), 100, np.uint8),
-        depth_m=np.ones((4, 6, 1), np.float32),
-        valid_depth=np.ones((4, 6, 1), bool),
-        joint_position=np.zeros(9),
-        joint_velocity=np.zeros(9),
-        camera_world=np.eye(4),
-        intrinsics=np.eye(3),
-    )
+from helpers import raw_observation as obs
 
 
 def test_causal_terminal_roundtrip_and_truth_separation(tmp_path):
@@ -120,10 +107,13 @@ def test_campaign_membership_completeness_and_duplicate_rejection(tmp_path):
         writer.close()
     paths = episode_paths(tmp_path, corpus)
     assert len(paths) == 2
+    assert episode_paths(paths[0], corpus, complete_campaign=False) == [paths[0]]
     with h5py.File(paths[0], "r+") as h5:
         h5["metadata"].attrs["episode"] = json.dumps(
             dict(entry, condition="nominal", control_dt=0.1)
         )
+    with pytest.raises(ValueError, match="directory"):
+        episode_paths(paths[0], corpus, complete_campaign=False)
     with pytest.raises(ValueError, match="Duplicate"):
         episode_paths(tmp_path, corpus)
     paths[0].unlink()

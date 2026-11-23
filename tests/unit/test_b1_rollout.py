@@ -5,8 +5,6 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
-from test_b1_observations import fake_estimator, sample
-from test_operational_admission import action_inputs, operational_estimate
 
 from alexdoor_xas.action.b1 import (
     ACTION_DIMS,
@@ -20,18 +18,18 @@ from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA, A4_OBJ_CENTRIC_CHUNK
 from alexdoor_xas.dataset.b1 import export_dataset
 from alexdoor_xas.policies.b1 import B1Policy, load_b1_data
-from alexdoor_xas.policies.observations import B1Observer, PolicyObservation
+from alexdoor_xas.policies.observations import B1Observer
 from alexdoor_xas.policies.purdue import PurdueIO, contact_status
 from alexdoor_xas.policies.rollout import ActionAdapter, B1Runner, Command, MatchedReplay
-from helpers import TEST_ROBOT_REF, make_b1_episode
-
-
-def operational_observation(estimate, time=0):
-    from alexdoor_xas.perception.contracts import OPERATIONAL_V1
-
-    return PolicyObservation(
-        time, 1, np.zeros(22), estimate, "observed", OPERATIONAL_V1, estimate.operational.generation
-    )
+from helpers import (
+    TEST_ROBOT_REF,
+    NumericalIO,
+    fake_estimator,
+    make_b1_episode,
+    operational_observation,
+    sample,
+)
+from perception_helpers import action_inputs, operational_estimate
 
 
 def test_provisional_adapter_requires_exact_diagnostic_action_and_explicit_admission():
@@ -204,52 +202,6 @@ def test_missing_feedback_blocks_operational_io_before_physics_or_helpful_comman
     io.profile = "legacy-full-state"
     with pytest.raises(ValueError, match="operational IO profile"):
         io.execute(Command("delta", proposal.action, "approach", receipt))
-
-
-class NumericalIO:
-    robot_asset = TEST_ROBOT_REF
-    dt = 0.1
-    max_ticks = 20
-
-    def __init__(self, binding):
-        self.binding = binding
-        self.fail_after = None
-        self.reset()
-
-    def reset(self):
-        self.clock = 0
-        self.commands = []
-        self.held = 0
-        self.stops = 0
-        self.pose = ObjectFrame(np.zeros(3), np.eye(3))
-        self.neck = []
-
-    def observe(self):
-        return sample(self.clock * self.dt, self.clock)
-
-    def tool_pose(self):
-        return self.pose
-
-    def set_neck_target(self, value):
-        self.neck.append(value)
-
-    def hold_step(self):
-        self.held += 1
-        self.clock += 1
-
-    def execute(self, command):
-        self.commands.append(command)
-        if command.kind == "pose":
-            self.pose = command.value
-        elif command.kind == "delta":
-            self.pose = apply_pose_delta(self.pose, command.value)
-        self.clock += 1
-
-    def safety_reason(self, stage):
-        return "force_limit" if self.fail_after == len(self.commands) else ""
-
-    def stop(self):
-        self.stops += 1
 
 
 @pytest.fixture

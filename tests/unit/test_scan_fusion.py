@@ -7,7 +7,6 @@ import pytest
 
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.geometry import Surface, SurfaceObservation, fuse_surface, surfaces
-from alexdoor_xas.perception.provider import CueEngine, GeometryProvider
 from alexdoor_xas.perception.scan import (
     ObservedSpace,
     ScanMemory,
@@ -17,33 +16,7 @@ from alexdoor_xas.perception.scan import (
     registered_support,
     static_hinges,
 )
-from perception_helpers import EmptyWorker, recipe
-
-
-def camera_sensor(time=0, frame=8):
-    h, w = 240, 240
-    return dict(
-        rgb=np.ones((h, w, 3), np.uint8),
-        depth_m=np.full((h, w, 1), 2.0),
-        valid_depth=np.ones((h, w, 1), bool),
-        intrinsics=np.array([[120, 0, 120], [0, 120, 120], [0, 0, 1]], float),
-        camera_world=np.array([[0, 0, 1, 0], [1, 0, 0, 0], [0, -1, 0, 1], [0, 0, 0, 1]], float),
-        time_s=time,
-        frame=frame,
-        joint_position=np.zeros(9),
-        joint_velocity=np.zeros(9),
-    )
-
-
-def measured_surface(sensor=None, mask=None):
-    sample = camera_sensor() if sensor is None else sensor
-    mask = np.zeros((240, 240), bool) if mask is None else mask.copy()
-    if not mask.any():
-        mask[30:211, 60:181] = True
-    sample["depth_m"][mask] = 1
-    cue = EmptyWorker().infer(sample["rgb"])
-    cue["masks"] = [np.packbits(mask).tobytes()]
-    return surfaces(cue, sample, recipe().config)[0], sample, cue
+from perception_helpers import EmptyWorker, camera_sensor, measured_surface, recipe
 
 
 def test_components_split_coplanar_frame_and_preserve_clipped_evidence():
@@ -417,15 +390,11 @@ def test_free_space_margin_accounts_for_lateral_obstacles_and_unknown_boundaries
 
 
 def test_scan_fusion_does_not_pick_area_winner_or_erase_material_references():
-    provider = GeometryProvider(recipe(), CueEngine(EmptyWorker(), replay=True))
+    memory = ScanMemory(recipe().config, 0)
     surface, sample, cue = measured_surface()
-    provider._fuse(sample, 8, cue)
+    memory.add(surfaces(cue, sample, recipe().config), sample, 8)
     second = dict(sample, frame=20, time_s=0.2)
-    provider._fuse(second, 20, cue)
-    assert provider.scan_state.objects
-    assert provider.last_estimate is None  # fusion is not a qualified runtime estimate
-    reference = provider.static[0]
+    memory.add(surfaces(cue, second, recipe().config), second, 20)
+    assert memory.state.objects
+    reference = memory.surfaces[0]
     assert {o.frame for o in reference.observations} == {8, 20}
-    previous = provider.scan_state.generation
-    provider.reset()
-    assert provider.scan_state.generation == previous + 1 and not provider.scan_state.objects

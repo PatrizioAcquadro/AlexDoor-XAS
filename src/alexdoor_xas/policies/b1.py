@@ -123,29 +123,6 @@ def make_model(data, family, model_cfg, *, seed=0, device="cuda:0"):
         return model_type(data.obs_dim, data.action_dim, model_cfg)
 
 
-def train_model(data, family, model, train_cfg, *, batch_size, **kwargs):
-    """Reuse the existing tensor trainer. Caller owns authorization and GPU scheduling."""
-    horizon = model.cfg.chunk_size if family == "act" else model.cfg.horizon
-    train, development = batch_factories(data, family, horizon, batch_size, train_cfg.seed)
-    if model.obs_dim != data.obs_dim or model.action_dim != data.action_dim:
-        raise ValueError("B1 model dimensions differ from its dataset")
-    if family == "act":
-        from alexdoor_xas.policies.act.train import train_act
-
-        return train_act(model, train, train_cfg, make_val_batches=development, **kwargs)
-    from alexdoor_xas.policies.diffusion.schedulers import make_train_scheduler
-    from alexdoor_xas.policies.diffusion.train import train_diffusion
-
-    return train_diffusion(
-        model,
-        make_train_scheduler(model.cfg),
-        train,
-        train_cfg,
-        make_val_batches=development,
-        **kwargs,
-    )
-
-
 def save_policy(path, family, model, data, *, meta=None):
     from alexdoor_xas.policies.common.checkpoint import save_checkpoint_payload
 

@@ -6,10 +6,12 @@ import shutil
 import subprocess
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+import numpy as np
+
 from alexdoor_xas.perception.ipc import pack_array, receive, send
-from alexdoor_xas.perception.provider import CueEngine
 from alexdoor_xas.recording.b1 import OBS_KEYS
 
 
@@ -26,14 +28,9 @@ class Point2PoseWorker:
         registration_diagnostics=False,
         use_key_frame_graph=True,
         allow_partial_reference_batch=False,
-        refit_seed_rollback=False,
-        selected_registration_only=False,
         performance_controls=None,
-        external_masks=True,
         reference_depth_edge_filter=False,
     ):
-        if refit_seed_rollback or selected_registration_only:
-            raise ValueError("retired_point2pose_variant")
         boot_started = time.perf_counter()
         root, log_dir = Path(root).resolve(), Path(log_dir).resolve()
         log_dir.mkdir(parents=True, exist_ok=True)
@@ -107,10 +104,7 @@ class Point2PoseWorker:
                     registration_diagnostics=registration_diagnostics,
                     use_key_frame_graph=use_key_frame_graph,
                     allow_partial_reference_batch=allow_partial_reference_batch,
-                    refit_seed_rollback=refit_seed_rollback,
-                    selected_registration_only=selected_registration_only,
                     performance_controls=performance_controls,
-                    external_masks=external_masks,
                     reference_depth_edge_filter=reference_depth_edge_filter,
                 ),
             )
@@ -170,7 +164,7 @@ class Point2PoseWorker:
         self.log.close()
 
 
-class Point2PoseEngine(CueEngine):
+class Point2PoseEngine:
     """One in-flight acquisition; latest waiting acquisition replaces older ones.
 
     Prepared processes are recreated before the next episode's acquisitions;
@@ -178,7 +172,10 @@ class Point2PoseEngine(CueEngine):
     """
 
     def __init__(self, factory, *, replay, capture_session=False, clock=None):
-        super().__init__(None, replay=replay)
+        self.worker, self.replay = None, replay
+        self.executor = ThreadPoolExecutor(max_workers=1) if not replay else None
+        self.pending = None
+        self.generation = 0
         self.factory, self.latest = factory, None
         self.capture_session = capture_session
         self.clock = clock
@@ -200,8 +197,6 @@ class Point2PoseEngine(CueEngine):
             self.worker.close()
         if self.executor:
             self.executor.shutdown(wait=True, cancel_futures=True)
-            from concurrent.futures import ThreadPoolExecutor
-
             self.executor = ThreadPoolExecutor(max_workers=1)
         self.worker = self.pending = self.latest = None
         self.failed = False
@@ -213,8 +208,6 @@ class Point2PoseEngine(CueEngine):
     def submit(self, sensor, masks=None, *, start_s=None):
         if self.failed:
             return False
-        import numpy as np
-
         enqueued_s = (
             self.clock()
             if self.clock
@@ -302,6 +295,28 @@ class Point2PoseEngine(CueEngine):
                 if future.done():
                     raise
 
+    def _poll(self, now):
+        if self.pending is None:
+            return None
+        (generation, sensor, view), result = self.pending
+        if not self.replay:
+            if not result.done():
+                return None
+            result = result.result()
+            if "available_s" not in result:
+                result["available_s"] = max(now, float(sensor["time_s"]) + result["latency_s"])
+        result.setdefault("available_s", float(sensor["time_s"]) + result["latency_s"])
+        ready = result.get("available_s", float(sensor["time_s"]) + result["latency_s"])
+        if not np.isfinite(ready) or ready < float(sensor["time_s"]):
+            self.pending = None
+            raise ValueError("invalid_completion_time")
+        if generation == self.generation and ready > now:
+            return None
+        self.pending = None
+        if generation != self.generation:
+            return None
+        return sensor, view, result, ready
+
     def poll(self, now):
         if self.pending is not None and not self.replay:
             (_, sensor, started), future = self.pending
@@ -309,7 +324,7 @@ class Point2PoseEngine(CueEngine):
                 result = future.result()
                 result.setdefault("available_s", started + result["latency_s"])
         try:
-            event = super().poll(now)
+            event = self._poll(now)
         except (RuntimeError, EOFError, BrokenPipeError, ValueError):
             self.pending = self.latest = None
             self.failed = True
@@ -324,11 +339,5 @@ class Point2PoseEngine(CueEngine):
 
     def close(self):
         self.reset(preload=False)
-        super().close()
-
-
-def tracking_provider(recipe, models, calibration, output, *, replay, **options):
-    """Shared SAM3 inspection/tracking provider with operational scheduling."""
-    from alexdoor_xas.perception.session import session_provider
-
-    return session_provider(recipe, models, calibration, output, replay=replay, **options)
+        if self.executor:
+            self.executor.shutdown(wait=True, cancel_futures=True)

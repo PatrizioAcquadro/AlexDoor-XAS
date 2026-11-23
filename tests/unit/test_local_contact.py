@@ -2,32 +2,17 @@
 
 from dataclasses import replace
 
-import numpy as np
 import pytest
 
-from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.contracts import (
     DoorEstimate,
     FieldSupport,
     LocalContactSelection,
     LocalMaterialState,
-    LocalPatchState,
     validate_local_contact,
     validate_local_transition,
 )
-
-
-def supported_patch(patch_id, time=1.0):
-    support = FieldSupport(0, time, time, 0, 0.004, 0.02)
-    return LocalPatchState(
-        patch_id,
-        ObjectFrame(np.array([1, 0, 1.1]), np.eye(3)),
-        support,
-        support,
-        support,
-        (0.04, 0.04),
-        "tracked_material",
-    )
+from perception_helpers import supported_patch
 
 
 def test_visual_reference_and_explicit_contact_have_independent_lifetimes():

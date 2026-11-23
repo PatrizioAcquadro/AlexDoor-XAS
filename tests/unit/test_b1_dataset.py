@@ -65,10 +65,9 @@ def test_contract_rejects_legacy_or_reordered_joints(b1_binding):
 
 
 def test_compilation_cannot_silently_mix_operational_observations_with_legacy_release(b1_binding):
-    from test_b1_rollout import operational_observation
-    from test_operational_admission import operational_estimate
-
     from alexdoor_xas.dataset.b1 import compile_episode
+    from helpers import operational_observation
+    from perception_helpers import operational_estimate
 
     observations = [
         replace(operational_observation(operational_estimate(time=t), t), frame=i)
@@ -90,10 +89,9 @@ def test_compilation_cannot_silently_mix_operational_observations_with_legacy_re
 
 
 def test_raw_preparation_never_promotes_engineering_recordings(tmp_path):
-    from test_b1_recording import obs
-
     from alexdoor_xas.dataset.b1 import prepare_recording
     from alexdoor_xas.recording.b1 import B1Writer
+    from helpers import raw_observation as obs
 
     path = tmp_path / "episode.hdf5"
     writer = B1Writer(
@@ -116,15 +114,14 @@ def test_raw_preparation_never_promotes_engineering_recordings(tmp_path):
 
 
 def test_raw_preparation_uses_provider_without_model_or_device_internals(tmp_path, b1_binding):
-    from test_b1_observations import fake_estimator
-    from test_b1_recording import obs
-
     from alexdoor_xas.action.b1 import STAGES
     from alexdoor_xas.action.frames import ObjectFrame
     from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
     from alexdoor_xas.dataset.b1 import PURPOSE, prepare_recording
     from alexdoor_xas.policies.observations import B1Observer
     from alexdoor_xas.recording.b1 import PHASES, B1Writer
+    from helpers import fake_estimator
+    from helpers import raw_observation as obs
 
     path = tmp_path / "episode.hdf5"
     writer = B1Writer(

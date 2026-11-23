@@ -7,7 +7,6 @@ from types import SimpleNamespace
 import h5py
 import numpy as np
 import pytest
-from test_point2pose_temporal import make_surface, sensor
 
 from alexdoor_xas.action.frames import rot_z
 from alexdoor_xas.perception.diagnostics import offline as offline
@@ -15,6 +14,8 @@ from alexdoor_xas.perception.ipc import pack_array
 from alexdoor_xas.perception.point2pose.seed import initialization_checks
 from alexdoor_xas.perception.provider import PrototypeRecipe
 from alexdoor_xas.recording.b1 import OBS_KEYS
+from perception_helpers import tracking_sensor as sensor
+from perception_helpers import tracking_surface as make_surface
 
 
 def recording(path, rows=8):
@@ -301,48 +302,18 @@ def test_invalid_native_pose_is_explicit_and_does_not_refresh_tracking(tmp_path,
     assert report["primary"]["all_frames"]["invalid_native_pose_rows"] == 1
 
 
-def test_three_fresh_trials_per_pilot_and_one_second_extra_window(tmp_path, runtime):
-    paths = [
-        recording(tmp_path / pilot / condition / "episode.hdf5", rows=70)
-        for pilot in offline.PILOTS
-        for condition in ("nominal", "light")
-    ]
-    reports = offline.run_offline(paths, runtime.recipe, tmp_path / "campaign", Path("unused"))
-    assert len(reports) == len(runtime.workers) == 12
-    assert [r["scheduled_rows"] for r in reports] == [70, 63, 63] * 4
-    assert len({id(worker) for worker in runtime.workers}) == 12
-    assert all(worker.closed for worker in runtime.workers)
-    campaign = json.loads((tmp_path / "campaign/report.json").read_text())
-    assert campaign["full_recording_frames"] == 280
-    assert campaign["native_initializations"] == 12
-    assert not campaign["qualified"] and not campaign["offline_passed"]
-
-
-def test_user_interrupt_preserves_prefix_denominator_and_stops_campaign(tmp_path, runtime):
+def test_user_interrupt_preserves_prefix_and_full_single_episode_denominator(tmp_path, runtime):
     runtime.interrupt = 3
-    paths = [
-        recording(tmp_path / pilot / condition / "episode.hdf5")
-        for pilot in offline.PILOTS
-        for condition in ("nominal", "light")
-    ]
-    output = tmp_path / "campaign"
-    reports = offline.run_offline(paths, runtime.recipe, output, Path("unused"))
-    assert len(reports) == len(runtime.workers) == 1
-    assert runtime.workers[0].closed
-    report = reports[0]
+    output = tmp_path / "result"
+    report, frames = run(recording(tmp_path / "episode.hdf5"), output, runtime)
+    assert len(runtime.workers) == 1 and runtime.workers[0].closed
     assert report["termination"] == "user_requested_stop" and not report["complete"]
     assert report["scheduled_rows"] == 8 and report["not_processed_rows"] == 3
     assert report["native_result_rows"] == 3
     assert report["primary"]["all_frames"]["native_coverage"] == 3 / 8
-    frames = [
-        json.loads(line) for line in next(output.rglob("frames.jsonl")).read_text().splitlines()
-    ]
     assert [r["row"] for r in frames] == list(range(8))
     assert all(r["objects"] == [] and r["latency"] is None for r in frames[5:])
-    campaign = json.loads((output / "report.json").read_text())
-    assert campaign["completed_attempts"] == 0 and campaign["not_started_attempts"] == 11
-    assert campaign["expected_full_recording_frames"] == 32
-    assert campaign["not_processed_full_recording_frames"] == 27
+    assert json.loads((output / "status.json").read_text())["no_restart"]
 
 
 @pytest.mark.parametrize("kind", ["native", "visual"])
@@ -399,3 +370,29 @@ def test_mask_guard_is_strict_operationally_and_diagnostic_per_candidate():
         [expected, expected], [actual, expected], [prompts, prompts], diagnostic_only=True
     )
     assert not checks[0]["accepted"] and checks[1]["accepted"]
+
+
+def test_replay_failure_keeps_scheduled_denominator_and_closes_provider(
+    tmp_path, monkeypatch, runtime
+):
+    from alexdoor_xas.perception.diagnostics import replay
+
+    closed = []
+
+    def fail(_):
+        raise RuntimeError("native failed")
+
+    monkeypatch.setattr(
+        replay,
+        "session_provider",
+        lambda *a, **kw: SimpleNamespace(update=fail, close=lambda: closed.append(True)),
+    )
+    output = tmp_path / "replay"
+    with pytest.raises(RuntimeError, match="native failed"):
+        replay.replay_episode(
+            recording(tmp_path / "episode.hdf5"), runtime.recipe, output, "unused", None, None
+        )
+    failure = json.loads((output / "failure.json").read_text())
+    assert failure["scheduled_rows"] == failure["not_processed_rows"] == 3
+    assert failure["completed_rows"] == 0 and closed == [True]
+    assert json.loads((output / "frames.json").read_text()) == []

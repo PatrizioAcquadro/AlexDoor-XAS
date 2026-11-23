@@ -74,6 +74,7 @@ Run bounded frozen perception inference with a fresh output directory:
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke \
+  --episode /absolute/path/to/pilot/nominal/episode.hdf5 \
   --output outputs/generated/b1/perception/NEW_SMOKE
 ```
 

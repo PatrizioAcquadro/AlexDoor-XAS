@@ -119,9 +119,9 @@ def test_retired_variants_fail_before_starting_workers(control, tmp_path):
 
     with pytest.raises(ValueError, match="retired_point2pose_variant"):
         OfficialPipeline(tmp_path, {control: True})
-    with pytest.raises(ValueError, match="retired_point2pose_variant"):
+    with pytest.raises(TypeError, match=control):
         Point2PoseWorker(tmp_path, (0.1, 10), 0.004, 1, tmp_path, **{control: True})
-    with pytest.raises(ValueError, match="retired_point2pose_variant"):
+    with pytest.raises(TypeError, match=control):
         offline_episode(None, None, tmp_path / "out", None, **{control: True})
     assert not (tmp_path / "out").exists()
 
@@ -207,6 +207,54 @@ def test_unsupported_refit_keeps_native_rejection(register, monkeypatch):
     monkeypatch.setattr(np.random, "choice", lambda *args, **kwargs: np.arange(4))
     assert register._RANSAC(p0, target, None, remaining, init) is None
     np.testing.assert_array_equal(remaining, before)
+
+
+@pytest.mark.parametrize("weighted", [False, True])
+def test_ransac_preserves_all_draws_and_refit_support(register, weighted):
+    source = np.random.RandomState(7).normal(size=(12, 3)) * 0.1
+    target = source + [0.01, -0.02, 0.03]
+    register._sample_size, register._ransac_iters = 4, 100
+    remaining = np.ones(len(source), dtype=bool)
+    weights = np.linspace(0.2, 1.0, len(source)) if weighted else None
+    np.random.seed(19)
+    result = register._RANSAC(source, target, weights, remaining, None)
+    actual_state = np.random.get_state()
+    np.random.seed(19)
+    for _ in range(100):
+        np.random.choice(np.arange(len(source)), 4, replace=False)
+    expected_state = np.random.get_state()
+    assert actual_state[0] == expected_state[0]
+    np.testing.assert_array_equal(actual_state[1], expected_state[1])
+    assert actual_state[2:] == expected_state[2:]
+    assert result["ninliers"] == result["refit_ninliers"] == len(source)
+    np.testing.assert_array_equal(result["inliers"], np.arange(len(source)))
+    np.testing.assert_allclose(result["T"][:3, :3], np.eye(3), atol=1e-12)
+    np.testing.assert_allclose(result["T"][:3, 3], [0.01, -0.02, 0.03], atol=1e-12)
+    assert not remaining.any()
+
+
+def test_ransac_inclusive_threshold_and_first_wins_ties(register):
+    source = np.random.RandomState(7).normal(size=(12, 3)) * 0.1
+    source[:, 0] = 0
+    target = source.copy()
+    target[5:8, 0] = [np.nextafter(0.004, 0), 0.004, np.nextafter(0.004, np.inf)]
+    first = np.eye(4)
+    later = first.copy()
+    later[1, 3] = 1e-5
+    register._sample_size, register._ransac_iters = 4, 2
+    fits = iter([first, later, first])
+    register._svd_fit = lambda *args: next(fits)
+    remaining = np.ones(len(source), dtype=bool)
+    np.random.seed(19)
+    result = register._RANSAC(source, target, None, remaining, None)
+    np.testing.assert_array_equal(result["T"], first)
+    np.testing.assert_array_equal(result["inliers"], np.delete(np.arange(12), 7))
+    np.testing.assert_array_equal(np.flatnonzero(remaining), [7])
+    assert result["score"] == result["ninliers"] == 11
+    fits = iter([first, later, first])
+    result = register._RANSAC(source, source, None, np.ones(len(source), dtype=bool), None)
+    assert result["score"] == result["ninliers"] == 12
+    assert result["mean_ransac"] == 0.0
 
 
 @pytest.fixture
