@@ -339,7 +339,7 @@ def observer_case(
         availability = sum(r["available"] for r in observed) / len(observed) if observed else 0.0
         p95 = np.quantile(errors, 0.95, axis=0) if len(errors) else None
         report = dict(
-            complete=True,
+            complete=operational_report["complete"],
             case=case,
             asset_id=door.name,
             frames=len(records),
@@ -359,6 +359,8 @@ def observer_case(
             final_tracking=tracker.diagnostics,
             sampled_support=support_timeline(records),
         )
+        if not report["complete"]:
+            report["failure"] = "operational_drain_timeout"
         capture_errors = np.asarray(
             [e["capture_error"] for e in events if e["capture_error"] is not None]
         ).reshape(-1, 2)

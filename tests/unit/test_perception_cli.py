@@ -17,7 +17,8 @@ def cli_module():
     return module
 
 
-def test_live_does_not_require_recordings(tmp_path, monkeypatch):
+@pytest.mark.parametrize("complete", [True, False])
+def test_live_does_not_require_recordings(tmp_path, monkeypatch, complete):
     from alexdoor_xas.perception.diagnostics import live
     from alexdoor_xas.recording import b1
 
@@ -25,7 +26,7 @@ def test_live_does_not_require_recordings(tmp_path, monkeypatch):
 
     def run(*args, **kwargs):
         calls.append((args, kwargs))
-        return {"complete": True, "diagnostic_passed": False}
+        return {"complete": complete, "diagnostic_passed": False}
 
     monkeypatch.setattr(live, "run_live", run)
     monkeypatch.setattr(b1, "episode_paths", lambda *a: pytest.fail("live reads recordings"))
@@ -41,7 +42,7 @@ def test_live_does_not_require_recordings(tmp_path, monkeypatch):
                 str(tmp_path / "run"),
             ]
         )
-        == 0
+        == int(not complete)
     )
     assert len(calls) == 1 and calls[0][1]["case"] == "camera"
 
