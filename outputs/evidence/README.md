@@ -104,8 +104,9 @@ in the corresponding campaign case directories on the workstation.
 To restore one file, run `zstd -d /path/to/ARCHIVE.zst -o RESTORED.hdf5` in a
 working directory. Compare `sha256sum RESTORED.hdf5` with `sha256` in the
 adjacent `ARCHIVE.zst.json`. For a measurements-only file, `original.sha256`
-identifies the retired full recording. The workstation's [cleanup inventory](../generated/cold-act-retention-20261123/applied.csv)
-lists the archive and digest for each case. Training and development inputs in
+identifies the retired full recording. On the workstation,
+`outputs/generated/cold-act-retention-20261123/applied.csv` lists the archive
+and digest for each case. Training and development inputs in
 the retained ACT index remain directly readable in the checkout.
 
 ## Rebuilding historical prepared data
