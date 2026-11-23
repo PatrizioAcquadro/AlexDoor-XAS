@@ -100,3 +100,15 @@ file in a working directory with `zstd -d ARCHIVE.zst -o episode.hdf5`.
 The adjacent `ARCHIVE.zst.json` gives its original name, SHA-256, size, mode
 and modification time. Training and development inputs in the retained ACT index
 remain directly readable in the checkout.
+
+## Rebuilding historical prepared data
+
+The [derived recording storage report](derived-storage-20261123/REPORT.md) lists the
+19 October ACT preparations that can be rebuilt from their source recordings and
+original supervision reviews. It includes the recovery command. The same report
+explains how to replay the full dense data-pipeline benchmark from its indexed
+inputs and where to find the small two-episode compatibility fixture.
+
+Three older shared-pilot HDF5 files now read their arrays from the retained
+`state-coverage-preparation/train/data/` files through relative virtual dataset
+links. Keep those five training files in place for the 26k, 28k and 30k rounds.
