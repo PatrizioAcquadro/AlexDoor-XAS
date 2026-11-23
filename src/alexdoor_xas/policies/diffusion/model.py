@@ -6,6 +6,7 @@ import torch
 from torch import nn
 
 from alexdoor_xas.policies.common.model import sinusoidal_table
+from alexdoor_xas.policies.common.visual import observation_projection
 from alexdoor_xas.policies.diffusion.config import DiffusionModelCfg
 
 
@@ -22,7 +23,9 @@ class DiffusionTransformer(nn.Module):
 
         d = cfg.d_model
         self.action_proj = nn.Linear(action_dim, d)
-        self.obs_mlp = nn.Sequential(nn.Linear(obs_dim, d), nn.Mish(), nn.Linear(d, d))
+        self.obs_mlp = nn.Sequential(
+            observation_projection(obs_dim, d, cfg.visual_recipe), nn.Mish(), nn.Linear(d, d)
+        )
         self.register_buffer(
             "timestep_table", sinusoidal_table(cfg.num_train_timesteps, d), persistent=False
         )

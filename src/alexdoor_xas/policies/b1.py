@@ -1,5 +1,7 @@
 """B1 ACT/Diffusion data, normalization and artifact binding; no training CLI."""
 
+from dataclasses import replace
+
 import numpy as np
 
 from alexdoor_xas.action.b1 import ACTION_DIMS, DISCRETE_COLUMNS
@@ -14,6 +16,13 @@ from alexdoor_xas.policies.common.data import (
     make_train_factory,
     normalize_batch,
 )
+from alexdoor_xas.policies.common.model import OBS_CLIP
+from alexdoor_xas.policies.encoding import FIXED_UNITS_RECIPE, LEARNED_RECIPE
+
+
+def fixed_observation_units(binding):
+    return binding.config.get("encoder") in (FIXED_UNITS_RECIPE, LEARNED_RECIPE)
+
 
 FORMATS = {"act": "alexdoor_xas.act.b1.v1", "diffusion": "alexdoor_xas.diffusion.b1.v1"}
 
@@ -22,12 +31,17 @@ def load_b1_data(directory, space, *, binding=None):
     dataset = B1Dataset(directory, space, binding=binding)
     train = tuple(r.episode_id for r in dataset.records if r.split == "train")
     development = tuple(r.episode_id for r in dataset.records if r.split == "development")
-    stats = _stats(dataset, train)
+    stats = _stats(dataset, dataset.normalization_episode_ids)
     return PolicyData(dataset, train, development, stats, dataset.robot_asset)
 
 
 def _stats(dataset, train):
     stats = compute_norm_stats(dataset, list(train), OBS_KEYS)
+    if fixed_observation_units(dataset.binding):
+        # Fixed physical/channel units avoid estimating inverse variances from
+        # nearly constant features on a two-identity pilot. Actions stay train-fit.
+        stats.obs.mean[:] = 0
+        stats.obs.std[:] = 1
     if dataset.action_space == A4_OBJ_CENTRIC_CHUNK:
         # Categories/termination have a fixed mapping even if a train split has
         # few examples. Continuous columns retain the family's normal scaling.
@@ -48,14 +62,19 @@ def validate_data(data):
         data.train_ids != expected_train
         or data.val_ids != expected_dev
         or data.robot_asset != data.dataset.robot_asset
-        or data.stats.to_dict() != _stats(data.dataset, expected_train).to_dict()
+        or data.stats.to_dict()
+        != _stats(data.dataset, data.dataset.normalization_episode_ids).to_dict()
     ):
         raise ValueError("B1 normalization/membership must match the training identities")
     check_stats(data.stats, data.dataset.contract)
 
 
 def check_stats(stats, contract):
-    validate_contract(contract)
+    binding = validate_contract(contract)
+    if fixed_observation_units(binding) and (
+        np.any(stats.obs.mean != 0) or np.any(stats.obs.std != 1)
+    ):
+        raise ValueError("Fixed-unit observations require zero center and unit scale")
     if (
         stats.action_space != contract["action_space"]
         or stats.obs_keys != OBS_KEYS
@@ -73,7 +92,7 @@ def check_stats(stats, contract):
                 raise ValueError("A4 category/termination normalization must be fixed")
 
 
-def batch_factories(data, family, horizon, batch_size, seed):
+def batch_factories(data, family, horizon, batch_size, seed, *, sample_groups=None):
     if family not in FORMATS or not isinstance(data.dataset, B1Dataset):
         raise ValueError("Expected a B1 dataset and ACT or Diffusion")
     validate_data(data)
@@ -83,7 +102,17 @@ def batch_factories(data, family, horizon, batch_size, seed):
         normalize = make_diffusion_normalizer(data.stats)
     else:
         normalize = normalize_batch
-    train = make_train_factory(data, horizon, batch_size, seed, normalize=normalize)
+    if fixed_observation_units(data.dataset.binding):
+        base_normalize = normalize
+
+        def normalize(batch, stats):
+            result = base_normalize(batch, stats)
+            result["obs"] = np.clip(result["obs"], -OBS_CLIP, OBS_CLIP)
+            return result
+
+    train = make_train_factory(
+        data, horizon, batch_size, seed, normalize=normalize, sample_groups=sample_groups
+    )
     development = (
         make_eval_factory(data, horizon, batch_size, seed, data.val_ids, normalize=normalize)
         if data.val_ids
@@ -118,6 +147,11 @@ def make_model(data, family, model_cfg, *, seed=0, device="cuda:0"):
     cfg_type, model_type, _ = _family(family)
     if not isinstance(model_cfg, cfg_type):
         raise ValueError("Model configuration belongs to another policy family")
+    recipe = data.dataset.binding.config.get("encoder")
+    expected_visual = LEARNED_RECIPE if recipe == LEARNED_RECIPE else None
+    if model_cfg.visual_recipe not in (None, expected_visual):
+        raise ValueError("Model visual recipe differs from the dataset")
+    model_cfg = replace(model_cfg, visual_recipe=expected_visual)
     torch.manual_seed(seed)
     with torch.device(device):
         return model_type(data.obs_dim, data.action_dim, model_cfg)
@@ -131,7 +165,14 @@ def save_policy(path, family, model, data, *, meta=None):
     validate_data(data)
     if not isinstance(model.cfg, _family(family)[0]):
         raise ValueError("Model configuration belongs to another policy family")
-    metadata = dict(meta or {}, b1_contract=data.dataset.contract)
+    expected_visual = (
+        LEARNED_RECIPE if data.dataset.binding.config.get("encoder") == LEARNED_RECIPE else None
+    )
+    if model.cfg.visual_recipe != expected_visual:
+        raise ValueError("Model visual recipe differs from the dataset")
+    metadata = dict(
+        meta or {}, b1_contract=data.dataset.contract, training_episode_ids=list(data.train_ids)
+    )
     config = dict(
         dataset=dict(
             task="b1_door_push",
@@ -156,6 +197,9 @@ def load_policy_payload(path, family, *, binding, runtime_asset, device="cpu"):
     contract = loaded.meta.get("b1_contract")
     validate_contract(contract, binding, loaded.stats.action_space)
     check_stats(loaded.stats, contract)
+    expected_visual = LEARNED_RECIPE if binding.config.get("encoder") == LEARNED_RECIPE else None
+    if loaded.model_cfg.get("visual_recipe") != expected_visual:
+        raise ValueError("Checkpoint visual architecture differs from its bound recipe")
     assert_checkpoint_runtime_compatible(loaded.robot_asset, runtime_asset)
     return loaded, contract
 
@@ -163,7 +207,7 @@ def load_policy_payload(path, family, *, binding, runtime_asset, device="cpu"):
 class B1Policy:
     """Family inference with a mandatory observed-input/robot/action contract."""
 
-    def __init__(self, policy, family, contract, *, robot_asset):
+    def __init__(self, policy, family, contract, *, robot_asset, training_episode_ids=None):
         if family not in FORMATS:
             raise ValueError("Unknown B1 policy family")
         if not isinstance(robot_asset, RobotAssetRef):
@@ -174,6 +218,15 @@ class B1Policy:
         self.robot_asset = robot_asset
         self.action_space = contract["action_space"]
         self.chunk_size = policy.chunk_size
+        self.training_episode_ids = tuple(
+            policy.stats.train_episode_ids if training_episode_ids is None else training_episode_ids
+        )
+        if (
+            not self.training_episode_ids
+            or len(set(self.training_episode_ids)) != len(self.training_episode_ids)
+            or not set(policy.stats.train_episode_ids) <= set(self.training_episode_ids)
+        ):
+            raise ValueError("Checkpoint training membership must contain its normalization fit")
 
     @classmethod
     def from_checkpoint(
@@ -204,6 +257,7 @@ class B1Policy:
             family,
             contract,
             robot_asset=loaded.robot_asset,
+            training_episode_ids=loaded.meta.get("training_episode_ids"),
         )
 
     def predict(self, features):
@@ -228,7 +282,11 @@ class B1Policy:
             raise ValueError("Temporal ensembling is only supported for ACT A1-A3")
         if self.family == "act":
             if n_action_steps is not None:
-                raise ValueError("n_action_steps is a Diffusion setting")
+                if temporal_ensemble or self.action_space == A4_OBJ_CENTRIC_CHUNK:
+                    raise ValueError("Replanning ticks apply to primitive non-ensembled actions")
+                if type(n_action_steps) is not int or not 1 <= n_action_steps <= self.chunk_size:
+                    raise ValueError("Invalid policy replanning interval")
+                return lambda ctx: self.predict(observe(ctx))[:n_action_steps]
             return act_chunk_source(self, observe, temporal_ensemble=temporal_ensemble)
         return diffusion_chunk_source(self, observe, n_action_steps=n_action_steps)
 

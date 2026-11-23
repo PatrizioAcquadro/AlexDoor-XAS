@@ -179,3 +179,37 @@ def test_sampling_restricts_membership_and_repeats_seeded_batches(tmp_path, b1_b
         for key in a:
             np.testing.assert_array_equal(a[key], b[key])
     assert len(list(BatchIterator(sampler, len(sampler) + 1, drop_last=True))) == 0
+
+
+def test_export_can_reference_retained_raw_without_copying_images(tmp_path, b1_binding):
+    import json
+
+    import h5py
+
+    source = tmp_path / "raw.hdf5"
+    episode = make_b1_episode(b1_binding)
+    with h5py.File(source, "w") as h5:
+        h5.create_group("metadata").attrs["episode"] = json.dumps(
+            dict(
+                episode_id=episode.episode_id,
+                asset_id=episode.asset_id,
+                split=episode.split,
+            )
+        )
+        h5.create_dataset("robot_state/tool_position", data=np.zeros((1, 3)))
+    episode = replace(episode, source_recording=str(source))
+    for copy_raw, directory in [(True, "copy"), (False, "reference")]:
+        destination = export_dataset(
+            [episode], tmp_path / directory, b1_binding, TEST_ROBOT_REF, SPLITS, copy_raw=copy_raw
+        )
+        with h5py.File(destination / "episode_000000.hdf5") as h5:
+            if copy_raw:
+                assert "raw/robot_state/tool_position" in h5
+            else:
+                assert "raw" not in h5
+                assert h5.attrs["source_recording"] == str(source)
+        loaded = B1Dataset(destination, next(iter(ACTION_DIMS)))
+        np.testing.assert_array_equal(
+            loaded.by_id(episode.episode_id).actions, episode.actions[next(iter(ACTION_DIMS))]
+        )
+    assert source.exists()

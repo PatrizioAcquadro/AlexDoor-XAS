@@ -10,25 +10,13 @@ from typing import Any
 import torch
 
 from alexdoor_xas.dataset.sampling import collate_torch
-from alexdoor_xas.policies.act.config import ActModelCfg, ActTrainCfg
+from alexdoor_xas.policies.act.config import ActTrainCfg
 from alexdoor_xas.policies.act.model import ACTModel, act_loss
+from alexdoor_xas.policies.common.data import to_device as _to_device
 from alexdoor_xas.policies.common.training import capture_rng_states, restore_rng_states
 
 TrainBatchFactory = Callable[[int], Iterable[dict]]
 ValBatchFactory = Callable[[], Iterable[dict]]
-
-
-def make_seeded_model(
-    obs_dim: int,
-    action_dim: int,
-    model_cfg: ActModelCfg,
-    seed: int,
-) -> ACTModel:
-    """Construct an ACT model with initialization controlled by ``seed``."""
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-    return ACTModel(obs_dim=obs_dim, action_dim=action_dim, cfg=model_cfg)
 
 
 @dataclass(frozen=True)
@@ -219,10 +207,3 @@ def evaluate_l1(model: ACTModel, batches: Iterable[dict], device: torch.device) 
     if count == 0:
         raise ValueError("validation batches contained no unpadded steps")
     return total / count
-
-
-def _to_device(batch: dict, device: torch.device) -> dict:
-    return {
-        key: value.to(device) if isinstance(value, torch.Tensor) else value
-        for key, value in batch.items()
-    }

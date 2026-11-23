@@ -12,8 +12,9 @@ from typing import Any
 import torch
 
 from alexdoor_xas.dataset.sampling import collate_torch
+from alexdoor_xas.policies.common.data import to_device as _to_device
 from alexdoor_xas.policies.common.training import capture_rng_states, restore_rng_states
-from alexdoor_xas.policies.diffusion.config import DiffusionModelCfg, DiffusionTrainCfg
+from alexdoor_xas.policies.diffusion.config import DiffusionTrainCfg
 from alexdoor_xas.policies.diffusion.model import DiffusionTransformer, diffusion_loss
 from alexdoor_xas.policies.diffusion.schedulers import (
     make_inference_scheduler,
@@ -24,19 +25,6 @@ TrainBatchFactory = Callable[[int], Iterable[dict]]
 ValBatchFactory = Callable[[], Iterable[dict]]
 
 VAL_SAMPLING_SEED = 12345
-
-
-def make_seeded_model(
-    obs_dim: int,
-    action_dim: int,
-    model_cfg: DiffusionModelCfg,
-    seed: int,
-) -> DiffusionTransformer:
-    """Construct a diffusion model with initialization controlled by ``seed``."""
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-    return DiffusionTransformer(obs_dim=obs_dim, action_dim=action_dim, cfg=model_cfg)
 
 
 class EmaModel:
@@ -339,10 +327,3 @@ def _lr_lambda(cfg: DiffusionTrainCfg, total_steps: int):
         return 0.5 * (1.0 + math.cos(math.pi * min(progress, 1.0)))
 
     return schedule
-
-
-def _to_device(batch: dict, device: torch.device) -> dict:
-    return {
-        key: value.to(device) if isinstance(value, torch.Tensor) else value
-        for key, value in batch.items()
-    }

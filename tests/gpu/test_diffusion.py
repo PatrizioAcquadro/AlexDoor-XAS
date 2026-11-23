@@ -18,6 +18,7 @@ from alexdoor_xas.policies.diffusion.config import (
     DiffusionTrainCfg,
 )
 from alexdoor_xas.policies.diffusion.model import (
+    DiffusionTransformer,
     diffusion_loss,
 )
 from alexdoor_xas.policies.diffusion.policy import (
@@ -29,7 +30,6 @@ from alexdoor_xas.policies.diffusion.schedulers import (
 from alexdoor_xas.policies.diffusion.train import (
     EmaModel,
     evaluate_sampled_l1,
-    make_seeded_model,
     train_diffusion,
 )
 
@@ -50,8 +50,14 @@ TINY_MODEL_CFG = DiffusionModelCfg(
 )
 
 
+def _tiny_model(seed: int = 0) -> DiffusionTransformer:
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    return DiffusionTransformer(obs_dim=OBS_DIM, action_dim=ACTION_DIM, cfg=TINY_MODEL_CFG)
+
+
 def test_model_output_depends_on_obs_and_timestep() -> None:
-    model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=0).eval()
+    model = _tiny_model(seed=0).eval()
     x = torch.randn(1, TINY_MODEL_CFG.horizon, ACTION_DIM)
     obs = torch.randn(1, OBS_DIM)
 
@@ -65,7 +71,7 @@ def test_model_output_depends_on_obs_and_timestep() -> None:
 
 
 def test_model_causal_mask_blocks_future_tokens() -> None:
-    model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=0).eval()
+    model = _tiny_model(seed=0).eval()
     x = torch.randn(1, TINY_MODEL_CFG.horizon, ACTION_DIM)
     obs = torch.randn(1, OBS_DIM)
     t = torch.tensor([3])
@@ -82,7 +88,7 @@ def test_model_causal_mask_blocks_future_tokens() -> None:
 
 
 def test_model_rejects_bad_shapes() -> None:
-    model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=0)
+    model = _tiny_model(seed=0)
     with pytest.raises(ValueError, match="noisy actions"):
         model(torch.randn(1, 3, ACTION_DIM), torch.tensor([0]), torch.randn(1, OBS_DIM))
     with pytest.raises(ValueError, match="obs"):
@@ -94,7 +100,7 @@ def test_model_rejects_bad_shapes() -> None:
 
 
 def test_diffusion_loss_masks_padded_steps() -> None:
-    model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=0)
+    model = _tiny_model(seed=0)
     scheduler = make_train_scheduler(TINY_MODEL_CFG)
     actions = torch.randn(2, TINY_MODEL_CFG.horizon, ACTION_DIM)
     obs = torch.randn(2, OBS_DIM)
@@ -146,7 +152,7 @@ def _constant_mapping_batch(batch_size: int = 32) -> dict:
 
 
 def test_train_diffusion_overfits_a_constant_mapping() -> None:
-    model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=0)
+    model = _tiny_model(seed=0)
     scheduler = make_train_scheduler(TINY_MODEL_CFG)
     batch = _constant_mapping_batch()
 
@@ -187,7 +193,7 @@ def test_train_diffusion_resume_matches_uninterrupted_state_and_ema() -> None:
         val_every=10,
         val_inference_steps=2,
     )
-    full_model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=19)
+    full_model = _tiny_model(seed=19)
     full_ema = EmaModel(full_model, cfg.ema_decay)
     full_history = train_diffusion(
         full_model,
@@ -197,7 +203,7 @@ def test_train_diffusion_resume_matches_uninterrupted_state_and_ema() -> None:
         ema=full_ema,
     )
 
-    interrupted_model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=19)
+    interrupted_model = _tiny_model(seed=19)
     interrupted_ema = EmaModel(interrupted_model, cfg.ema_decay)
     captured: dict = {}
 
@@ -222,7 +228,7 @@ def test_train_diffusion_resume_matches_uninterrupted_state_and_ema() -> None:
             on_checkpoint=interrupt_after_two_epochs,
         )
 
-    resumed_model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=19)
+    resumed_model = _tiny_model(seed=19)
     resumed_model.load_state_dict(captured["model_state"])
     resumed_ema = EmaModel(resumed_model, cfg.ema_decay)
     resumed_history = train_diffusion(
@@ -262,7 +268,7 @@ def _tiny_policy(**kwargs) -> DiffusionPolicy:
         train_episode_ids=("ep0",),
         action_space="A2_ee_delta",
     )
-    model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=0)
+    model = _tiny_model(seed=0)
     return DiffusionPolicy(model, stats, num_inference_steps=5, **kwargs, device="cuda")
 
 

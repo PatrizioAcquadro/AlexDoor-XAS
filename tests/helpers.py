@@ -9,9 +9,15 @@ from scipy.spatial import ConvexHull
 from alexdoor_xas.action.b1 import apply_pose_delta
 from alexdoor_xas.action.frames import ObjectFrame, rot_z
 from alexdoor_xas.assets.identity import RobotAssetRef
+from alexdoor_xas.dataset.b1 import compile_episode
 from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats
 from alexdoor_xas.perception.contracts import DoorEstimate
-from alexdoor_xas.policies.observations import PolicyObservation
+from alexdoor_xas.policies.observations import (
+    B1Observer,
+    FeatureBlock,
+    PolicyObservation,
+    VisualEncoding,
+)
 from alexdoor_xas.qualification.door_geometry import PreparedDoor
 from alexdoor_xas.recording.b1 import OBS_KEYS
 
@@ -253,4 +259,91 @@ def raw_observation(t=0, frame=1):
         joint_velocity=np.zeros(9),
         camera_world=np.eye(4),
         intrinsics=np.eye(3),
+    )
+
+
+def pilot_sensor(t, frame):
+    return sample(t, frame) | dict(
+        rgb=np.ones((2, 2, 3), np.uint8),
+        depth_m=np.ones((2, 2, 1)),
+        valid_depth=np.ones((2, 2, 1), bool),
+        annotations={"hinge": [9, 9, 9]},
+        robot_feedback={"torque": np.ones(7)},
+    )
+
+
+class NumericalEncoder:
+    def __init__(self, binding):
+        self.binding = binding
+        self.reset()
+
+    def reset(self):
+        self.calls = []
+        self.between = False
+
+    def update(self, value, *, generation):
+        self.calls.append(value)
+        if self.between:
+            return None
+        blocks = [
+            FeatureBlock(
+                np.arange(width), value["time_s"], value["time_s"], value["frame"], generation
+            )
+            for width in self.binding.config["visual_dims"]
+        ]
+        return VisualEncoding(*blocks)
+
+
+def pilot_episode(binding):
+    observer = B1Observer(None, binding, encoder=NumericalEncoder(binding))
+    observations = [observer.update(pilot_sensor(i / 60, i)) for i in range(3)]
+    tool = ObjectFrame(np.zeros(3), np.eye(3))
+    return compile_episode(
+        episode_id="pilot",
+        asset_id="left",
+        asset_splits={"left": "train"},
+        observations=observations,
+        tools=[tool] * 3,
+        goals=[tool] * 2,
+        joint_targets=np.ones((2, 7)) * 0.01,
+        binding=binding,
+    )
+
+
+def temporal_recorder(path, *, image_compression=None):
+    from alexdoor_xas.assets.purdue import ARM_JOINTS
+    from alexdoor_xas.recording.temporal import TemporalRecorder
+
+    return TemporalRecorder(
+        path,
+        dict(split="train", episode_id="fixture"),
+        dict(depth_interval_m=[0.1, 5]),
+        image_compression=image_compression,
+        feedback_contract=dict(
+            joint_names=list(ARM_JOINTS),
+            units="N m",
+            sign_convention="positive_joint_coordinate",
+            verified=True,
+            source="simulated_actuator_feedback",
+            semantics="joint_output",
+        ),
+    )
+
+
+def temporal_command(log, t, *, accepted=True):
+    log.command(
+        request_s=t,
+        dispatch_s=t if accepted else None,
+        applied_s=t if accepted else None,
+        requested_target=np.ones(7),
+        applied_target=np.full(7, 0.5 if accepted else np.nan),
+        q_before=np.zeros(7),
+        accepted=accepted,
+        generation=0,
+        request_kind=1,
+        request=np.ones(7),
+        clipped=True,
+        neck_target=np.zeros(2),
+        gripper_target=np.zeros(1),
+        effort_target_nm=np.zeros(9),
     )
