@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import math
 import signal
 import sys
 from pathlib import Path
@@ -21,10 +22,11 @@ def interrupted(signum, _frame):
 
 
 def main():
+    protocol = json.loads((REPO / "configs/b1_workspace_survey.json").read_text())
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--asset-root", type=Path, required=True)
-    parser.add_argument("--asset-id", required=True)
-    parser.add_argument("--view", choices=("front", "back"), required=True)
+    parser.add_argument("--asset-id", choices=protocol["domain"], required=True)
+    parser.add_argument("--view", choices=protocol["views"], required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--initial-opening-deg", type=float, default=0.0)
     args = parser.parse_args()
@@ -38,10 +40,9 @@ def main():
     from alexdoor_xas.qualification.expert import probe_config
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
 
-    protocol = json.loads((REPO / "configs/b1_workspace_survey.json").read_text())
     corpus = load_corpus(REPO / "datasets/doors/b1/corpus.json", REPO)
-    entry = next(e for e in corpus["doors"] if e["asset_id"] == args.asset_id)
-    if args.asset_id not in protocol["domain"] or entry["split"] not in ("train", "development"):
+    entry = next((e for e in corpus["doors"] if e["asset_id"] == args.asset_id), None)
+    if entry is None or entry["split"] not in ("train", "development"):
         parser.error("Survey only the declared pilot train/development domain")
     folder = args.asset_root / args.asset_id
     for name in ("candidate.json", "prepared.json", "recipe.json"):
@@ -58,8 +59,15 @@ def main():
         row[1] *= view["neck_yaw_sign"]
     validate_inspection(inspection)
     setup.neck = tuple(inspection["waypoints"][-1][1:])
+    door = PreparedDoor(
+        folder,
+        json.loads((folder / "prepared.json").read_text()),
+        json.loads((folder / "recipe.json").read_text()),
+    )
+    opening_rad = math.radians(args.initial_opening_deg)
+    if not 0 <= opening_rad < door.mechanical_stop:
+        parser.error("Survey opening must be inside the unchanged mechanical stop")
     args.output.mkdir(parents=True, exist_ok=False)
-    import math
 
     from isaaclab.app import AppLauncher
 
@@ -72,16 +80,6 @@ def main():
 
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA required")
-    door = PreparedDoor(
-        folder,
-        json.loads((folder / "prepared.json").read_text()),
-        json.loads((folder / "recipe.json").read_text()),
-    )
-    if (
-        not math.isfinite(args.initial_opening_deg)
-        or not 0 <= math.radians(args.initial_opening_deg) < door.mechanical_stop
-    ):
-        raise ValueError("Survey opening must be inside the unchanged mechanical stop")
     cfg = probe_config(door, setup, "cuda:0")
     cfg.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
     cfg.seed = 6100
@@ -90,7 +88,7 @@ def main():
     # Only observed free space is exported, never this angle as runtime geometry.
     from alexdoor_xas.envs.door_task.door_push_purdue_env import tensor
 
-    tensor(env.door.data.default_joint_pos)[:] = math.radians(args.initial_opening_deg)
+    tensor(env.door.data.default_joint_pos)[:] = opening_rad
     signal.signal(signal.SIGTERM, interrupted)
     write(args.output / "physical-case-start.json", dict(role="workspace_survey", wall_time=time()))
     metadata = dict(
