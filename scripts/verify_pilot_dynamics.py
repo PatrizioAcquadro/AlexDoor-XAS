@@ -57,7 +57,6 @@ def main():
     from alexdoor_xas.envs.door_task.door_push_purdue_env import DoorPushPurdueEnv, tensor
     from alexdoor_xas.envs.door_task.door_push_purdue_env_cfg import DoorPushPurdueEnvCfg
     from alexdoor_xas.perception.load import LoadCalibration, ResidualLoadModel
-    from alexdoor_xas.policies.purdue import PurdueIO
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
     from alexdoor_xas.recording.b1_runtime import array
 
@@ -71,7 +70,6 @@ def main():
     )
     assert app.is_running()
     samples, ticks = [], []
-    io = None
     env = None
     try:
         assert torch.cuda.is_available()
@@ -111,20 +109,23 @@ def main():
                 return result
 
         env = DiagnosticEnv(cfg)
-        env.reset()
+
+        def reset_trial():
+            env.robot.permanent_wrench_composer.reset()
+            env.reset()
+            for i, name in enumerate(("panel", "frame", "handle")):
+                obj = env.scene.rigid_objects[name]
+                pose = torch.tensor([[3.0, float(i), 1.0, 0.0, 0.0, 0.0, 1.0]], device=env.device)
+                obj.write_root_pose_to_sim_index(root_pose=pose)
+                obj.write_root_velocity_to_sim_index(
+                    root_velocity=torch.zeros((1, 6), device=env.device)
+                )
+
+        reset_trial()
         assert env.step_dt == 1 / 60 and cfg.sim.dt == 1 / 120
-        for i, name in enumerate(("panel", "frame", "handle")):
-            obj = env.scene.rigid_objects[name]
-            pose = torch.tensor([[3.0, float(i), 1.0, 0.0, 0.0, 0.0, 1.0]], device=env.device)
-            obj.write_root_pose_to_sim_index(root_pose=pose)
-            obj.write_root_velocity_to_sim_index(
-                root_velocity=torch.zeros((1, 6), device=env.device)
-            )
         q0 = array(env.robot.data.joint_pos)[0, env.arm_ids].copy()
         amplitude = np.array(PROTOCOL["amplitude_rad"])
         body = env.robot.body_names.index(env._tool_body_name)
-        io = PurdueIO.__new__(PurdueIO)
-        io.env, io.admission = env, None
 
         def force_reference(force_n):
             # Evaluator injection at the tool point; estimator has no access to this function.
@@ -138,13 +139,15 @@ def main():
                     is_global=True,
                 )
 
-        def step(phase, goal, force_n=0.0, a2=None):
+        def step(phase, goal, force_n=0.0, a2=None, *, stopped=False):
             if not ticks or ticks[-1]["phase"] != phase:
                 print(json.dumps(dict(phase=phase, time_s=env._time_s)), flush=True)
             application_point = array(env.tool_pose()[0])[0].copy()
             force_reference(force_n)
             before = env._time_s
-            if a2 is None:
+            if stopped:
+                env.step(torch.zeros((1, cfg.action_space), device=env.device))
+            elif a2 is None:
                 measured = tensor(env.robot.data.joint_pos)[:, env.arm_ids]
                 env.step_a1(
                     torch.tensor(goal, device=env.device, dtype=torch.float32)[None] - measured
@@ -175,6 +178,7 @@ def main():
             ticks.append(
                 dict(
                     phase=phase,
+                    generation=env.generation,
                     time_s=env._time_s,
                     position=position,
                     quaternion=quaternion,
@@ -254,13 +258,13 @@ def main():
             time_before = env._time_s
             stop_pose = tuple(array(v)[0].copy() for v in env.tool_pose())
             speed = array(env.robot.data.joint_vel)[0, env.arm_ids].copy()
-            io.stop()
+            env.stop_motion()
             assert env._time_s == time_before
             assert env._pending_pose is None and env._pending_joints is None
             frozen = array(env.targets)[0, env.arm_ids].copy()
             np.testing.assert_array_equal(frozen, array(env.robot.data.joint_pos)[0, env.arm_ids])
             for _ in range(60):
-                step(name + "_stopped", frozen, force_n)
+                step(name + "_stopped", frozen, force_n, stopped=True)
                 np.testing.assert_array_equal(array(env.targets)[0, env.arm_ids], frozen)
             stop_poses = [
                 env.evaluator_poses[s.feedback.timestamp_s]
@@ -285,8 +289,10 @@ def main():
             )
 
         stop_trial("verification_loaded_stop", 4.0)
+        reset_trial()
         hold("verification_return", 60)
         stop_trial("verification_unloaded_stop", 0.0)
+        reset_trial()
         hold("verification_A2_settle", 60)
         pose = tuple(v.clone() for v in env.tool_pose())
         for t in range(120):
@@ -386,7 +392,7 @@ def main():
             device=torch.cuda.get_device_name(),
             samples=len(samples),
             ticks=len(ticks),
-            sim_duration_s=env._time_s,
+            sim_duration_s=len(ticks) * env.step_dt,
             rejection_counts={
                 reason: rejection.count(reason) for reason in sorted(set(rejection)) if reason
             },
@@ -405,8 +411,8 @@ def main():
         traceback.print_exc()
         report["error"] = repr(error)
     finally:
-        if io is not None:
-            io.stop()
+        if env is not None:
+            env.stop_motion()
             env.robot.permanent_wrench_composer.reset()
         if samples:
             np.savez_compressed(
@@ -429,6 +435,7 @@ def main():
                     key: np.array([r[key] for r in ticks])
                     for key in (
                         "phase",
+                        "generation",
                         "time_s",
                         "position",
                         "quaternion",
