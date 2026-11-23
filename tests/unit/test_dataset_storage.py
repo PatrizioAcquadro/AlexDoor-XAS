@@ -16,7 +16,7 @@ from alexdoor_xas.policies.common.b1_contract import OBS_KEYS
 from helpers import TEST_ROBOT_REF, make_b1_episode
 
 
-@pytest.mark.parametrize("layout", ["compressed", "virtual"])
+@pytest.mark.parametrize("layout", ["compressed", "virtual", "external"])
 def test_legacy_sampling_selects_before_numpy_and_preserves_order(
     tmp_path, b1_binding, layout, monkeypatch
 ):
@@ -32,6 +32,10 @@ def test_legacy_sampling_selects_before_numpy_and_preserves_order(
             file.create_dataset(
                 "observations", data=values, chunks=(1, values.shape[1]), compression="lzf"
             )
+        elif layout == "external":
+            with h5py.File(root / "features.hdf5", "w") as external:
+                external.create_dataset("features", data=values)
+            file["observations"] = h5py.ExternalLink("features.hdf5", "/features")
         else:
             file.create_dataset("stored", data=values)
             view = h5py.VirtualLayout(values.shape, dtype=values.dtype)

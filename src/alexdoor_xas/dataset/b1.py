@@ -554,7 +554,11 @@ class B1Dataset:
                 # Validation reads bounded blocks; create the mmap afterwards so
                 # scanning does not populate the entire mapping's resident set.
                 lazy = ObservationArray.open(directory / name, self._files, values)
-                offset = values.id.get_offset() if isinstance(values, h5py.Dataset) else None
+                offset = (
+                    values.id.get_offset()
+                    if isinstance(values, h5py.Dataset) and values.file == source
+                    else None
+                )
                 observations = lazy
                 episode = MatchedEpisode(
                     source.attrs["episode_id"],
