@@ -8,9 +8,7 @@ historical source remains at `097d578`. It is not a second supported data path.
 
 The RGB-D engineering interface is documented in
 [[shared-door-perception|Shared Door Perception]]. Sensor observations, applied
-commands and evaluator annotations remain separate. Existing recordings have no
-measured torque; commands do not substitute for feedback. No recording migration
-or policy-dataset production is performed by repository consolidation.
+commands and evaluator annotations remain separate. The engineering-v2 series has no measured torque. The temporal reader accepts verified feedback when its source and clock meet the recorded contract.
 
 The D4 observed simulation entry point writes `b1.temporal-recording.v1` on
 disk. The native joint-output stream retains its acquisition clock and
@@ -35,7 +33,7 @@ recorded calibration and canonical arm/neck order. Only an initial inspection
 prefix is excluded from learned arm actions; missing/invalid manipulation inputs
 are rejected, not silently dropped. Raw recordings must explicitly have purpose
 `b1_matched_policy_demonstration`. The preserved 6.0 engineering recordings are not
-promoted into this dataset, and no policy dataset has been generated.
+eligible for the final matched dataset. Separate pilot data and timing contracts are documented in [[b1-policy-pilot]].
 
 Export requires a frozen train/development identity assignment, all four action
 paths, complete A4 stages, aligned boundaries and a qualified/frozen perception
@@ -57,3 +55,7 @@ use training identities only. `DatasetNormStats` retains the B1 checkpoint wire
 format; its reserved `view_id` is null. Separate historical view files and loaders
 are retired. Reordered observations, invalid statistics and stale membership fail
 before training or policy loading. Asset identity remains mandatory.
+
+## Frame-indexed pilot storage
+
+Raw RGB-D, causal timestamps and terminal observations belong to the recording. Prepared data may reference a shared image by frame index, keeping repeated observations out of training batches on disk. `B1Dataset` reads existing dense and indexed episodes. `index_dataset` constructs an indexed view and `materialize_train_data` publishes the admitted training sources with train-only normalization. Temporal recordings use `prepare_temporal` and `TemporalEpisode` for time-indexed history and action eligibility. Missing, delayed and cross-reset measurements retain their masks. The pilot commands and measured storage comparison are in [[b1-policy-pilot]] and [[../experiments/policy-pilot-results]].

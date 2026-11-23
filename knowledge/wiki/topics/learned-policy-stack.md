@@ -40,7 +40,7 @@ Numerical model checks do not establish manipulation quality.
 ## B1 Family Integration
 
 `policies/b1.py` provides `load_b1_data`, `batch_factories`, `make_model`,
-`train_model`, `save_policy` and `B1Policy.from_checkpoint`. The existing ACT and
+`save_policy` and `B1Policy.from_checkpoint`, with the family tensor trainers. The existing ACT and
 Diffusion models/trainers consume the same observed tensor and action widths
 7/6/6/17. No model training or policy-dataset production is launched by these APIs.
 
@@ -63,8 +63,8 @@ boundaries and rejects ensembling. Both families predict segment chunks;
 
 CPU checks cover data, scaling, serialization envelopes and contract rejection.
 CUDA forward/loss/gradient and prediction round-trip checks cover the eight B1
-paths and retained families. No optimizer update was performed during cleanup;
-training regressions remain maintained but were excluded. These checks do not
+paths and retained families. Training and resume regressions remain maintained.
+These software checks do not
 qualify perception or establish physical policy performance.
 
 ## Observed Execution and Replay
@@ -97,3 +97,8 @@ geometry exclusively for stop decisions. It checks distal surfaces, forbidden
 contacts, joint/finger limits and controlled contact at the policy's actual panel
 point; it never requires the teacher's exact point, adds corrective motion, or
 uses an expert stopping angle. Physical verification remains pending.
+
+The active B1 path uses the family tensor trainers directly; the unused
+`train_model` dispatch wrapper is retired. Training and checkpoint contracts are unchanged.
+
+The A1/A2 pilot runs the family trainers on recorded data. Temporal ACT-A1 has a separate self-contained checkpoint and rejects incompatible robot or preprocessing contracts. See [[b1-policy-pilot]] for the commands and [[../experiments/policy-pilot-results]] for measured outcomes.

@@ -1,7 +1,6 @@
 # Phase 7 — Training and Generalization Evaluation
 
-> Planned. Two subphases train the models, then evaluate and analyze them.
-> Requires Phase 6; no training or evaluation is performed by this revision.
+> The final matched matrix is planned and depends on Phase 6. Separate pilot training and closed-loop results are documented in [[../experiments/policy-pilot-results]].
 
 ## Objective
 

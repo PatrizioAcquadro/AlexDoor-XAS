@@ -1,10 +1,6 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
-> Subphase 6.0 remains unqualified. 6.0A contracts and 6.0B static evidence/queries
-> are maintained. Previous dynamic trackers are retired; 6.0C integrates
-> official CAD-free Point2Pose as an unqualified prototype. 6.0D-H remain planned.
-> Subphase 6.1 software is partially validated; final integration is pending.
-> Subphase 6.2 is not started. Phases 4 and 5 are complete.
+> The common perception and action interfaces and scoped teacher/policy pilots are implemented. General observed A3/A4 integration and the final matched Phase 6.2 dataset remain open. Phases 4 and 5 are complete. [[../status|Current results]]
 
 ## Objective
 
@@ -21,8 +17,7 @@ support 6.0B static object memory, ownership alternatives, hinge hypotheses and
 finite contact/relevant-space queries. The static provider exposes scan evidence
 but no qualified state, policy encoding or admission to move. Human-reviewed local
 regions and corrected contact covers remain; whole-object identity and axes are
-unresolved. Existing recordings lack torque and the observed monitor blocks loaded
-execution.
+unresolved. The engineering-v2 recordings lack measured torque. The observed collector uses separate measured feedback for scoped loaded execution.
 
 Legacy geometric tracking/evaluation, custom material tracking and video comparison
 are retired after preserving their failures. Independent full-state/local contracts,
@@ -33,7 +28,7 @@ contact checks. The selected recipe is common to scan, smoke, live/replay and se
 evaluation; GroundingDINO and separate SAM2 execution are retired.
 Pilot diagnostics fail useful availability at the unchanged 150 ms limit;
 implementation does not establish qualified tracking or whole-leaf ownership.
-No training, collection, loaded admission or release migration is implemented.
+The A1/A2 pilot supports training and guarded collection. D3 and D4 have separately reviewed contact outcomes in [[../experiments/observed-cycle-collection]].
 All 50 engineering-v2 episodes remain for future common qualification. See
 [[experiments/b1-perception-findings|findings]] and
 [[topics/shared-door-perception|maintained implementation]].
@@ -104,7 +99,7 @@ regressions were deliberately not run and remain maintained.
 No qualified/frozen perception provider or B1 policy dataset exists. Final raw/live
 encoding equivalence, matched physical replay and observed-geometry rollout across
 contact/hold/release and loss/reacquisition remain blocked by Phase 6.0. Numerical
-fixtures are not physical validation. Subphase 6.1 remains open and 6.2 not started.
+fixtures are not physical validation. Subphase 6.1 remains open and the matched 6.2 production dataset is pending.
 See [[topics/action-representations-and-adapters|Action Representations]],
 [[topics/episode-and-dataset-contracts|Data Contracts]] and
 [[topics/shared-door-perception|Perception]].
@@ -222,5 +217,5 @@ are preparation artifacts, not the final matched dataset or a qualified stack.
 Expected surfaces: `src/alexdoor_xas/envs/`, `src/alexdoor_xas/action/`,
 `src/alexdoor_xas/recording/`, `src/alexdoor_xas/dataset/`,
 `src/alexdoor_xas/policies/`, `configs/`, and supported `scripts/` entry points.
-Learned-action integration will be implemented against the B1 runtime; no B0
+Learned-action integration targets the B1 runtime; no B0
 adapter package remains to be extended.

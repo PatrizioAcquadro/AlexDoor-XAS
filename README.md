@@ -1,29 +1,16 @@
 # AlexDoor-XAS
 
-AlexDoor-XAS studies how action representation affects contact-rich humanoid
-manipulation: **A1–A4 × ACT/Diffusion** on held-out push doors, using fixed-base
-Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
+AlexDoor-XAS studies action representation in contact-rich humanoid manipulation:
+**A1–A4 × ACT/Diffusion** on held-out push doors, using fixed-base Purdue Alex003,
+WSG32/UMI v1 and head ZED RGB-D.
 
-## Current scope
-
-- **Runtime and corpus:** Purdue control/sensing and Phase 5 are complete. The
-  frozen corpus contains 32 qualified doors: 19 train, six development, seven test.
-- **Perception:** one persistent SAM3 frontend shared by static inspection and an
-  experimental CAD-free Point2Pose tracker, using the common selected recipe;
-  material identity, 150 ms freshness and loaded contact remain unqualified.
-- **Learning:** B1 observed-input datasets, ACT/Diffusion models, normalization and
-  A1–A4 execution adapters are maintained. Qualified perception integration and
-  physical rollout validation remain pending. No matched B1 policy dataset or
-  learned-policy result exists; the sealed test remains closed.
-
-The [project status](knowledge/wiki/status.md) owns current results, limits and
-next work. No repository command controls physical hardware.
+The maintained workflows cover door qualification, observed teacher collection, recorded perception diagnostics and learned-policy training, replay and evaluation. The final matched A1–A4 comparison remains open. The [project status](knowledge/wiki/status.md) distinguishes teacher qualification, learned completions and safety-stop outcomes.
 
 ## Installation
 
-Use Python 3.11+. The supported workstation uses Isaac Sim 6.0.1, Isaac Lab
-`release/3.0.0-beta2` and the external Alex package. Isaac, Alex, PyTorch, Warp and
-CUDA are supplied by that runtime; ordinary Python dependencies are declared in
+Use Python 3.11+. The workstation supplies Isaac Sim 6.0.1, Isaac Lab
+`release/3.0.0-beta2`, the external Alex package, PyTorch, Warp and CUDA.
+Ordinary dependencies and optional development/diffusion tools are declared in
 [pyproject.toml](pyproject.toml).
 
 ```bash
@@ -32,16 +19,14 @@ CUDA are supplied by that runtime; ordinary Python dependencies are declared in
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/check_env.py
 ```
 
-Robot/camera assets come from the external Alex package. Prepared door payloads,
-recordings and model weights remain local and ignored by Git. Perception workers
-use isolated dependencies; follow [model setup](knowledge/wiki/topics/perception-model-setup.md).
+Robot/camera assets come from Alex; prepared doors, recordings and model weights
+remain local. Perception uses isolated workers: follow
+[model setup](knowledge/wiki/topics/perception-model-setup.md).
+Repository scripts/configs run from the source checkout; the wheel supplies the
+Python package. [Cluster training](knowledge/wiki/topics/cluster-training.md)
+describes separate A100/H100 deployment boundaries.
 
-## Verification
-
-Use `scripts/isaac-run.sh` for the AlexDoor simulation entry points. It loads
-Steel with CUDA Graph by default from the workstation's local Newton/Warp site.
-Set `ISAAC_PHYSICS_PROFILE=isaacsim_physx` to run native GPU PhysX.
-[Purdue runtime configuration](knowledge/wiki/topics/purdue-b1-robot-and-contact.md#physics-profile-and-reset).
+## Verification and diagnostics
 
 ```bash
 ruff check src scripts tests
@@ -51,26 +36,49 @@ ruff format --check src scripts tests
 /home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q tests/integration
 ```
 
-[GitHub Actions](.github/workflows/ci.yml) runs lint/format, unit tests on Python
-3.11/3.12, wheel/sdist builds and an installed-wheel import check. Unit tests use
-CPU tensors without Isaac, model downloads or local payloads. CUDA model/storage
-regressions and integration with external Isaac/Alex/native sources run locally;
-GPU tests explicitly skip when CUDA is unavailable. A green public CI does not
-establish simulator, perception or physical qualification.
+[CI](.github/workflows/ci.yml) checks lint/format, Python 3.11/3.12 unit tests,
+wheel/sdist builds and installed-wheel imports. Unit tests need no Isaac launch,
+model downloads or local payloads; numerical tensor contracts use CPU in CI.
+GPU/integration checks require the corresponding local runtimes. A green CI
+establishes software behavior, not simulator, perception or physical qualification.
 
-The complete Purdue runtime gate uses synthetic fixtures:
+## Run the simulator
+
+Run from the checkout on the RTX workstation. The launcher selects the physics implementation by entry point.
+
+| Entry point | Default runtime |
+|---|---|
+| `collect_perception.py`, `qualify_door.py` | Native Steel/Warp (`newton_steel_warp`) in the dedicated native environment |
+| `collect_d4_observed.py` | Isaac Lab beta2 Newton Steel (`newton_steel`) with RTX and guarded contact |
+| `pilot_physics.py` and its dynamics, stop and workspace probes | Isaac Sim PhysX (`isaacsim_physx`) with the pilot calibration |
+
+For standard collection and qualification, install the native runtime and converted assets as described in the [Purdue runtime guide](knowledge/wiki/topics/purdue-b1-robot-and-contact.md#install-the-native-b1-runtime). These bounded commands exercise the 4° fixture and write diagnostic results.
 
 ```bash
-scripts/isaac-run.sh scripts/verify_purdue_runtime.py --viz none --device cuda:0
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py
+asset=psx-interior-wood-002-02e442c
+fixture=configs/purdue_b1_bounded_diagnostic.json
+scripts/isaac-run.sh scripts/collect_perception.py --asset-id "$asset" --condition light \
+  --bounded-diagnostic "$fixture" --output outputs/generated/native-collection-check
+scripts/isaac-run.sh scripts/qualify_door.py --asset-id "$asset" --condition nominal \
+  --bounded-diagnostic "$fixture" --diagnostic --output-root outputs/generated/native-evaluation-check
 ```
 
-Runtime reports default to `~/.cache/alexdoor-xas/verification/`. Corpus verification
-checks tracked membership and references; `--evidence-root` also checks local expert
-reports. See [Phase 5](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
-for prepared-door intake and qualification.
+For a guarded D4 component check, supply the protocol, setup and operational recipe from the same reviewed run. Resolve any historical absolute paths in a working copy of the recipe using the [evidence storage guide](outputs/evidence/README.md).
 
-Run bounded frozen perception inference with a fresh output directory:
+```bash
+scripts/isaac-run.sh scripts/collect_d4_observed.py --protocol "$protocol" \
+  --setup "$setup" --operational-recipe "$recipe" --urdf-cache-dir "$usd_cache" \
+  --component-max-sim-s 0.1 --record-tracker-stream --output "$fresh_output"
+```
+
+The component time limit exercises interruption and continuing-physics stopping. Run the corpus and synthetic runtime checks separately.
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py
+scripts/isaac-run.sh scripts/verify_purdue_runtime.py --viz none --device cuda:0
+```
+
+Every recorded perception diagnostic uses one explicit pilot episode and fresh output:
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke \
@@ -78,38 +86,23 @@ Run bounded frozen perception inference with a fresh output directory:
   --output outputs/generated/b1/perception/NEW_SMOKE
 ```
 
-The [model setup guide](knowledge/wiki/topics/perception-model-setup.md) documents
-scan, Point2Pose smoke, operational replay, live and serial offline commands. Live diagnostics do not need
-recordings. Successful execution and scientific quality are separate outcomes;
-smokes do not admit motion or qualify a policy provider.
+[Supported diagnostics](knowledge/wiki/topics/perception-model-setup.md#supported-diagnostics)
+cover static scan, P2P smoke, replay, offline evaluation and operational timing.
+Live diagnostics require `--asset` and `--case`, with no recording dependency.
+Each invocation starts one attempt; diagnostic completion never admits motion.
 
-## Organization
+## Project navigation
 
-| Path | Responsibility |
-|---|---|
-| `src/alexdoor_xas/` | Runtime, action math, preparation, recording, B1 data and policies. |
-| `src/alexdoor_xas/perception/` | Shared contracts/geometry; `point2pose`, `sam3` and `diagnostics` subpackages. |
-| `scripts/`, `configs/` | Supported entry points and common runtime/experimental settings. |
-| `tests/unit`, `tests/gpu`, `tests/integration` | Checks separated by execution requirements. |
-| `datasets/doors/b1/` | Frozen corpus, canonical records and ignored prepared payloads. |
-| `knowledge/` | User-owned raw research and canonical technical wiki. |
-| `datasets/recordings/` | Local reusable recordings and policy data. |
-| `outputs/generated/`, `outputs/evidence/` | New runs and preserved results, respectively. |
-| `models/` | Entirely ignored local weights and isolated runtimes; setup lives in the wiki. |
-
-B0 workflows, numerical `phase2.v2` data APIs and standalone `v3` checkpoint loaders
-are retired; historical source remains at `097d578`. B1 formats and observation/
-action ordering are unchanged. New perception imports are documented in
-[Shared Door Perception](knowledge/wiki/topics/shared-door-perception.md#module-layout).
-
-Start at the [wiki index](knowledge/wiki/index.md),
-[architecture](knowledge/wiki/topics/system-architecture.md),
-[data contracts](knowledge/wiki/topics/episode-and-dataset-contracts.md) and
-[policy stack](knowledge/wiki/topics/learned-policy-stack.md).
+Start at the [wiki index](knowledge/wiki/index.md) and
+[architecture/workflow map](knowledge/wiki/topics/system-architecture.md).
+[Data contracts](knowledge/wiki/topics/episode-and-dataset-contracts.md) and
+[policy stack](knowledge/wiki/topics/learned-policy-stack.md) describe the maintained
+Phase 6–7 interfaces. [Datasets](datasets/README.md) and [outputs](outputs/README.md)
+own storage and recovery guidance. B0 and rejected variants are historical;
+each experiment names its Git revision and retained evidence.
 
 ## License
 
-This repository is proprietary. No license grant is provided unless a separate
-license file or written agreement states otherwise. Door assets retain their
-recorded third-party terms: 29 redistributable, two local-only and one
-private/noncommercial.
+This repository is proprietary. No license grant is provided without a separate
+license file or written agreement. Door assets retain their recorded third-party
+terms: 29 redistributable, two local-only and one private/noncommercial.

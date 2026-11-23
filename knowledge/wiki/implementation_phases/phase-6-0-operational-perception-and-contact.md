@@ -1,11 +1,6 @@
 # Phase 6.0 — Operational Perception and Observed Contact
 
-> Current boundary, October 2, 2026: 6.0A contracts and 6.0B static scans are
-> maintained. The custom dynamic/material trackers, full-state replay command and
-> SAM3 video comparison are retired. The CAD-free Point2Pose 6.0C prototype is
-> implemented but unqualified. D4-N exercises a scoped simulation path for 6.0D.
-> See [[../topics/purdue-b1-robot-and-contact#Robot feedback and observed D4 release|the observed D4 release contract]].
-> General 6.0D–H qualification remains open.
+> General 6.0D–H qualification remains open. Static scans and the CAD-free Point2Pose prototype share one persistent observed session. D3 and D4 exercise scoped contact paths in simulation. [[../experiments/observed-cycle-collection|Measured whole-cycle results]]
 
 ## Objective and current boundary
 
@@ -16,17 +11,9 @@ whole-object ownership, original-material identity and motion admission are dist
 See [[../topics/shared-door-perception|maintained interfaces]] and
 [[../experiments/b1-perception-findings|results and retirement decisions]].
 
-The current `GeometryProvider` exposes static candidates through `scan_state` and
-returns invalid `DoorEstimate` values without policy encoding; the optional
-Point2Pose adapter supplies independently supported local diagnostic zones. Persistent SAM3,
-native SAM3 stay frozen for 6.0B. Unused DINOv3 extraction is retired. No qualified release exists; the legacy
-6.1 release interfaces are retained without an early schema migration.
+The shared session supplies static candidates through `scan_state`, plus local tracking evidence when the selected material has support. SAM3 provides masks throughout tracking. Actor-side contact admission additionally requires time-aligned geometry, feedback and a supported stop. D3 and D4 use related contracts with different observed inputs. [[../topics/shared-door-perception]] · [[../topics/purdue-b1-robot-and-contact#Robot feedback and observed D4 release|Guarded D4 release]]
 
-Future work starts with the two train pilots: left `door-2738468b94d74c5f` and right
-`animated-door-1-88abf40`, each nominal/light. All 50 engineering-v2 episodes remain
-available for later train/development qualification. Use one common recipe, one
-simulator at a time and CUDA for model/simulator work. No new training, data
-collection, corpus change, sealed-test access or push belongs to this cleanup.
+The two perception pilot identities are left `door-2738468b94d74c5f` and right `animated-door-1-88abf40`, each nominal/light. All 50 engineering-v2 episodes remain available for independent train/development qualification.
 
 ## Approved operational protocol
 

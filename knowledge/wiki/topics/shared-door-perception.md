@@ -50,7 +50,7 @@ excludes asset identity, split, expert angle, phase and simulator labels.
 It validates the frozen train/development corpus, rejects test identities and uses
 one fresh Isaac CUDA process per episode. Worker failure stops admission;
 `--resume` skips only complete validated episodes. Qualification records are unchanged.
-No collection or training was started by this cleanup.
+Existing engineering recordings supply single-episode diagnostics.
 
 All 50 `datasets/recordings/b1/perception/engineering-v2` episodes remain intact, including
 calibration and metadata, for 6.0B and future common train/development qualification.
@@ -82,8 +82,8 @@ observation guard does not relax dynamic freshness or qualification error budget
 CUDA runtimes. `SessionProvider` supplies the maintained `update(sensor)`,
 `scan_state`, `static`, `last_cue`, `reset()` and local tracking interface. It
 returns invalid `DoorEstimate` objects and no policy encoding; this integration
-admits no motion. The numerical `GeometryProvider`/`CueEngine` remain useful
-geometry/event harnesses with injected cues, without an operative image-model path.
+admits no motion. Static regressions use this same session with an injected image
+worker; pure geometry regressions exercise `ScanMemory` directly.
 
 The coordinator snapshots exactly the observed sensor keys: RGB, full metric
 depth/validity, intrinsics, camera pose from the same joints/FK, frame and acquisition
@@ -180,7 +180,7 @@ Endpoint IK and a small free-space ball do not certify a continuous path or cont
 
 ## Panel tracking prototype — 6.0C
 
-`point2pose.runtime.tracking_provider` creates the shared session provider.
+`session.session_provider` creates the shared session provider.
 The original SAM3 worker stays alive when P2P initializes and throughout native
 tracking; no periodic text prompt or second segmenter is introduced. An absent
 selected ID supplies an empty mask and explicit semantic loss, even if a finite
@@ -291,7 +291,7 @@ latency includes restart startup. Old requests cannot contaminate the new sessio
 A process failure latches unavailable until reset; it is never retried for a better
 result. Original finite failures and support times remain visible.
 
-Operational replay samples four complete pilot recordings at stride three
+Operational replay samples one explicitly supplied pilot recording at stride three
 (20 Hz); full and independently observable denominators remain distinct. Live
 observer checks run in fresh Isaac processes with a parked arm. Synthetic input
 visibility faults do not validate physical occluders. Setup, execution success and
@@ -301,7 +301,8 @@ accuracy are separate from useful availability and release qualification.
 
 The [[../experiments/p2p-temporal-renewal-admission|temporal renewal diagnostic]]
 compares independent observed body/camera motion on chronological saved candidates.
-It is an evaluator-only prototype, rejected before runtime activation because
+Its historical evaluator source remains at `24a2aa7`; the rejected implementation
+and its exclusive tests are retired. It was rejected before runtime activation because
 the current waiting budget cannot separate body/static hypotheses and useful
 support is depleted. The persistent runtime and selected recipe remain unchanged.
 
@@ -310,9 +311,13 @@ serially for every original 60 Hz row, including the final observation. There is
 no replaceable queue or latency-based input selection. SAM3 starts at the first
 scheduled capture; normal initialization follows the 25 s inspection. The API
 accepts an explicit `capture_window_s`: a window starting after inspection can
-reproduce the historical 31 s seed without earlier SAM history. Execution of the
-old four-pilot/three-attempt campaign remains a separate, deliberate command;
-it has not been resumed by integration.
+reproduce the historical 31 s seed without earlier SAM history. Every recorded diagnostic requires one explicit `--episode` and starts exactly one attempt;
+smoke and static scan do not enumerate a complete dataset.
+Single inputs retain recording validity, frozen-corpus identity, non-test split
+and asset/condition checks before worker startup. No other episode is enumerated.
+The old four-recording/twelve-attempt campaign, live matrix and concurrent smoke
+alias are retired; their source remains at `24a2aa7`. No scientific acceptance
+threshold or formal qualification requirement changes.
 
 Truth motion belongs only to scoring. Seed-relative error is alignment, not
 absolute initialization/ownership accuracy. Strict initialization failure stops
@@ -332,15 +337,11 @@ coverage retains it. Startup and request/IPC/native compute latency are separate
 the 150 ms deadline never affects offline results. No local contact state is
 published and all official qualification/contact flags remain false.
 
-SIGINT closes the workers, retains the completed prefix, counts the interrupted
-request and remaining scheduled rows as unprocessed, and stops the campaign
-before another attempt. Failed processes still retain their partial results and
-continue to the other planned attempts; an explicit user interruption does not.
-Unstarted full recordings remain in the campaign's expected-frame denominator.
-Unstarted initialization windows have unknown lengths until an automatic seed
-exists. Worker constructors also close a process interrupted during startup.
-The first real campaign was stopped by the user; the retained 4–10 s drift audit
-is documented in [[../experiments/b1-perception-findings|B1 perception findings]].
+SIGINT closes the workers, retains the completed prefix and counts the interrupted
+request and remaining scheduled rows as unprocessed. It starts no further attempt.
+Failed processes retain their partial results. Worker constructors also close a
+process interrupted during startup. Historical campaign outcomes and unstarted
+slots remain in [[../experiments/b1-perception-findings|B1 perception findings]].
 
 For a bounded diagnostic, `offline_episode(..., capture_window_s=(4.0, 10.0),
 registration_diagnostics=True)` processes only that inclusive acquisition window
@@ -429,3 +430,8 @@ stationary pin versus bounded diagnostic initialization before policy dispatch,
 separates known simulation floor/FK from correspondence envelopes and verifies
 the unchanged A4 command sensitivity. No initialization motion/contact path is
 implemented.
+
+
+## Observed collection
+
+The guarded D4 collector fits current measured planar support to reprojected seed points and propagates the normal through its temporal support window. The pilot can also supply independently measured surface components for D3. Both require current material identity and a supported registration. A measured camera fit supplies geometry to the guard. Load feedback, swept volume coverage, release and stopping have separate checks. [[purdue-b1-robot-and-contact]] · [[../experiments/observed-cycle-collection]]

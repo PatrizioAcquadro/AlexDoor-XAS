@@ -80,3 +80,7 @@ surface geometry match exactly; measured availability is reported separately.
 The original comparison including wall-clock availability remains as a failed
 check beside the corrected geometry comparison. Local inventory records the
 DINOv3 and SAM3.1 metadata-directory removals and preserves their provenance.
+
+## Linked checkout relocation
+
+The November 23 integration preserved the policy-pilot and D3 evidence under their corresponding `outputs/` paths in the Desktop checkout. Machine-local files with conflicting names, the original policy-pilot patch and the exact source-to-destination map are in `worktree-local-20261123/`. Use `relocation.json` to resolve an old checkout path. For frozen protocols that embed absolute paths, make a working copy for a new run and replace only the relocated prefixes. Keep the original receipts with their acquired paths.

@@ -1,150 +1,77 @@
 # System Architecture
 
-The maintained runtime is `AlexDoor-DoorPush-Purdue-v0`: fixed-base Purdue
-Alex003, WSG32/UMI v1, measured pedestal and head ZED RGB-D. Real-door expert
-qualification has a shared executor and one common zero-yaw mounting/ready
-configuration, qualified in fresh-process pairs across the frozen 32-door corpus.
-RGB-D recording and the shared SAM3/Point2Pose coordinator are maintained;
-older custom tracking models and orchestration are retired. B1 ACT/Diffusion software has numerical/CUDA checks, while qualified
-perception and final observed-geometry physical validation remain pending.
+AlexDoor-XAS maintains the B1 Purdue manipulation software and the reusable
+components needed for A1–A4 × ACT/Diffusion. The commissioned simulator is
+`AlexDoor-DoorPush-Purdue-v0`: fixed-base Alex003, WSG32/UMI v1 and head ZED RGB-D.
+The external Alex package owns robot/camera assets and factories. No repository
+command controls physical hardware. [[../status|Status]] owns qualification state.
 
-## Runtime and Data Boundaries
+## Maintained capabilities and consumers
 
-`DoorPushPurdueEnv` owns scene composition, reset, seven-joint A1, full-pose A2
-and explicitly framed A3. The external Alex package owns robot assets, physical
-limits, mimic constraints, collision filters, pedestal and camera factories.
-The consumer adds gravity compensation; simulation truth never replaces an action.
+| Capability | Current or planned consumer | Canonical entry points |
+|---|---|---|
+| Runtime, control and sensing | Expert qualification, recording and future observed execution | `DoorPushPurdueEnv`; `scripts/verify_purdue_runtime.py`; [[purdue-b1-robot-and-contact]] |
+| Door preparation and qualification | Frozen corpus and future admitted assets | `scripts/prepare_doors.py`, `scripts/qualify_door.py`, `scripts/verify_door_preparation.py`; [[../implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]] |
+| Synthetic setup and corpus verification | Runtime regressions and source/record admission | `scripts/verify_synthetic_setup.py`, `scripts/verify_door_corpus.py`; [[../implementation_phases/phase-4-robot-and-task-configuration|Phase 4]] |
+| Environment preflight | Workstation setup and diagnostics | `scripts/check_env.py`; project README |
+| Persistent observed perception | Static inspection, serial replay, continuous publication and future provider qualification | `PerceptionSession`, `SessionProvider`, `session_provider`; [[shared-door-perception]] |
+| Explicit model/scan diagnostics | Development of perception and reading existing engineering recordings | `scripts/perception.py`; [[perception-model-setup]] |
+| Engineering recording | Reusable train/development RGB-D and future qualified demonstration acquisition | `scripts/collect_perception.py`, `B1Writer`, `ExpertRecorder`; [[episode-and-dataset-contracts]] |
+| Matched B1 data and normalization | Planned Phase 6.2 and training | `prepare_recording`, `export_dataset`, `B1Dataset`, `load_b1_data`; [[episode-and-dataset-contracts]] |
+| ACT/Diffusion and checkpoint continuation | Planned Phase 7 training and inference | Family tensor trainers, `B1Policy`; [[learned-policy-stack]], [[cluster-training]] |
+| A1–A4 execution and labeled replay | Future qualified provider integration and numerical regressions | `ActionAdapter`, `B1Observer`, `PurdueIO`, `B1Runner`, `MatchedReplay`; [[action-representations-and-adapters]] |
+| Guarded observed teacher collection | D3 material-motion research and D4 hold/release studies | `scripts/pilot_physics.py collect`, `scripts/collect_d4_observed.py`; [[../experiments/observed-cycle-collection]] |
+| Offline pilot, checkpoint evaluation and closed-loop replay | A1/A2 pilot, temporal ACT and readers for saved training runs | `scripts/pilot_offline.py`, `scripts/train_temporal_act.py`, `scripts/pilot_physics.py`; [[b1-policy-pilot]] |
+| Calibration and performance | Working-envelope and stop verification, backend selection and data-loading costs | `scripts/pilot_workspace_survey.py`, `scripts/verify_loaded_stop.py`, `scripts/verify_pilot_dynamics.py`, `scripts/analyze_loaded_stop.py`, `scripts/benchmark_temporal_pipeline.py`; [[paired-physics-benchmarks]] |
+| Independent metrics and evidence readers | Saved-result interpretation and future qualification | `perception.evaluation`, diagnostic metrics/target transport; [[../experiments/b1-perception-findings|experiment findings]] |
 
-`purdue_contacts.py` classifies raw contacts against distal-finger geometry and
-exact partner actors. Normal force, forbidden contacts and separation are
-**diagnostics**, separate from policy observations; tangential force is not measured.
+These interfaces remain maintained even when their final scientific consumer is
+planned. A test-only duplicate provider is not a second runtime: static tests
+inject the external image worker into the real session, and geometry tests use
+`ScanMemory`. The former `GeometryProvider`, `CueEngine` and `tracking_provider`
+wrapper are retired. `session_provider` is the single provider factory.
 
-`env.capture.sample` provides copied, synchronized RGB, metric optical-axis depth,
-valid-depth mask, seven-arm/two-neck proprioception, timestamps and frame IDs.
-The Gym policy tensor contains the 18 joint positions/velocities. Phase 6 owns
-image encoding, histories and the observed-only learning interface. The `perception`
-package supplies a shared persistent SAM3 inspection/tracking coordinator, isolated CUDA workers,
-reusable scientific metrics and estimator-independent contracts, alongside
-inspection/calibration support. Prior dynamic trackers are retired. See
-[[topics/shared-door-perception|Shared Door Perception]] for the maintained 6.0B,
-provider interface and qualification boundary.
+## Observation, control and evaluation boundaries
 
-See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
-[[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]].
+Captured observations contain synchronized RGB, metric optical-axis depth,
+validity, seven-arm/two-neck joint positions/velocities, camera calibration/FK,
+frame IDs and acquisition times. The environment's Gym tensor is the 18 joint
+values; B1 image/history encoding belongs to the provider/observer boundary.
+Runtime metadata, asset identity, teacher commands and evaluator door truth never
+become policy features or geometry observations.
 
-The separate B1 policy path uses a shared frozen RGB-D encoding plus current
-proprioception, explicit A1-A4 tensors, and family-specific normalization.
-`B1Runner` connects the policy or labeled matched-replay source to `PurdueIO`.
-Legacy stop monitors may read door truth; action adapters consume observed geometry.
-The maintained observed-only monitor consumes observations and robot bounds;
-simulator truth belongs only to independent evaluation. Contact force/load cannot be certified by RGB-D.
-This is independent software preparation, not a completed Phase 6.1 or generated
-policy dataset. See [[topics/learned-policy-stack|Learned Policy Stack]].
+The policy chooses an action; adapters transform it; the common controller
+executes it; the monitor can stop. Truth-based expert/evaluator and legacy stop
+diagnostics are separate. RGB-D cannot certify load, tangential force or actuator
+feedback. Observed admission requires its explicit geometry, uncertainty,
+continuous-sweep and stop/load contracts; missing bounds remain unavailable.
+See [[shared-door-perception]] and [[purdue-b1-robot-and-contact]].
 
-## Preparation and Storage
+Prepared-door geometry supplies the scripted expert's material trajectory and
+physical bounds, never learned observations. Preparation includes the task floor;
+qualification needs valid sustained hold/release independently of maximum angle.
+Promotion stages dependencies and publishes `prepared.json` last, preserving the
+candidate on failure. The frozen corpus selects recording identities but does not
+replace episode admission or train-only normalization. Detailed rules belong to
+[[../implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]].
 
-`datasets/doors/b1/corpus.json` freezes Phase 5 asset membership, geometry families,
-train/development/test assignments, setup and expert references. The numerical
-`qualification.corpus.load_corpus` validates the tracked records; the CLI
-`verify_door_corpus.py` optionally also verifies local evidence. This metadata
-selects assets for Phase 6 recording; it is separate from episode splits
-and cannot enter policy observations. See
-[[implementation_phases/phase-5-door-corpus-and-qualification|Frozen corpus]].
+## Storage and verification
 
-`scripts/prepare_doors.py` handles inspection, normalization, static/visual/isolated
-physics checks and promotion. `DoorInspectionEnv` remains necessary for this B1
-path. It does not execute the robot expert.
-Its isolated physics scene includes the task floor, so floor-binding leaves cannot
-pass solely because the hinge rotates in an otherwise empty scene. Older prepared
-records predate this check; diagnosed clearance repairs retain original payloads
-and require affected static/physics checks and a fresh expert pair.
+Tracked door records and ignored prepared payloads share `datasets/doors/b1/`.
+Engineering recordings live in `datasets/recordings/b1/`; all 50 engineering-v2
+episodes are retained. Local model weights/isolated runtimes live in ignored
+`models/`; setup belongs to [[perception-model-setup]]. New work uses
+`outputs/generated/`, durable evidence `outputs/evidence/`, and runtime/expert
+verification `~/.cache/alexdoor-xas/`. The repository storage guides own relocation,
+removal and recovery pointers. Git cannot recover removed ignored payloads.
 
-`scripts/qualify_door.py` loads a prepared door into the same Purdue environment
-and reuses the controlled probe. Prepared geometry supplies the material-point
-trajectory, local surface orientation and physical bounds; the common
-robot/controller settings stay frozen. Tool orientation follows the collidable
-surface normal at the prescribed fraction/height, with projected vertical as up.
-The executor checks initial pedestal interference, requires two valid controlled
-cycles for an expert angle, and publishes a compact result in `prepared.json`.
-The optional `--diagnostic` runs one cycle and writes cache evidence only; it
-cannot replace or publish a formal expert reference.
-It also checks the actual distal support footprints for raised leaf features
-incompatible with the prescribed pose; evidenced initial exclusions have no expert
-angle and need no unsafe dynamic pair.
-All detailed qualification evidence stays in the verification cache, never in
-learning data. The same sustained-window measurement serves synthetic and real
-doors; a valid final hold/release is required independently of the maximum angle.
-The geometry adapter accepts scalar and array collider-component tags from both
-published preparation layouts. The expert reserves local tracking margin for
-holding and follows the moving material point while removing opening lead, with
-bounded normal contact support during push/hold and tangential servo-bias compensation. The full
-holding transition completes before the last 0.5 s is assessed. Actual validity
-always uses the prescribed material point, not the compensated command. After
-valid holding, release withdraws along the fingers before rotating toward an
-achieved pose, avoiding lateral scraping against raised relief. These
-simulator-truth checks belong only to the scripted expert; they do not extend learned-policy observations. See
-[[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]] for the
-common controller and unchanged validity limits.
+B0 orchestration/data/scenes, `phase2.v2` data APIs, standalone `v3` loaders and
+rejected perception variants are retired. Historical source is available at
+`097d578` or the revision named by each experiment; obsolete launchers use that
+revision. Maintain readers needed by retained evidence, not new writers for
+retired formats. `knowledge/raw` remains user-owned.
 
-The geometric visibility diagnostic uses rendered panel/frame triangles;
-collision hulls remain authoritative only for physical contact and clearance.
-Prepared-door samples are cached in the closed frame and rotate with the leaf;
-frame samples cover the contact-height band. Triangle intersections use bounded
-ray batches while preserving all candidates and final sample selection. The depth
-test retains occlusion rejection. Saved RGB-D samples have measured camera poses/intrinsics for offline
-inspection. These geometry and camera diagnostics never become policy inputs.
-
-`qualification/contracts.py` owns shared source admission limits and geometry
-validation; preparation and verification use the same bounds. Promotion stages
-records and payloads together, preserves source-relative dependencies and writes
-`prepared.json` last. Failed publication restores the candidate for retry.
-
-Each promoted door has tracked `candidate.json`, `recipe.json`, `prepared.json`
-and local `source/` and `prepared/` payloads. Paths resolve from the door folder;
-no accepted asset depends on a temporary attempt. See
-[[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]] for the
-contract, frozen corpus, rights scopes and completed qualification.
-
-Runtime caches and verification reports belong under `~/.cache/alexdoor-xas/`.
-Door corpus records and local prepared payloads share `datasets/doors/b1/`.
-Original engineering recordings use ignored `datasets/recordings/b1/` payloads.
-New runs use `outputs/generated/`; preserved results and relocation records use
-`outputs/evidence/b1/perception/`. The entire `models/` tree is ignored;
-[[topics/perception-model-setup|model setup and requirements]] live in this wiki. All 50 engineering-v2 episodes remain;
-superseded recordings and derived caches
-were removed after preserving essential results/headers.
-
-## Reusable Algorithms
-
-Action math, B1 recording/data export, train-only normalization
-utilities and ACT/Diffusion tensor training
-remain available as components. B1 software integration is maintained; physical
-qualification awaits the shared perception provider.
-Policies consume a caller-supplied observation function; they do not read door
-truth from the simulator. See [[topics/episode-and-dataset-contracts|Data Components]]
-and [[topics/learned-policy-stack|Learned Policy Stack]].
-
-B0 calibration, manifests, generation, training/evaluation orchestration, datasets
-and D0–D4 scenes were retired. Historical conclusions remain in the wiki and
-source history in Git. The workstation GPU is authoritative for Isaac; no command
-in this repository controls physical hardware.
-
-The workstation preflight checks declared Python dependencies, CUDA, the pinned
-Isaac installation and external Alex assets. Missing or broken imports and asset
-resolution errors produce a failure summary. Ordinary Python dependencies are
-packaged; Isaac, Alex, PyTorch, Warp and CUDA remain external runtime components.
-
-## Repository verification
-
-Perception separates `point2pose`, `sam3` and `diagnostics`; shared geometry and
-contracts remain common. B1 owns the active recording/dataset/checkpoint path;
-standalone `phase2.v2`/`v3` readers are retired. Import migration is documented in
-[[topics/shared-door-perception|Shared Door Perception]].
-
-`tests/unit` runs without Isaac, model downloads or ignored payloads; numerical
-tensor checks use CPU in GitHub Actions on Python 3.11/3.12. CI also checks Ruff,
-builds wheel/sdist and imports the installed wheel outside the checkout.
-`tests/gpu` exercises models and CUDA storage, while `tests/integration` requires
-local Isaac/Alex/native resources. Shared fixtures initialize neither simulator
-nor models. Local runtime checks remain necessary; CI does not qualify physical
-execution or perception quality.
+CI checks Ruff, portable unit tests on Python 3.11/3.12, wheel/sdist construction
+and installed-wheel imports outside the checkout. Local GPU/integration checks
+cover the external runtime boundaries. The README owns commands; tests establish
+software behavior, not perception quality, hardware safety or learned success.

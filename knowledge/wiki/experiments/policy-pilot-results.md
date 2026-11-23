@@ -1,0 +1,12 @@
+# Learned policy pilots and demonstration audit
+
+| Campaign | Question and result | Evidence |
+|---|---|---|
+| A1/A2 × ACT/Diffusion, selected-v10 | All four cells executed learned commands. Across 26 attempts, 24 completed evaluations yielded **0/24 task successes**. Two external interruptions preceded policy dispatch. The strongest left/dim ACT-A1 run achieved 99.54% controlled opening and held, then failed release. | `8b9e152:knowledge/wiki/experiments/b1-end-to-end-pilot-resume.md` |
+| A1/A2, qualified-latest-v11 | Two completed failures, one interrupted attempt and 21 unallocated slots. Different frozen checkpoints and incomplete coverage preclude pooling these slots with v10. | `outputs/evidence/b1-shared-learned-pilot-20261016/` |
+| Temporal ACT-A1 | **0/22 full learned completions** in the audited campaign. The selected 61k checkpoint failed both final normal starts. Prediction metrics, a reproduced trajectory and a qualified teacher each answer a different question from learned task completion. | `outputs/evidence/act-a1-first-completion-20261022/base-final-pair-review.json` |
+| Source audit | Of 129 train sources, 15 span all phases (4/5/3/3 per door). Two were the strongest full references, five remained full-episode candidates, and eight supplied useful segments with pre-release load losses. The selected model used 114 sources. The 15 later approach/contact corrections had not been trained. | `outputs/evidence/act-a1-first-completion-20261022/recovery-guard-20261026/`; `8b9e152:knowledge/wiki/experiments/act-a1-complete-demonstration-audit.md` |
+
+The earlier 112-cell acquisition covered 96 short training scopes, eight complete training cycles and eight development controls. Coverage was scored against each declared scope. Complete-cycle collection with a new 36-condition denominator is documented in [[observed-cycle-collection]].
+
+The engineering study compared identical input information before and after frame-indexed storage. Preparing both nominal episodes retained 7,052 commands and two terminal observations, reduced prepared output from 6.06 GiB to 106.5 MiB, and took 106.25 s versus 115.80 s. Historical loader, memory, batch latency and ACT measurements, including missed targets, are recorded at `8b9e152:knowledge/wiki/experiments/b1-data-pipeline.md`. [[../topics/b1-policy-pilot|Pilot workflows]] · [[../topics/episode-and-dataset-contracts|Data contracts]]
