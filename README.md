@@ -4,11 +4,9 @@ AlexDoor-XAS is a simulation benchmark for learning to push open unfamiliar door
 
 A fixed-base Purdue Alex003 starts in front of a closed, unlatched door. It must approach the panel, push with the fingertips of its closed WSG32/UMI v1 gripper, hold the door open, then withdraw and stabilize.
 
-| Contact with the panel | Holding the door open |
-|:---:|:---:|
-| ![Head-camera view of the right gripper touching the wooden door near its closed position](.github/media/d4-contact.png) | ![The same head-camera view after the arm has extended and pushed the panel away from the frame](.github/media/d4-hold.png) |
+![Alex003’s head-camera view as its right gripper approaches the closed door, pushes it open, holds it, withdraws and settles](.github/media/alex003-qualified-teacher.gif)
 
-In this simulated teacher run, the door reached about 51° during the hold. The observations could not confirm that the fingertips separated from the panel during release, so the run did not qualify as a complete demonstration. [Experiment record](knowledge/wiki/experiments/observed-cycle-collection.md#d4-hold-release-and-safe-stop)
+**Qualified teacher demonstration, shown at 4× speed.** In training run D1-H+ (N01), Alex003 achieved 51.9° of controlled opening and held the door for three simulated seconds. Its fingertips cleared the panel by 2.9 cm at the end of release, and the arm stabilized. [Whole-cycle qualification results](knowledge/wiki/experiments/observed-cycle-collection.md#whole-cycle-training-conditions)
 
 ## What the benchmark compares
 
@@ -89,4 +87,4 @@ The same interpreter runs `tests/gpu` and `tests/integration` on the configured 
 
 ## License and asset credits
 
-The project code is proprietary. A license grant requires a separate license file or written agreement. Door assets retain their individual terms. The pictured door comes from Icevanilla’s *Low Poly PSX Style Wooden Interior Doors Pack*, adapted for closed, unlatched simulation under CC BY 4.0. [Original model](https://sketchfab.com/3d-models/low-poly-psx-style-wooden-interior-doors-pack-02e442c6d4a24df29624808d058f010a) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) · [Asset record](datasets/doors/b1/psx-interior-wood-002-02e442c/candidate.json)
+The project code is proprietary. A license grant requires a separate license file or written agreement. Door assets retain their individual terms. The demonstration uses Door 1 from Shakya Sidd’s *3 Doors with Animations*, adapted for closed, unlatched simulation under CC BY 4.0. [Original model](https://sketchfab.com/3d-models/3-doors-with-animations-88abf40577494c0c8759c9652e7749da) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) · [Asset record](datasets/doors/b1/animated-door-1-88abf40/candidate.json)
