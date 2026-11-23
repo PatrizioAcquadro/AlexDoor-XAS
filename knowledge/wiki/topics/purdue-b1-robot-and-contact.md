@@ -22,14 +22,24 @@ The factory defaults to SAKE when the end effector is omitted; select WSG explic
 
 ## Physics profile and reset
 
-Start the Purdue simulation through `scripts/isaac-run.sh`. The B1
-`collect_perception.py` and `qualify_door.py` commands select Isaac Lab's
-`SteelSolverCfg` with CUDA Graph and the Newton Warp renderer. The remaining
-Kit commands use the local Steel wheel site under
-`outputs/generated/isaac-steel-runtime/site`. Select `newton_steel` explicitly
-through `ISAAC_PHYSICS_PROFILE` to use that Kit profile for the B1 commands.
-Set `NEWTON_SITE` for a different wheel site or select `isaacsim_physx` to
-reproduce a GPU PhysX run.
+Start Purdue simulation with `scripts/isaac-run.sh`. Standard B1 collection and
+door qualification use Isaac Lab's public `NewtonCfg` and `SteelSolverCfg`
+with the Newton Warp renderer. At the pinned revision, AlexDoor sets 16
+iterations, enforces joint limits, and allocates 512 articulated constraint
+rows per world. The upstream defaults are 8 iterations, limits disabled, and
+32 rows. The solver implementation comes from Newton. [Pinned Isaac Lab configuration](https://github.com/isaac-sim/IsaacLab/blob/67fe12806afbdb8bf8e125866661dd201088a54d/source/isaaclab_newton/isaaclab_newton/physics/steel_solver_cfg.py)
+
+The guarded D4 qualification path uses the beta2 Kit runtime with RTX. Bounded
+D4 components can explicitly select `ISAAC_PHYSICS_PROFILE=newton_steel_warp`.
+They use the native Warp camera, converted assets and Isaac Lab's
+`ArticulationCfg.enable_joint_wrench` for the solved reaction forces. The
+comparison and optical limitation are in [[../experiments/observed-cycle-collection#Native Steel component comparison]].
+The beta2 adapter loads the separate Newton wheel site at
+`outputs/generated/isaac-steel-runtime/site` and provides solved joint loads and
+contact rows. Set `NEWTON_SITE` to use another matching wheel site. Pilot
+physics, workspace survey and robot-only dynamics and stop verification default
+to PhysX. Standard B1 commands can also select the Kit runtime explicitly
+with `ISAAC_PHYSICS_PROFILE=newton_steel` or `isaacsim_physx`.
 
 The first native Steel step captures the graph. Each standard environment reset
 checks the latched solver status before restoring the scene. It clears solver
@@ -38,8 +48,7 @@ snapshot while keeping the buffers used by the graph. Reset restores the robot
 and hinge state and acquires a fresh ZED sample. Capacity checks continue at
 each native contact readout, including the first step after reset.
 
-On `main`, the launcher selected Steel without overrides on the RTX 4090.
-One session passed three short D4-N push, release, and stabilization cycles
+The beta2 Steel/RTX integration on the RTX 4090 passed three short D4-N push, release, and stabilization cycles
 with Alex003, WSG32, and ZED RGB-D. One graph served 8,076 launches and
 capacity checks, including warm-up. All 1,983 cycle frames passed the ZED
 checks. The first control tick took 0.785 s at capture and 0.037–0.040 s
@@ -57,11 +66,16 @@ scripts/install-isaac-native.sh
 
 The installer fetches NVIDIA Isaac Lab at `67fe12806afbdb8bf8e125866661dd201088a54d`
 into a dedicated checkout. It applies AlexDoor's versioned lock correction
-for NumPy 2.4.6 and uses `uv sync --locked` followed by `uv pip check`.
+from NumPy 2.5.1 to 2.4.6 because the pinned Numba requires NumPy below 2.5. It uses `uv sync --locked` followed by `uv pip check`.
 Isaac Lab's lock retains Numba 0.64.0, llvmlite 0.46.0, Warp 1.17.0 and Newton
 `7f0c13af6e4dd75253709c31dc65c0edcaf22b44`. Re-run the installer to verify or
-restore the same package versions. The installer provisions the Python
-runtime. The Alex003, ZED, and prepared door assets are supplied separately.
+restore the pinned simulator packages. The installer adds the project's
+headless OpenCV wheel in a separate `opencv/` directory for the observed tracker.
+The Alex003, ZED and prepared door assets are supplied separately.
+
+Skild distributes Steel as part of Newton and documents a released package and
+a separate integration branch. AlexDoor follows the Newton revision selected
+by the pinned NVIDIA Isaac Lab checkout for its native workflows. [Steel installation guide](https://steel.skild.ai/start/installation/)
 
 The launcher uses `outputs/generated/isaac-native-runtime/.venv` by default.
 The workstation links `outputs/generated/isaac-native-runtime` to

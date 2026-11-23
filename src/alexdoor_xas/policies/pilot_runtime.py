@@ -61,9 +61,9 @@ class PilotMotionEvidence:
         self.io, self.provider, self.space = io, provider, space
         self.config = config
         self.load_calibration = load_calibration
-        self.model = RobotGeometry(io.env.robot.cfg.spawn.asset_path, ARM_JOINTS)
+        self.model = RobotGeometry(io.env.robot_urdf_path, ARM_JOINTS)
         self.self_clearance = RobotSelfClearance(self.model, BODY_FILTERS)
-        self.faces = derive_push_geometry(io.env.robot.cfg.spawn.asset_path).contact_covers()
+        self.faces = derive_push_geometry(io.env.robot_urdf_path).contact_covers()
         self.background_mode = config.get("background_recording_groups") is not None
         self.workspace = (
             ObservedBackground.from_recording_groups(
@@ -1133,9 +1133,9 @@ def observed_pilot_runtime(
         env.stop_response = CausalResidualStopController(load_calibration)
     else:
         env.stop_response = None
-    robot = RobotGeometry(env.robot.cfg.spawn.asset_path, ARM_JOINTS)
-    fk = PurdueFK(env.robot.cfg.spawn.asset_path, str(env.device))
-    faces = derive_push_geometry(env.robot.cfg.spawn.asset_path).contact_covers()
+    robot = RobotGeometry(env.robot_urdf_path, ARM_JOINTS)
+    fk = PurdueFK(env.robot_urdf_path, str(env.device))
+    faces = derive_push_geometry(env.robot_urdf_path).contact_covers()
 
     def exclude_robot(sensor, raw):
         if float(sensor["time_s"]) != float(env.capture.sample.time_s):

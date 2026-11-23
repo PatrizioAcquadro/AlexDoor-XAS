@@ -131,10 +131,19 @@ class DoorPushPurdueEnv(DirectRLEnv):
             self._native_contacts = NativeSteelPurdueViews(self.sim, self.panel_path)
         self.arm_ids = self._resolve_joints(ARM_JOINTS)
         self.steel_joint_load = None
-        if self._steel and cfg.observed_load_feedback:
+        if cfg.observed_load_feedback and (cfg.native_steel or self._steel):
             from isaac_physics_profile.feedback import SteelJointLoad
 
-            self.steel_joint_load = SteelJointLoad(self.sim.physics_manager, self.robot.data)
+            if cfg.native_steel:
+                backend = self.sim.backend_manager.backend
+                self.steel_joint_load = SteelJointLoad(
+                    self.robot, lambda: backend.state_0, lambda: backend.state_0.body_parent_f
+                )
+            else:
+                manager = self.sim.physics_manager
+                self.steel_joint_load = SteelJointLoad(
+                    self.robot, lambda: manager._state_0, lambda: manager.observables.body_parent_f
+                )
         self.neck_ids = self._resolve_joints(NECK_JOINTS)
         self.observed_ids = self.arm_ids + self.neck_ids
         self.targets = tensor(self.robot.data.default_joint_pos).clone()
@@ -208,12 +217,10 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 self._posture_passive_damping[names.index(follower)] = damping
             self._posture_stiffness = torch.zeros_like(self._posture_passive_damping)
             self._posture_damping = torch.zeros_like(self._posture_passive_damping)
-            for actuator in self.robot.actuators.values():
-                for column, name in enumerate(actuator.joint_names):
-                    self._posture_stiffness[names.index(name)] = tensor(actuator.stiffness)[
-                        0, column
-                    ]
-                    self._posture_damping[names.index(name)] = tensor(actuator.damping)[0, column]
+            for group, stiffness, damping in self.robot_motion_gains():
+                indices = [names.index(name) for name in group]
+                self._posture_stiffness[indices] = stiffness[0].to(torch.float64)
+                self._posture_damping[indices] = damping[0].to(torch.float64)
         self.velocities = tensor(self.robot.data.joint_vel_limits)[:, self.arm_ids].clone()
         # Target-rate clipping alone permits tracking overshoot: the pilot
         # measured 0.5183 rad/s under a 0.5 rad/s reference. Retain 10% reference
@@ -250,6 +257,22 @@ class DoorPushPurdueEnv(DirectRLEnv):
             from alexdoor_xas.kinematics.held_surface import HeldSurfaceController
 
             self._held_surface = HeldSurfaceController(self)
+
+    def robot_motion_gains(self):
+        """Yield the live PD gains in each actuator group's joint order."""
+        if self.cfg.native_steel:
+            from isaaclab.actuators.newton import read_group_parameter
+
+            for group, cfg in self.robot.cfg.actuators.items():
+                _, names = self.robot.find_joints(cfg.joint_names_expr)
+                yield (
+                    names,
+                    read_group_parameter(self.robot.actuators, group, "drive", "kp"),
+                    read_group_parameter(self.robot.actuators, group, "drive", "kd"),
+                )
+        else:
+            for actuator in self.robot.actuators.values():
+                yield actuator.joint_names, tensor(actuator.stiffness), tensor(actuator.damping)
 
     def _resolve_joints(self, names):
         indices, found = self.robot.find_joints(list(names), preserve_order=True)
@@ -301,6 +324,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
         )
         schemas.activate_contact_sensors(PEDESTAL)
         if self.cfg.observed_load_feedback:
+            if self.cfg.native_steel:
+                robot_cfg.enable_joint_wrench = True
             # Task-local impedance; keep the shared Alex package and physical limits intact.
             # At the ready pose, 4 N reflects about 1.7/0.7/0.7/0.22 N m into
             # shoulder Y/Z, elbow and terminal Y. Allocate about 0.005 rad static
@@ -311,11 +336,15 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 ("damping", (8.0, 8.0, 4.0, 4.0, 1.0, 1.0, 1.0)),
             ):
                 original = getattr(arm, key)
-                values = {
-                    f"{side}_{pattern.removeprefix('.*')}": value
-                    for side in ("LEFT", "RIGHT")
-                    for pattern, value in original.items()
-                }
+                values = (
+                    original.copy()
+                    if self.cfg.native_steel
+                    else {
+                        f"{side}_{pattern.removeprefix('.*')}": value
+                        for side in ("LEFT", "RIGHT")
+                        for pattern, value in original.items()
+                    }
+                )
                 values.update(zip(ARM_JOINTS, selected, strict=True))
                 setattr(arm, key, values)
         robot_cfg.prim_path = ROBOT

@@ -17,6 +17,27 @@ def native_selected():
     return os.environ.get("ISAAC_PHYSICS_PROFILE") == NATIVE_PROFILE
 
 
+def launch_native_steel(cfg):
+    """Configure the Purdue scene using the pinned Isaac Lab solver and renderer."""
+    from isaaclab.app import launch_simulation
+    from isaaclab_newton.physics import NewtonCfg, SteelSolverCfg
+    from isaaclab_newton.renderers import NewtonWarpRendererCfg
+
+    cfg.physics_profile = None
+    cfg.native_steel = True
+    cfg.urdf_cache_dir = cfg.urdf_cache_dir or os.environ["ALEXDOOR_USD_CACHE"]
+    cfg.sim.physics = NewtonCfg(
+        solver_cfg=SteelSolverCfg(
+            iterations=16, enable_joint_limits=True, articulation_constraint_max=512
+        ),
+        use_cuda_graph=True,
+    )
+    return launch_simulation(
+        (cfg, NewtonWarpRendererCfg()),
+        {"headless": True, "device": cfg.sim.device, "visualizer": "none"},
+    )
+
+
 def load_probe(folder, record, setup_path, diagnostic_path, *, seed=None):
     recipe = json.loads((folder / "recipe.json").read_text())
     setup_values = json.loads(setup_path.read_text())
@@ -45,24 +66,8 @@ def launch_b1(door, setup, args, *, stop=None, pitch=0.0, substeps=None, seed=No
     """Create the same Purdue environment with the selected launcher and renderer."""
     native = native_selected()
     if native:
-        from isaaclab.app import launch_simulation
-        from isaaclab_newton.physics import NewtonCfg, SteelSolverCfg
-        from isaaclab_newton.renderers import NewtonWarpRendererCfg
-
         cfg = probe_config(door, setup, args.device)
-        cfg.physics_profile = None
-        cfg.native_steel = True
-        cfg.urdf_cache_dir = os.environ["ALEXDOOR_USD_CACHE"]
-        cfg.sim.physics = NewtonCfg(
-            solver_cfg=SteelSolverCfg(
-                iterations=16, enable_joint_limits=True, articulation_constraint_max=512
-            ),
-            use_cuda_graph=True,
-        )
-        runtime = launch_simulation(
-            (cfg, NewtonWarpRendererCfg()),
-            {"headless": True, "device": args.device, "visualizer": "none"},
-        )
+        runtime = launch_native_steel(cfg)
     else:
         from isaaclab.app import AppLauncher
 

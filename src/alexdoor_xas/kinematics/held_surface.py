@@ -298,7 +298,7 @@ class HeldSurfaceController:
         from isaaclab.utils.math import matrix_from_quat
 
         self.env, self.rotation = env, matrix_from_quat
-        self.chain = PurdueChain(env.robot.cfg.spawn.asset_path, env.device, dtype=torch.float64)
+        self.chain = PurdueChain(env.robot_urdf_path, env.device, dtype=torch.float64)
         geometry = env.push_geometry
         self.vertices = self.tensor(
             np.unique(
@@ -308,7 +308,7 @@ class HeldSurfaceController:
         )
         names = list(env.robot.joint_names)
         mimic = {}
-        for joint in ET.parse(env.robot.cfg.spawn.asset_path).getroot().findall("joint"):
+        for joint in ET.parse(env.robot_urdf_path).getroot().findall("joint"):
             relation = joint.find("mimic")
             if relation is not None:
                 mimic[joint.get("name")] = (
@@ -325,10 +325,10 @@ class HeldSurfaceController:
             self.passive[i] = damping
         self.stiffness = torch.zeros_like(self.passive)
         self.damping = torch.zeros_like(self.passive)
-        for actuator in env.robot.actuators.values():
-            indices = [names.index(name) for name in actuator.joint_names]
-            self.stiffness[indices] = self.tensor(actuator.stiffness)[0]
-            self.damping[indices] = self.tensor(actuator.damping)[0]
+        for group, stiffness, damping in env.robot_motion_gains():
+            indices = [names.index(name) for name in group]
+            self.stiffness[indices] = self.tensor(stiffness)[0]
+            self.damping[indices] = self.tensor(damping)[0]
         if env.cfg.decimation != 4 or self.basis.shape != (20, 18):
             raise ValueError("held_surface_requires_four_substeps_and_purdue_mimic")
         self.previous = None

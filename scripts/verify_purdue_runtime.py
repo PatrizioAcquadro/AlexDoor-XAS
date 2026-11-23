@@ -126,7 +126,7 @@ def contact_trial(env, name, goal, half_depth, side=False):
 
 
 def check_jacobian(env):
-    root = ET.parse(env.robot.cfg.spawn.asset_path).getroot()
+    root = ET.parse(env.robot_urdf_path).getroot()
     parents = {j.find("child").get("link"): j for j in root.findall("joint")}
     values = dict(
         zip(env.robot.joint_names, tensor(env.robot.data.joint_pos)[0].tolist(), strict=True)

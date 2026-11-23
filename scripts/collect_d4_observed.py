@@ -8,12 +8,14 @@ import os
 import resource
 import sys
 import traceback
+from contextlib import ExitStack
 from pathlib import Path
 from time import perf_counter
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
+from alexdoor_xas.qualification.b1_runtime import native_selected  # noqa: E402
 from alexdoor_xas.qualification.interruption import (  # noqa: E402
     CollectionBudgetExceeded,
     install_interruption,
@@ -87,6 +89,12 @@ def screen_initial_state(env, door, setup, output):
     # This detached diagnostic stop never enters the recorded teacher history.
 
 
+def graph_active(env):
+    if env.cfg.native_steel:
+        return bool(env.sim.backend_manager.backend.graphs)
+    return env.sim.physics_manager._graph is not None
+
+
 def main():
     from alexdoor_xas.perception.evaluation import write_json
 
@@ -128,18 +136,22 @@ def main():
         parser.error("Use the observed Steel recipe without PhysX solver overrides")
     if not component and not protocol.get("demonstration_qualification_allowed"):
         parser.error("The protocol does not declare an ordinary full-cycle attempt")
+    native = native_selected()
+    if native and not component:
+        parser.error("The native Warp D4 path supports component diagnostics only")
     args.output.mkdir(parents=True, exist_ok=False)
-    from isaaclab.app import AppLauncher
-
     started = perf_counter()
-    app = AppLauncher(
-        headless=True, enable_cameras=True, device="cuda:0", width=1280, height=720
-    ).app
-    env = None
+    runtime = ExitStack()
     try:
+        if not native:
+            from isaaclab.app import AppLauncher
+
+            app = AppLauncher(
+                headless=True, enable_cameras=True, device="cuda:0", width=1280, height=720
+            ).app
+            runtime.callback(app.close)
         import torch
 
-        from alexdoor_xas.envs.door_task.door_push_purdue_env import DoorPushPurdueEnv
         from alexdoor_xas.perception.inspection import acquisition_inspection, load_inspection
         from alexdoor_xas.qualification.collection_dynamics import active_door_dynamics
         from alexdoor_xas.qualification.door_geometry import PreparedDoor
@@ -148,9 +160,8 @@ def main():
         from alexdoor_xas.simulation_profile import DEFAULT_PHYSICS_PROFILE
         from isaac_physics_profile import STEEL, selected_profile
 
-        if (
-            not torch.cuda.is_available()
-            or selected_profile(default=DEFAULT_PHYSICS_PROFILE) != STEEL
+        if not torch.cuda.is_available() or (
+            not native and selected_profile(default=DEFAULT_PHYSICS_PROFILE) != STEEL
         ):
             raise RuntimeError("Observed D4-N requires CUDA and the Newton Steel profile")
         inspection = acquisition_inspection(
@@ -182,13 +193,24 @@ def main():
         cfg.pose_finite_tangent_impedance = recipe.get("pose_finite_tangent_impedance", False)
         cfg.stop_diagnostic_continuation_s = float(recipe["stop_diagnostic_continuation_s"])
         configure_physics_substeps(cfg, recipe["physics_substeps"])
+        if native:
+            from alexdoor_xas.qualification.b1_runtime import launch_native_steel
+
+            runtime.enter_context(launch_native_steel(cfg))
+        from alexdoor_xas.envs.door_task.door_push_purdue_env import DoorPushPurdueEnv
+
         env = DoorPushPurdueEnv(cfg)
+        runtime.callback(env.close)
         env.reset()
         write_json(
             args.output / "runtime.json",
             dict(
-                backend=STEEL,
-                solver=type(env.sim.physics_manager._solver).__name__,
+                backend=os.environ.get("ISAAC_PHYSICS_PROFILE", STEEL),
+                solver=type(
+                    env.sim.backend_manager.backend.solver
+                    if native
+                    else env.sim.physics_manager._solver
+                ).__name__,
                 gpu=torch.cuda.get_device_name(),
                 cuda_visible_devices=os.environ.get("CUDA_VISIBLE_DEVICES"),
                 graph_requested=cfg.sim.physics.use_cuda_graph,
@@ -204,7 +226,7 @@ def main():
         result["component_only"] = component
         result["wall_s"] = perf_counter() - started
         result["peak_rss_kib"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        result["graph_active"] = env.sim.physics_manager._graph is not None
+        result["graph_active"] = graph_active(env)
         admission_path = args.output / "operational/operational-admission.jsonl"
         if admission_path.exists():
             with admission_path.open() as stream:
@@ -224,9 +246,7 @@ def main():
         )
         raise
     finally:
-        if env is not None:
-            env.close()
-        app.close()
+        runtime.close()
 
 
 def collect(args, env, door, setup, recipe, episode, inspection, required_opening):
@@ -257,11 +277,11 @@ def collect(args, env, door, setup, recipe, episode, inspection, required_openin
         raise ValueError("unsupported_prescribed_contact_geometry")
 
     screen_initial_state(env, door, setup, args.output)
-    if env.sim.physics_manager._graph is None:
+    if not graph_active(env):
         raise RuntimeError("Steel CUDA Graph was not captured during initial screening")
     robot = RobotAssetRef(
         "purdue_alex003_full_convex_wsg32_umi_v1",
-        hashlib.sha256(Path(env.robot.cfg.spawn.asset_path).read_bytes()).hexdigest(),
+        hashlib.sha256(env.robot_urdf_path.read_bytes()).hexdigest(),
     )
     metadata = dict(
         asset_id=episode["asset_id"],

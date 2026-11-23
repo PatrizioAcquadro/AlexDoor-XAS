@@ -1,6 +1,6 @@
 # Project status
 
-AlexDoor-XAS runs fixed-base Purdue Alex003 door manipulation in simulation. The frozen B1 corpus contains 32 qualified doors across 12 families, split into 19 training, six development and seven sealed test identities. Standard engineering collection and door qualification use native Steel/Warp. The guarded D4 collector uses Isaac Lab Newton Steel with RTX RGB-D. The source checkout also supports recorded perception diagnostics, observed teacher collection, dataset preparation, ACT/Diffusion training, checkpoint replay and evaluation. [[topics/system-architecture|Workflows and consumers]]
+AlexDoor-XAS runs fixed-base Purdue Alex003 door manipulation in simulation. The frozen B1 corpus contains 32 qualified doors across 12 families, split into 19 training, six development and seven sealed test identities. Standard engineering collection and door qualification use native Steel/Warp. Full D4 attempts use guarded beta2 Steel with RTX RGB-D. Bounded D4 components can also use native Steel/Warp. The source checkout also supports recorded perception diagnostics, observed teacher collection, dataset preparation, ACT/Diffusion training, checkpoint replay and evaluation. [[topics/system-architecture|Workflows and consumers]]
 
 | Question | Measured outcome |
 |---|---|

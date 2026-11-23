@@ -371,13 +371,13 @@ def main(argv=None):
     intensity.Set(base_intensity * lighting_scale)
     robot = RobotAssetRef(
         "purdue_alex003_full_convex_wsg32_umi_v1",
-        hashlib.sha256(Path(env.robot.cfg.spawn.asset_path).read_bytes()).hexdigest(),
+        hashlib.sha256(env.robot_urdf_path.read_bytes()).hexdigest(),
     )
     write_json(
         args.output / "runtime.json",
         dict(
             robot_asset=robot.to_dict(),
-            urdf=env.robot.cfg.spawn.asset_path,
+            urdf=str(env.robot_urdf_path),
             device=torch.cuda.get_device_name(),
             setup=setup.to_dict(),
             setup_path=str(setup_path.resolve()),
@@ -771,7 +771,7 @@ def replay(env, args, protocol):
     from alexdoor_xas.recording.b1_runtime import array
 
     env.reset()
-    fk = PurdueFK(env.robot.cfg.spawn.asset_path)
+    fk = PurdueFK(env.robot_urdf_path)
     costs, rows = [], []
     failure = None
     with h5py.File(args.recording) as source:

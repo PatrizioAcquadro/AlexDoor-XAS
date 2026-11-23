@@ -212,7 +212,7 @@ class PurdueIO:
         self.calibration = camera_calibration(env)
         if self.calibration["joint_names"] != list(ARM_JOINTS + NECK_JOINTS):
             raise ValueError("Runtime joint order differs")
-        self.tool_fk = PurdueFK(env.robot.cfg.spawn.asset_path, str(env.device))
+        self.tool_fk = PurdueFK(env.robot_urdf_path, str(env.device))
         if observed_provider is None:
             self.safety = PurdueSafety(env, env.cfg.prepared_door, setup)
         else:

@@ -53,10 +53,18 @@ def active_door_dynamics(env):
     """Read active body mass, inertia and runtime actuator damping."""
     from alexdoor_xas.recording.b1_runtime import array
 
+    joint_damping = array(env.door.data.joint_damping)
+    if env.cfg.native_steel:
+        # The door uses an implicit hinge drive. Its damping is in the joint model.
+        actuator_damping = {
+            "hinge": joint_damping[:, [env.door.joint_names.index("Hinge")]].tolist()
+        }
+    else:
+        actuator_damping = {k: array(v.damping).tolist() for k, v in env.door.actuators.items()}
     return dict(
         body_names=list(env.door.body_names),
         mass_kg=array(env.door.data.body_mass).tolist(),
         inertia_kg_m2=array(env.door.data.body_inertia).tolist(),
-        joint_damping=array(env.door.data.joint_damping).tolist(),
-        actuator_damping={k: array(v.damping).tolist() for k, v in env.door.actuators.items()},
+        joint_damping=joint_damping.tolist(),
+        actuator_damping=actuator_damping,
     )

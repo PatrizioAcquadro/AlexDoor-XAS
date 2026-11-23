@@ -125,9 +125,7 @@ class TemporalExpertRecorder(ExpertRecorder):
         # native force mean and pressure-feedback branch for the retained prefix.
         self.trace_log = self.path.with_name("teacher-trace.jsonl").open("x")
         self._state()
-        annotate_native_units(
-            self.writer.file, env.robot.cfg.spawn.asset_path, env.robot.joint_names
-        )
+        annotate_native_units(self.writer.file, env.robot_urdf_path, env.robot.joint_names)
         self._feedback(env.load_samples[-1])
         env.event_sink = self._event
 
@@ -264,9 +262,7 @@ class TemporalExpertRecorder(ExpertRecorder):
                 effort_target_nm=array(env.robot.data.joint_effort_target)[0],
             )
             if self.command_count == 0:
-                annotate_native_units(
-                    self.writer.file, env.robot.cfg.spawn.asset_path, env.robot.joint_names
-                )
+                annotate_native_units(self.writer.file, env.robot_urdf_path, env.robot.joint_names)
             self._append("target", applied, t, t)
             self.command_count += 1
             if self.interrupt_after_commands == self.command_count:
