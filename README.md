@@ -1,109 +1,92 @@
 # AlexDoor-XAS
 
-AlexDoor-XAS studies action representation in contact-rich humanoid manipulation:
-**A1–A4 × ACT/Diffusion** on held-out push doors, using fixed-base Purdue Alex003,
-WSG32/UMI v1 and head ZED RGB-D.
+AlexDoor-XAS is a simulation benchmark for learning to push open unfamiliar doors. Does a policy generalize better when it commands the robot’s joints, moves the tool through space, or describes motion relative to the door?
 
-The maintained workflows cover door qualification, observed teacher collection, recorded perception diagnostics and learned-policy training, replay and evaluation. The final matched A1–A4 comparison remains open. The [project status](knowledge/wiki/status.md) distinguishes teacher qualification, learned completions and safety-stop outcomes.
+A fixed-base Purdue Alex003 starts in front of a closed, unlatched door. It must approach the panel, push with the fingertips of its closed WSG32/UMI v1 gripper, hold the door open, then withdraw and stabilize.
 
-## Installation
+| Contact with the panel | Holding the door open |
+|:---:|:---:|
+| ![Head-camera view of the right gripper touching the wooden door near its closed position](.github/media/d4-contact.png) | ![The same head-camera view after the arm has extended and pushed the panel away from the frame](.github/media/d4-hold.png) |
 
-Use Python 3.11+. The workstation supplies Isaac Sim 6.0.1, Isaac Lab
-`release/3.0.0-beta2`, the external Alex package, PyTorch, Warp and CUDA.
-Ordinary dependencies and optional development/diffusion tools are declared in
-[pyproject.toml](pyproject.toml).
+In this simulated teacher run, the door reached about 51° during the hold. The observations could not confirm that the fingertips separated from the panel during release, so the run did not qualify as a complete demonstration. [Experiment record](knowledge/wiki/experiments/observed-cycle-collection.md#d4-hold-release-and-safe-stop)
 
-```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e /home/pacquadr/Desktop/Alex
-/home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e '.[dev,diffusion]'
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/check_env.py
-```
+## What the benchmark compares
 
-Robot/camera assets come from Alex; prepared doors, recordings and model weights
-remain local. Perception uses isolated workers: follow
-[model setup](knowledge/wiki/topics/perception-model-setup.md).
-Repository scripts/configs run from the source checkout; the wheel supplies the
-Python package. [Cluster training](knowledge/wiki/topics/cluster-training.md)
-describes separate A100/H100 deployment boundaries.
+The study pairs four ways to command the arm with two imitation-learning methods, **Action Chunking with Transformers (ACT)** and **Diffusion Policy**. The comparison holds the demonstrations, training budget and observation history fixed across all eight pairings. [ACT](https://tonyzhaozh.github.io/aloha/) · [Diffusion Policy](https://diffusion-policy.cs.columbia.edu/)
 
-## Verification and diagnostics
-
-```bash
-ruff check src scripts tests
-ruff format --check src scripts tests
-/home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q tests/unit
-/home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q tests/gpu
-/home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q tests/integration
-```
-
-[CI](.github/workflows/ci.yml) checks lint/format, Python 3.11/3.12 unit tests,
-wheel/sdist builds and installed-wheel imports. Unit tests need no Isaac launch,
-model downloads or local payloads; numerical tensor contracts use CPU in CI.
-GPU/integration checks require the corresponding local runtimes. A green CI
-establishes software behavior, not simulator, perception or physical qualification.
-
-## Run the simulator
-
-Run from the checkout on the RTX workstation. The launcher selects the physics implementation by entry point.
-
-| Entry point | Default runtime |
+| Action space | What the policy commands |
 |---|---|
-| `collect_perception.py`, `qualify_door.py` | Native Steel/Warp (`newton_steel_warp`) in the dedicated native environment |
-| `collect_d4_observed.py` | Native Steel/OVRTX (`newton_steel_native`) in the same native environment |
-| Pilot physics, workspace and stop probes, live perception, and synthetic commissioning | Isaac Sim PhysX (`isaacsim_physx`) on the Kit workstation stack |
+| **A1 · Joint motion** | A change in target angle for each of the seven right-arm joints. |
+| **A2 · Tool motion in the world** | A change in fingertip tool position and orientation, expressed in world coordinates. Inverse kinematics maps it to joint commands. |
+| **A3 · Tool motion relative to the hinge** | The same six components as A2, expressed in an estimated frame fixed at the hinge. |
+| **A4 · Motion with the panel** | A sequence of approach, contact, push, hold and release segments. Each specifies a tool pose in the moving panel frame, a change in opening angle and a duration. |
 
-For standard collection and qualification, install the native runtime and converted assets as described in the [Purdue runtime guide](knowledge/wiki/topics/purdue-b1-robot-and-contact.md#install-the-native-b1-runtime). These bounded commands exercise the 4° fixture and write diagnostic results.
+Each policy receives head-mounted ZED X Mini RGB and depth images, a depth-validity mask, and arm and neck joint measurements. It must infer the door’s motion from these observations. The evaluator can read the simulated door angle and scores sustained opening against an expert reference for each door and condition, subject to contact and release requirements. [Action definitions](knowledge/wiki/topics/action-representations-and-adapters.md) · [Evaluation protocol](knowledge/wiki/implementation_phases/phase-7-training-and-generalization-evaluation.md)
 
-```bash
-asset=psx-interior-wood-002-02e442c
-fixture=configs/purdue_b1_bounded_diagnostic.json
-scripts/isaac-run.sh scripts/collect_perception.py --asset-id "$asset" --condition light \
-  --bounded-diagnostic "$fixture" --output outputs/generated/native-collection-check
-scripts/isaac-run.sh scripts/qualify_door.py --asset-id "$asset" --condition nominal \
-  --bounded-diagnostic "$fixture" --diagnostic --output-root outputs/generated/native-evaluation-check
-```
+## Results so far
 
-For a native D4-N attempt, supply the protocol, setup and operational recipe from the same reviewed run. Resolve historical asset paths in a working copy of the recipe using the [evidence storage guide](outputs/evidence/README.md).
+| Experiment | Measured outcome |
+|---|---|
+| Door qualification | **32 doors across 12 families** have simulated expert references. Whole families stay in one split, giving 19 training doors, six development doors and seven sealed test doors. [Corpus manifest](datasets/doors/b1/corpus.json) |
+| Teacher acting from observations | **17 of 36 training conditions qualified** for a complete cycle. Four doors had nine conditions each. D1 qualified in eight, D2 in all nine, and D3 and D4 in none. [Collection results](knowledge/wiki/experiments/observed-cycle-collection.md) |
+| Learned control | The audited **temporal ACT-A1** campaign recorded **0 full completions in 22 attempts**. An earlier, separate A1/A2 pilot using both model families recorded **0 successes in 24 completed evaluations**. [Policy pilot results](knowledge/wiki/experiments/policy-pilot-results.md) |
 
-```bash
-scripts/isaac-run.sh scripts/collect_d4_observed.py --protocol "$protocol" \
-  --setup "$setup" --operational-recipe "$recipe" --record-tracker-stream --output "$fresh_output"
-```
+The full eight-way comparison is pending. It requires validated door geometry for A3 and A4 and a matched demonstration dataset. The test doors remain sealed, and physical robot execution is unqualified. [Project status](knowledge/wiki/status.md)
 
-For a short interruption and stop check, add `--component-max-sim-s 0.1`. Bounded components can also select `ISAAC_PHYSICS_PROFILE=newton_steel_warp`. With OVRTX, allow several minutes for a cold first frame and follow shader compilation in the run’s `ovrtx.log`. The [D4 experiment record](knowledge/wiki/experiments/observed-cycle-collection.md#native-ovrtx-d4-n) gives the observed results.
+## Try it from a clone
 
-Run the corpus and synthetic runtime checks separately.
+The quickest check verifies the tracked door records and their split. It needs Python 3.11+ and NumPy. Run it from the repository root.
 
 ```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py
-scripts/isaac-run.sh scripts/verify_purdue_runtime.py --viz none --device cuda:0
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install 'numpy>=1.24'
+python scripts/verify_door_corpus.py
 ```
 
-Every recorded perception diagnostic uses one explicit pilot episode and fresh output:
+The command prints JSON with `"status": "pass"`, `"doors": 32` and `"scope": "tracked_records_only"`. Simulator runs also need the local robot, camera and prepared door assets. Recordings and model weights are stored separately. [Dataset layout](datasets/README.md)
+
+## Run a simulator diagnostic
+
+On the RTX workstation, standard collection and door qualification use native Newton Steel physics with the Warp renderer. The D4 observed collector uses Steel with OVRTX. Pilot physics, live perception and synthetic commissioning use Isaac Sim 6.0.1 with PhysX and Isaac Lab `release/3.0.0-beta2`. The launcher chooses the runtime by script. [Runtime and asset setup](knowledge/wiki/topics/purdue-b1-robot-and-contact.md#install-the-native-b1-runtime)
+
+With the native runtime and converted assets installed, run the two-cycle check on the 4° fixture.
 
 ```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke \
-  --episode /absolute/path/to/pilot/nominal/episode.hdf5 \
-  --output outputs/generated/b1/perception/NEW_SMOKE
+scripts/isaac-run.sh scripts/qualify_door.py \
+  --asset-id psx-interior-wood-002-02e442c --condition nominal \
+  --diagnostic --bounded-diagnostic configs/purdue_b1_bounded_diagnostic.json \
+  --output-root outputs/generated/native-evaluation-check
 ```
 
-[Supported diagnostics](knowledge/wiki/topics/perception-model-setup.md#supported-diagnostics)
-cover static scan, P2P smoke, replay, offline evaluation and operational timing.
-Live diagnostics require `--asset` and `--case`, with no recording dependency.
-Each invocation starts one attempt; diagnostic completion never admits motion.
+Look for `report.json` in the timestamped results directory printed by the command. A passing diagnostic exits with code 0 and reports `out_of_domain` because the fixture limits travel to 4°, below the 45° door qualification threshold. [Fixture and recording commands](knowledge/wiki/topics/purdue-b1-robot-and-contact.md#repeat-the-bounded-b1-diagnostic)
 
-## Project navigation
+<details>
+<summary>Install the project and run tests on the Isaac Sim / PhysX workstation</summary>
 
-Start at the [wiki index](knowledge/wiki/index.md) and
-[architecture/workflow map](knowledge/wiki/topics/system-architecture.md).
-[Data contracts](knowledge/wiki/topics/episode-and-dataset-contracts.md) and
-[policy stack](knowledge/wiki/topics/learned-policy-stack.md) describe the maintained
-Phase 6–7 interfaces. [Datasets](datasets/README.md) and [outputs](outputs/README.md)
-own storage and recovery guidance. B0 and rejected variants are historical;
-each experiment names its Git revision and retained evidence.
+Use the interpreter supplied by Isaac Lab and the external Alex checkout that provides the robot and camera assets.
 
-## License
+```bash
+lab="$HOME/IsaacLab/isaaclab.sh"
+"$lab" -p -m pip install -e "$HOME/Desktop/Alex"
+"$lab" -p -m pip install -e '.[dev,diffusion]'
+"$lab" -p scripts/check_env.py
+"$lab" -p -m pytest -q tests/unit
+```
 
-This repository is proprietary. No license grant is provided without a separate
-license file or written agreement. Door assets retain their recorded third-party
-terms: 29 redistributable, two local-only and one private/noncommercial.
+The same interpreter runs `tests/gpu` and `tests/integration` on the configured workstation. CI covers linting, packaging and unit tests on Python 3.11 and 3.12. [CI workflow](.github/workflows/ci.yml)
+
+</details>
+
+## Work with the project
+
+| Goal | Start here |
+|---|---|
+| Record a simulation episode | [Standard RGB-D collection](scripts/collect_perception.py) · [D4 observed collection](scripts/collect_d4_observed.py) |
+| Inspect a recording or diagnose perception | [Perception setup and commands](knowledge/wiki/topics/perception-model-setup.md#supported-diagnostics) · [Episode format](knowledge/wiki/topics/episode-and-dataset-contracts.md) |
+| Train a pilot, replay a checkpoint or run a closed-loop evaluation | [Pilot commands](knowledge/wiki/topics/b1-policy-pilot.md) · [Cluster training](knowledge/wiki/topics/cluster-training.md) |
+| Navigate the code or locate a result | [Architecture and entry points](knowledge/wiki/topics/system-architecture.md) · [Output and evidence storage](outputs/README.md) · [Wiki index](knowledge/wiki/index.md) |
+
+## License and asset credits
+
+The project code is proprietary. A license grant requires a separate license file or written agreement. Door assets retain their individual terms. The pictured door comes from Icevanilla’s *Low Poly PSX Style Wooden Interior Doors Pack*, adapted for closed, unlatched simulation under CC BY 4.0. [Original model](https://sketchfab.com/3d-models/low-poly-psx-style-wooden-interior-doors-pack-02e442c6d4a24df29624808d058f010a) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) · [Asset record](datasets/doors/b1/psx-interior-wood-002-02e442c/candidate.json)
