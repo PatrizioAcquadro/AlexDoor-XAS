@@ -84,3 +84,19 @@ DINOv3 and SAM3.1 metadata-directory removals and preserves their provenance.
 ## Linked checkout relocation
 
 The November 23 integration preserved the policy-pilot and D3 evidence under their corresponding `outputs/` paths in the Desktop checkout. Machine-local files with conflicting names, the original policy-pilot patch and the exact source-to-destination map are in `worktree-local-20261123/`. Use `relocation.json` to resolve an old checkout path. For frozen protocols that embed absolute paths, make a working copy for a new run and replace only the relocated prefixes. Keep the original receipts with their acquired paths.
+
+## ACT evidence on workstation DATA
+
+Mount `/media/pacquadr/DATA` to use the completed ACT results. The checkout's
+`act-a1-complete-cycle-20261026/remote-results/` link points to
+`/media/pacquadr/DATA/AlexDoor-XAS/evidence/act-a1-complete-cycle-20261026/remote-results/`.
+The original host and run names are preserved. The
+[storage report](../generated/storage-reclaim-20261123/REPORT.md) lists the
+host-local files still required for replay or evidence custody.
+
+The `act-a1-diverse-20261019/cold-hdf5/` link mirrors each archived file's
+original campaign-relative path with a `.zst` suffix. Restore an individual
+file in a working directory with `zstd -d ARCHIVE.zst -o episode.hdf5`.
+The adjacent `ARCHIVE.zst.json` gives its original name, SHA-256, size, mode
+and modification time. Training and development inputs in the retained ACT index
+remain directly readable in the checkout.
