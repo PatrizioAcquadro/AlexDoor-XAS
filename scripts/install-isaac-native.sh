@@ -56,3 +56,7 @@ else
     "$uv" sync --locked --python "$python" --extra ovrtx
 fi
 "$uv" pip check --python "$UV_PROJECT_ENVIRONMENT/bin/python"
+# The observed tracker needs OpenCV. Keep its wheel outside the locked simulator.
+"$uv" pip install --python "$UV_PROJECT_ENVIRONMENT/bin/python" \
+    --target "$runtime/opencv" --no-deps 'opencv-python-headless>=4.10'
+PYTHONPATH="$runtime/opencv" "$UV_PROJECT_ENVIRONMENT/bin/python" -c 'import cv2'

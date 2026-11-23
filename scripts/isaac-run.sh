@@ -33,7 +33,7 @@ case "$profile" in
         export CUDA_CACHE_PATH="${CUDA_CACHE_PATH:-$XDG_CACHE_HOME/cuda}"
         export WARP_CACHE_PATH="${WARP_CACHE_PATH:-$XDG_CACHE_HOME/warp}"
         mkdir -p "$TMPDIR" "$CUDA_CACHE_PATH" "$WARP_CACHE_PATH"
-        export PYTHONPATH="$root/src:${ALEXDOOR_ALEX_ROOT:-$root/../Alex}/src:${PYTHONPATH:-}"
+        export PYTHONPATH="$root/src:${ALEXDOOR_ALEX_ROOT:-$root/../Alex}/src:$native_runtime/opencv:${PYTHONPATH:-}"
         exec "$native_python" "$@"
         ;;
     newton_steel)
