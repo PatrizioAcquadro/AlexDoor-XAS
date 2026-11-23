@@ -9,6 +9,9 @@ holdouts?
 
 ## Method and Result
 
+The compatibility pilot trained ACT-A2 and Diffusion-A3 on N50. Both checkpoints
+loaded on the workstation, qualifying the cluster environment for the sweep.
+
 All sixteen seed-0 cells trained on the historical `v3_scale_master` views using Gilbreth A100 GPUs.
 Every checkpoint returned and loaded on the workstation, establishing a complete matrix for
 closed-loop evaluation.

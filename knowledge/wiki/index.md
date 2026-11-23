@@ -15,33 +15,18 @@ historical scientific results have separate canonical pages.
 - [[topics/learned-policy-stack|Learned Policy Stack]]
 - [[topics/cluster-training|Official NVIDIA Cluster Training]]
 - [[topics/pre-a4-initialization-and-hinge-budget|Shared Pre-A4 Initialization and the Simulated Hinge Budget]]
-- [[topics/alex-v2-benchmark|Alex V2 Benchmark]]
-
 - [[topics/b1-policy-pilot|Pilot commands and temporal observations]]
 - [[topics/paired-physics-benchmarks|Paired backend benchmarks]]
 
 ## Implementation phases
 
-Phases retain their identities and distinguish commissioned software from planned
-qualification and data/evaluation work. B0 and completed extras are historical.
+The [[topics/alex-v2-benchmark#Development phases|B0 phase history]] covers Phases 1–3 and Extras 1–6. The Purdue B1 phases follow.
 
-- [[implementation_phases/phase-1-project-and-simulation-readiness|Phase 1 — Project and Simulation Readiness]]
-- [[implementation_phases/phase-2-scripted-baseline-and-data-engine|Phase 2 — Scripted Baseline and Data Engine]]
-- [[implementation_phases/phase-3-non-vla-learned-baselines|Phase 3 — Non-VLA Learned Baselines]]
 - [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]]
 - [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]]
 - [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]]
 - [[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0 — Operational Perception and Observed Contact]]
 - [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]]
-
-Completed historical extras:
-
-- [[implementation_phases/extra-01-alex-v2-migration|Extra 01 — Alex V2 Migration]]
-- [[implementation_phases/extra-02-local-stabilization|Extra 02 — Local Stabilization]]
-- [[implementation_phases/extra-03-gilbreth-compatibility-pilot|Extra 03 — Gilbreth Compatibility Pilot]]
-- [[implementation_phases/extra-04-scale-dataset|Extra 04 — Scale Dataset]]
-- [[implementation_phases/extra-05-full-gilbreth-nested-sweep|Extra 05 — Full Gilbreth Nested Sweep]]
-- [[implementation_phases/extra-06-phase-3-unified-evaluation|Extra 06 — Phase 3 Unified Evaluation]]
 
 ## Decisions
 

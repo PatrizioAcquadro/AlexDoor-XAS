@@ -6,7 +6,11 @@ Independent N50, N100, N250, and N500 datasets would change episode composition 
 
 ## Decision
 
-For the completed scale study, use one 550-episode matched A2/A3 master with nested N50, N100, N250, and N500 training memberships and fixed 25-episode validation and test sets. Maintain train-only normalization for each action-space/view pair.
+The completed `v3_scale_master` contained 550 matched A2/A3 episodes, 110 per
+D0–D4 pose. Exact trajectories were grouped before splitting. The N50, N100,
+N250 and N500 training sets were nested. Validation and test each used a fixed
+25 episodes. Normalization used only the training subset for each representation
+and size.
 
 B0 payloads were removed during cleanup. Generic split/view and normalization algorithms remain, but this decision records a completed study, not a B1 dataset. Historical source state: Git `9c16e3d`.
 

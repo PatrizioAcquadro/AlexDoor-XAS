@@ -90,9 +90,9 @@ The November 23 integration preserved the policy-pilot and D3 evidence under the
 Mount `/media/pacquadr/DATA` to use the completed ACT results. The checkout's
 `act-a1-complete-cycle-20261026/remote-results/` link points to
 `/media/pacquadr/DATA/AlexDoor-XAS/evidence/act-a1-complete-cycle-20261026/remote-results/`.
-The original host and run names are preserved. The
-[storage report](../generated/storage-reclaim-20261123/REPORT.md) lists the
-host-local files still required for replay or evidence custody.
+The original host and run names are preserved. On the workstation,
+`outputs/generated/storage-reclaim-20261123/REPORT.md` lists the files needed
+for replay and evidence custody.
 
 The `act-a1-diverse-20261019/cold-hdf5/` link mirrors each archived file's
 original campaign-relative path with a `.zst` suffix. Restore an individual
@@ -103,8 +103,8 @@ remain directly readable in the checkout.
 
 ## Rebuilding historical prepared data
 
-The [derived recording storage report](derived-storage-20261123/REPORT.md) lists the
-19 October ACT preparations that can be rebuilt from their source recordings and
+The workstation report `outputs/evidence/derived-storage-20261123/REPORT.md` lists
+the 19 October ACT preparations that can be rebuilt from their source recordings and
 original supervision reviews. It includes the recovery command. The same report
 explains how to replay the full dense data-pipeline benchmark from its indexed
 inputs and where to find the small two-episode compatibility fixture.

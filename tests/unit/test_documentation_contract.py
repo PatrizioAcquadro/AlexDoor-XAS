@@ -1,57 +1,67 @@
-"""Regression checks for the canonical `knowledge/wiki` documentation surface."""
-
-from __future__ import annotations
+"""Links and navigation in the published documentation must work in a clean checkout."""
 
 import re
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-WIKI_ROOT = REPO_ROOT / "knowledge" / "wiki"
-WIKILINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
-MARKDOWN_LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+WIKI_ROOT = REPO_ROOT / "knowledge/wiki"
 
 
-def _wiki_pages() -> list[Path]:
-    return sorted(WIKI_ROOT.rglob("*.md"))
+def _wiki_destination(page, target, pages):
+    if not target:
+        return page
+    name = target if target.endswith(".md") else f"{target}.md"
+    for directory in (page.parent, WIKI_ROOT):
+        candidate = (directory / name).resolve()
+        if candidate in pages:
+            return candidate
+    if "/" not in name:
+        matches = [path for path in pages if path.name == name]
+        if len(matches) == 1:
+            return matches[0]
+    return None
 
 
-def test_documentation_links_resolve_and_index_is_complete() -> None:
-    pages = _wiki_pages()
-    by_stem: dict[str, list[Path]] = {}
-    for page in pages:
-        by_stem.setdefault(page.stem, []).append(page)
+def _has_heading(page, section):
+    for title in re.findall(r"^#{1,6}[ \t]+(.+)$", page.read_text(), re.MULTILINE):
+        title = title.strip().casefold()
+        slug = re.sub(r"[^\w -]", "", title).replace(" ", "-")
+        if section.casefold() in (title, slug):
+            return True
+    return False
 
-    failures = []
-    for page in pages:
-        for raw_target in WIKILINK_RE.findall(page.read_text()):
-            target = raw_target.split("|", 1)[0].split("#", 1)[0]
-            relative = Path(target if target.endswith(".md") else f"{target}.md")
-            if (WIKI_ROOT / relative).is_file():
+
+def test_wiki_links_resolve_and_index_is_complete():
+    pages = set(WIKI_ROOT.rglob("*.md"))
+    index = WIKI_ROOT / "index.md"
+    indexed = set()
+    for page in sorted(pages):
+        for link in re.findall(r"\[\[([^\]\n]+)\]\]", page.read_text()):
+            target, _, section = link.split("|", 1)[0].partition("#")
+            destination = _wiki_destination(page, target, pages)
+            assert destination, f"{page.name}: {link}"
+            if section:
+                assert _has_heading(destination, section), f"{page.name}: {link}"
+            if page == index:
+                indexed.add(destination)
+
+    assert not pages - indexed - {index, WIKI_ROOT / "log.md"}
+
+
+def test_local_markdown_links_resolve():
+    guides = (
+        "README.md",
+        "datasets/README.md",
+        "outputs/README.md",
+        "outputs/generated/README.md",
+        "outputs/evidence/README.md",
+    )
+    for page in [*(REPO_ROOT / guide for guide in guides), *WIKI_ROOT.rglob("*.md")]:
+        for link in re.findall(r"!?\[[^\]]*\]\(([^)]+)\)", page.read_text()):
+            if "://" in link or link.startswith("mailto:"):
                 continue
-            if len(by_stem.get(relative.stem, [])) != 1:
-                failures.append(f"{page.relative_to(REPO_ROOT)}: {target}")
-    for document in (
-        REPO_ROOT / "README.md",
-        REPO_ROOT / "datasets" / "README.md",
-        REPO_ROOT / "outputs" / "README.md",
-        REPO_ROOT / "outputs" / "generated" / "README.md",
-        REPO_ROOT / "outputs" / "evidence" / "README.md",
-        WIKI_ROOT / "topics" / "perception-model-setup.md",
-    ):
-        for raw_target in MARKDOWN_LINK_RE.findall(document.read_text()):
-            target = raw_target.split("#", 1)[0]
-            if not target or "://" in target or target.startswith("mailto:"):
-                continue
-            if not (document.parent / target).resolve().exists():
-                failures.append(f"{document.relative_to(REPO_ROOT)}: {raw_target}")
-    assert failures == []
-
-    index = (WIKI_ROOT / "index.md").read_text()
-    missing = []
-    for page in pages:
-        if page.name in {"index.md", "log.md"}:
-            continue
-        target = page.relative_to(WIKI_ROOT).with_suffix("").as_posix()
-        if f"[[{target}|" not in index and f"[[{target}]]" not in index:
-            missing.append(target)
-    assert missing == []
+            target, _, section = link.partition("#")
+            destination = (page.parent / target).resolve() if target else page
+            assert destination.exists(), f"{page.name}: {link}"
+            if section and destination.suffix == ".md":
+                assert _has_heading(destination, section), f"{page.name}: {link}"
