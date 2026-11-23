@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
+import gymnasium as gym
 import pytest
 
 from alexdoor_xas.envs import door_task
@@ -14,12 +15,7 @@ ENV_ENTRY_POINT = "alexdoor_xas.envs.door_task.door_push_purdue_env:DoorPushPurd
 CFG_ENTRY_POINT = "alexdoor_xas.envs.door_task.door_push_purdue_env_cfg:DoorPushPurdueEnvCfg"
 
 
-def test_supported_environment_is_registered_if_gymnasium_available() -> None:
-    if importlib.util.find_spec("gymnasium") is None:
-        pytest.skip("gymnasium is not installed in this Python environment")
-
-    import gymnasium as gym
-
+def test_supported_environment_is_registered() -> None:
     assert door_task.DOOR_PUSH_PURDUE_ENV_ID == ENV_ID
     spec = gym.spec(ENV_ID)
     assert spec.entry_point == ENV_ENTRY_POINT

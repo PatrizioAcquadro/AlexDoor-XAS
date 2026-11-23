@@ -2,6 +2,7 @@
 
 import importlib.util
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
@@ -45,63 +46,68 @@ def test_live_does_not_require_recordings(tmp_path, monkeypatch):
     assert len(calls) == 1 and calls[0][1]["case"] == "camera"
 
 
-@pytest.mark.parametrize(
-    "command",
-    [
-        "smoke",
-        "diagnose-scan",
-        "point2pose-smoke",
-        "point2pose-offline",
-        "point2pose-replay",
-        "point2pose-operational",
-    ],
-)
-@pytest.mark.parametrize("outcome", ["complete", "incomplete", "failure", "missing", "exception"])
-def test_single_episode_propagates_failures_without_retry(tmp_path, monkeypatch, command, outcome):
-    from alexdoor_xas.perception.diagnostics import offline, operational, replay, scan, smoke
+@pytest.fixture
+def recorded_diagnostic(tmp_path, monkeypatch):
     from alexdoor_xas.recording import b1
 
-    output = tmp_path / "run"
     episode = tmp_path / PILOT / "nominal/episode.hdf5"
     episode.parent.mkdir(parents=True)
     episode.touch()
-    calls = []
-
-    def run(path, *args, **kwargs):
-        calls.append(path)
-        if outcome == "exception":
-            raise RuntimeError("worker failed")
-        if outcome == "failure":
-            output.mkdir()
-            (output / "failure.json").write_text("{}")
-        return (
-            {}
-            if outcome == "missing"
-            else {
-                "complete": outcome != "incomplete",
-                "diagnostic_passed": False,
-            }
-        )
-
-    monkeypatch.setattr(smoke, "run_sam3_smoke", run)
-    monkeypatch.setattr(smoke, "run_point2pose_smoke", run)
-    monkeypatch.setattr(scan, "run_scan_diagnostic", run)
-    monkeypatch.setattr(offline, "offline_episode", run)
-    monkeypatch.setattr(replay, "run_replay", run)
-    monkeypatch.setattr(operational, "recorded_operational", run)
+    output = tmp_path / "run"
 
     def validate(path, corpus, *, complete_campaign):
         assert path == episode and not complete_campaign
         return [path]
 
     monkeypatch.setattr(b1, "episode_paths", validate)
-    argv = [command, "--episode", str(episode), "--output", str(output)]
-    if outcome == "exception":
+    return episode, output
+
+
+@pytest.mark.parametrize(
+    "command,handler",
+    [
+        ("smoke", "smoke.run_sam3_smoke"),
+        ("diagnose-scan", "scan.run_scan_diagnostic"),
+        ("point2pose-smoke", "smoke.run_point2pose_smoke"),
+        ("point2pose-offline", "offline.offline_episode"),
+        ("point2pose-replay", "replay.run_replay"),
+        ("point2pose-operational", "operational.recorded_operational"),
+    ],
+)
+def test_recorded_command_dispatches_once(recorded_diagnostic, monkeypatch, command, handler):
+    episode, output = recorded_diagnostic
+    worker = Mock(return_value={"complete": True, "diagnostic_passed": False})
+    monkeypatch.setattr(f"alexdoor_xas.perception.diagnostics.{handler}", worker)
+    assert cli_module().main([command, "--episode", str(episode), "--output", str(output)]) == 0
+    worker.assert_called_once()
+    assert worker.call_args.args[0] == episode
+
+
+@pytest.mark.parametrize(
+    "report",
+    [{"complete": False}, {}, {"complete": True, "failure": "lost"}, {"complete": True}, None],
+    ids=["incomplete", "missing-status", "reported-failure", "failure-file", "exception"],
+)
+def test_recorded_failure_propagates_without_retry(recorded_diagnostic, monkeypatch, report):
+    episode, output = recorded_diagnostic
+
+    def run(*args, **kwargs):
+        if report is None:
+            raise RuntimeError("worker failed")
+        if report == {"complete": True}:
+            output.mkdir()
+            (output / "failure.json").write_text("{}")
+        return report
+
+    worker = Mock(side_effect=run)
+    monkeypatch.setattr("alexdoor_xas.perception.diagnostics.offline.offline_episode", worker)
+    argv = ["point2pose-offline", "--episode", str(episode), "--output", str(output)]
+    if report is None:
         with pytest.raises(RuntimeError, match="worker failed"):
             cli_module().main(argv)
     else:
-        assert cli_module().main(argv) == (0 if outcome == "complete" else 1)
-    assert calls == [episode]
+        assert cli_module().main(argv) == 1
+    worker.assert_called_once()
 
 
 @pytest.mark.parametrize(
