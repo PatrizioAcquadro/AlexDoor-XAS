@@ -113,16 +113,22 @@ def test_raw_preparation_never_promotes_engineering_recordings(tmp_path):
         prepare_recording(path, None, None, {"left": "train"})
 
 
-def test_raw_preparation_uses_provider_without_model_or_device_internals(tmp_path, b1_binding):
+@pytest.mark.parametrize("visual_dims", [[2, 2], [3, 4]])
+def test_raw_preparation_uses_provider_without_model_or_device_internals(
+    tmp_path, b1_binding, visual_dims
+):
     from alexdoor_xas.action.b1 import STAGES
     from alexdoor_xas.action.frames import ObjectFrame
     from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
-    from alexdoor_xas.dataset.b1 import PURPOSE, prepare_recording
+    from alexdoor_xas.dataset.b1 import PURPOSE, index_dataset, prepare_recording
     from alexdoor_xas.policies.observations import B1Observer
     from alexdoor_xas.recording.b1 import PHASES, B1Writer
     from helpers import fake_estimator
     from helpers import raw_observation as obs
 
+    release = b1_binding.to_dict()
+    release["config"]["visual_dims"] = visual_dims
+    b1_binding = type(b1_binding).from_dict(release)
     path = tmp_path / "episode.hdf5"
     writer = B1Writer(
         path,
@@ -160,6 +166,16 @@ def test_raw_preparation_uses_provider_without_model_or_device_internals(tmp_pat
     assert len(episode.actions[A4_OBJ_CENTRIC_CHUNK]) == 5
     assert isinstance(provider.calls[-1]["rgb"], np.ndarray)
     assert not hasattr(provider, "estimator") and not hasattr(provider, "device")
+    exported = export_dataset([episode], tmp_path / "exported", b1_binding, TEST_ROBOT_REF, SPLITS)
+    indexed = index_dataset(exported, tmp_path / "indexed")
+    for space in ACTION_DIMS:
+        with B1Dataset(indexed, space) as data:
+            record = data.by_id("matched")
+            np.testing.assert_array_equal(record.actions, episode.actions[space])
+            np.testing.assert_array_equal(
+                record.observation_matrix, episode.observations[episode.starts[space]]
+            )
+            np.testing.assert_array_equal(record.terminal_observation, episode.observations[-1])
 
 
 def test_sampling_restricts_membership_and_repeats_seeded_batches(tmp_path, b1_binding):

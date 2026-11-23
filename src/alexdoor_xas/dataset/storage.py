@@ -223,7 +223,7 @@ def finite_observations(values):
 
 
 class FrameObservationWriter:
-    """Store each active image once; retain joins independently of policy horizon.
+    """Stream observations to disk, indexing repeated whole image blocks when possible.
 
     A bounded previous-frame cache matches exact values, including dtype. No
     encoder weights or learned features are cached. The caller's binding remains
@@ -234,11 +234,17 @@ class FrameObservationWriter:
         self.temporary = tempfile.TemporaryDirectory(prefix="alexdoor-observations-")
         self.path = Path(self.temporary.name) / "episode.hdf5"
         self.file = h5py.File(self.path, "x")
+        self.count = 0
+        self.n_rows = n_rows
+        width, recent = binding.config["visual_dims"]
+        self.dense = None
+        if recent % width:
+            self.dense = self.file.create_dataset(
+                "observations", shape=(n_rows, binding.obs_dim), dtype=dtype
+            )
+            return
         group = self.file.create_group("observations")
         group.attrs["layout"] = LAYOUT
-        width, recent = binding.config["visual_dims"]
-        if recent % width:
-            raise ValueError("Visual history must contain whole image blocks")
         self.width, self.blocks = width, 1 + recent // width
         learned = binding.config.get("encoder") == "rgbd-conv-v1"
         image_width = width * 4 // 5 if learned else width
@@ -266,9 +272,12 @@ class FrameObservationWriter:
         self.proprio = group.create_dataset("proprio", shape=(n_rows, 18), dtype=dtype)
         self.cache = []
         self.previous = self.previous_indices = None
-        self.count = 0
 
     def append(self, features):
+        if self.dense is not None:
+            self.dense[self.count] = features
+            self.count += 1
+            return
         visual = features[:-18]
         if self.previous is not None and np.array_equal(
             visual.view("u1"), self.previous.view("u1")
@@ -326,7 +335,7 @@ class FrameObservationWriter:
         self.count += 1
 
     def finish(self):
-        if self.count != len(self.indices):
+        if self.count != self.n_rows:
             raise ValueError("Missing prepared observation rows")
         self.file.close()
         files = ObservationFiles(temporary=self.temporary)

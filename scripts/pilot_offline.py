@@ -6,6 +6,7 @@ import gc
 import hashlib
 import json
 import sys
+from contextlib import closing, nullcontext
 from itertools import chain, islice
 from pathlib import Path
 from time import perf_counter
@@ -27,6 +28,7 @@ from alexdoor_xas.dataset.b1 import (  # noqa: E402
     materialize_train_data,
     prepare_recording,
 )
+from alexdoor_xas.dataset.storage import ObservationArray, ObservationFiles  # noqa: E402
 from alexdoor_xas.policies.b1 import (  # noqa: E402
     B1Policy,
     batch_factories,
@@ -802,7 +804,12 @@ def evaluate_selection_checkpoints(root, protocol, checkpoints, selection, *, re
                 continue
             if data.attrs["split"] != "development":
                 raise ValueError("Unexpected selection split")
-            with h5py.File(data.attrs["source_recording"]) as raw:
+            raw_source = (
+                nullcontext(data["raw"])
+                if "raw" in data
+                else h5py.File(data.attrs["source_recording"], "r")
+            )
+            with raw_source as raw:
                 identity = json.loads(raw["metadata"].attrs["episode"])
                 if any(
                     identity[key] != data.attrs[key] for key in ("episode_id", "asset_id", "split")
@@ -880,13 +887,16 @@ def evaluate_selection_checkpoints(root, protocol, checkpoints, selection, *, re
                 buckets = {}
                 predictions, targets = [], []
                 for entry in suite:
-                    with h5py.File(directory / entry["file"]) as data:
+                    path = directory / entry["file"]
+                    with closing(ObservationFiles()) as files:
+                        data = files.get(path)
+                        observations = ObservationArray.open(path, files, data["observations"])
                         for phase, chosen in entry["buckets"].items():
                             phase_pred, phase_target = [], []
                             for index in chosen:
                                 observation_index = int(data[f"{space}/starts"][index])
                                 # Model inputs contain only the causal observation.
-                                features = data["observations"][observation_index]
+                                features = observations[observation_index]
                                 prediction = policy.predict(features)
                                 target = data[f"{space}/actions"][index : index + horizon]
                                 phase_pred.append(prediction)
