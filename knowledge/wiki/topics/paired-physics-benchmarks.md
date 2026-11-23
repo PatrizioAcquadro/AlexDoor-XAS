@@ -18,7 +18,7 @@ PYTHONPATH=src python3 -m alexdoor_xas.benchmarks.summarize outputs/generated/pa
 ```
 
 Append `tracking-single`, `tracking-batch`, `block`, or `rgbd` to select cases.
-The configuration's `backends` list selects the engines to run.
+The configuration's `backends` list selects the engines to run. The summary checks each receipt’s case and backend against its directory and rejects runs with a recorded nonzero exit code.
 Use a fresh output directory for each rerun. The default configuration pairs the
 same three seeds after one warm-up. Each result includes process and scene
 startup, separate warm-up measurements, timed resets, steady episode wall time,

@@ -10,6 +10,11 @@ from statistics import median
 
 def read_run(path):
     data = json.loads((path / "result.json").read_text())
+    if (data["case"], data["backend"]) != (path.parent.name, path.name):
+        raise ValueError(f"Case or backend differs from the requested run in {path}")
+    status = path / "returncode.txt"
+    if status.exists() and status.read_text().strip() != "0":
+        raise ValueError(f"Benchmark process failed in {path}")
     log = (path / "console.log").read_text()
     marker = (
         "BENCHMARK_STEEL_CUDA_GRAPH_ACTIVE"
