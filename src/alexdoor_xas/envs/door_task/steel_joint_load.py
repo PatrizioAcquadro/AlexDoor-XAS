@@ -5,49 +5,15 @@ from pathlib import PurePosixPath
 import numpy as np
 
 
-def install_gravity(manager):
-    import warp as wp
-    from isaaclab.utils.warp import ProxyArray
-    from isaaclab_newton.assets.articulation.articulation_data import ArticulationData
-
-    def gravity(data):
-        view = data._root_view
-        if not hasattr(data, "_steel_gravity_indices"):
-            model = manager._model
-            articulation_starts = model.articulation_start.numpy()
-            dof_starts = model.joint_qd_start.numpy()
-            labels = [PurePosixPath(path).name for path in model.joint_label]
-            indices = []
-            for group in view.articulation_ids.numpy():
-                if len(group) != 1 or group[0] < 0:
-                    raise RuntimeError("Steel gravity requires one articulation per environment")
-                start, end = articulation_starts[group[0] : group[0] + 2]
-                joint_ids = {labels[i]: i for i in range(start, end)}
-                indices.append([dof_starts[joint_ids[name]] for name in view.joint_names])
-            import torch
-
-            data._steel_gravity_indices = torch.tensor(np.asarray(indices), device=data.device)
-            data._steel_gravity_values = wp.zeros(model.joint_dof_count, device=data.device)
-        data._ensure_fk_fresh()
-        view.eval_inverse_dynamics_passive(
-            manager._state_0,
-            gravity_force=data._steel_gravity_values,
-        )
-        values = wp.to_torch(data._steel_gravity_values)[data._steel_gravity_indices].contiguous()
-        return ProxyArray(wp.from_torch(values, requires_grad=False))
-
-    ArticulationData.gravity_compensation_forces = property(gravity)
-
-
 class SteelJointLoad:
     """Project rigid-body reaction wrenches and match their inverse dynamics."""
 
-    def __init__(self, robot, state, reactions):
+    def __init__(self, robot, backend):
         import torch
         import warp as wp
 
         self.data = data = robot.data
-        self.state, self.reactions = state, reactions
+        self.backend = backend
         self.view = view = robot.root_view
         model = view.model
         groups = view.articulation_ids.numpy()
@@ -78,8 +44,9 @@ class SteelJointLoad:
         data = self.data
         # The public Jacobian read refreshes link kinematics before inverse dynamics.
         jacobian = data.body_com_jacobian_w.torch[0, self.jac_rows]
-        self.view.eval_inverse_dynamics_passive(self.state(), coriolis_force=self.coriolis)
-        reaction = wp.to_torch(self.reactions())[self.children]
+        state = self.backend.state_0
+        self.view.eval_inverse_dynamics_passive(state, coriolis_force=self.coriolis)
+        reaction = wp.to_torch(state.body_parent_f)[self.children]
         torque = (reaction * jacobian[self.columns, :, self.columns]).sum(dim=-1)
         acceleration = data.joint_acc.torch[0]
         # BODY_PARENT_F omits rotor armature, which remains live in the solver.

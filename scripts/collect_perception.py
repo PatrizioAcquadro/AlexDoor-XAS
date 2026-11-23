@@ -192,7 +192,7 @@ def record(args, entry, env, door, setup, output, inspection, seed, stop):
         inspection=inspection,
         bounded_diagnostic=stop is not None,
         diagnostic_hinge_stop_deg=stop,
-        physics_profile=os.environ.get("ISAAC_PHYSICS_PROFILE") or env.cfg.physics_profile,
+        physics_profile=os.environ.get("ISAAC_PHYSICS_PROFILE", "isaacsim_physx"),
     )
     recorder = ExpertRecorder(output / "episode.hdf5", metadata)
     recorder.calibration = camera_calibration(env)

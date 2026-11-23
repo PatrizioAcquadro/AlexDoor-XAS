@@ -29,23 +29,18 @@ iterations, enforces joint limits, and allocates 512 articulated constraint
 rows per world. The upstream defaults are 8 iterations, limits disabled, and
 32 rows. The solver implementation comes from Newton. [Pinned Isaac Lab configuration](https://github.com/isaac-sim/IsaacLab/blob/67fe12806afbdb8bf8e125866661dd201088a54d/source/isaaclab_newton/isaaclab_newton/physics/steel_solver_cfg.py)
 
-D4 defaults to the guarded beta2 Kit runtime with RTX. Select
-`ISAAC_PHYSICS_PROFILE=newton_steel_native` to run the full D4 protocol with
-native Newton Steel and the OVRTX camera. The launcher selects the same
-renderer configuration for the simulation and the ZED sensor. The driver
-compiles ray-tracing shaders on its first frame and reuses them from the
-native runtime cache. The run records compilation progress in `ovrtx.log` and
-the instantiated solver and renderer in `runtime.json`. Bounded
-D4 components can explicitly select `ISAAC_PHYSICS_PROFILE=newton_steel_warp`.
-They use the native Warp camera, converted assets and Isaac Lab's
-`ArticulationCfg.enable_joint_wrench` for the solved reaction forces. The
-saved-state comparison and observed outcomes are in [[../experiments/observed-cycle-collection#Native Steel component comparison]].
-The beta2 adapter loads the separate Newton wheel site at
-`outputs/generated/isaac-steel-runtime/site` and provides solved joint loads and
-contact rows. Set `NEWTON_SITE` to use another matching wheel site. Pilot
-physics, workspace survey and robot-only dynamics and stop verification default
-to PhysX. Standard B1 commands can also select the Kit runtime explicitly
-with `ISAAC_PHYSICS_PROFILE=newton_steel` or `isaacsim_physx`.
+The D4 collector uses the same native solver with the OVRTX camera by default.
+The launcher selects the same renderer for the simulation and the ZED sensor.
+The native launcher opens local USD directly and disables Omniverse Hub by default. An explicit `OMNICLIENT_HUB_MODE` overrides this setting. The driver caches its compiled shaders across processes. The run records shader
+progress in `ovrtx.log` and the solver and renderer in `runtime.json`. Bounded
+D4 components can select `ISAAC_PHYSICS_PROFILE=newton_steel_warp`. Both cameras
+use the converted assets and Isaac Lab's `ArticulationCfg.enable_joint_wrench`
+for solved reaction forces. [[../experiments/observed-cycle-collection#Native OVRTX D4-N]]
+
+The Kit workstation stack supplies PhysX for pilot physics, workspace surveys,
+robot dynamics, loaded stops, synthetic commissioning and live perception
+diagnostics. Standard B1 collection and qualification can explicitly select
+`ISAAC_PHYSICS_PROFILE=isaacsim_physx` for comparison.
 
 The first native Steel step captures the graph. Each standard environment reset
 checks the latched solver status before restoring the scene. It clears solver
@@ -54,13 +49,7 @@ snapshot while keeping the buffers used by the graph. Reset restores the robot
 and hinge state and acquires a fresh ZED sample. Capacity checks continue at
 each native contact readout, including the first step after reset.
 
-The beta2 Steel/RTX integration on the RTX 4090 passed three short D4-N push, release, and stabilization cycles
-with Alex003, WSG32, and ZED RGB-D. One graph served 8,076 launches and
-capacity checks, including warm-up. All 1,983 cycle frames passed the ZED
-checks. The first control tick took 0.785 s at capture and 0.037–0.040 s
-after reset. An injected saturation flag caused a subsequent reset to raise
-before discarding solver or episode state. Local evidence and the repeat
-command are under `outputs/generated/alexdoor-d4n-standard-reset-20261113/`.
+Measurements from the retired beta2 adapter, including repeated-reset and saturation checks, are preserved in [[paired-physics-benchmarks#AlexDoor measurements]].
 
 ### Install the native B1 runtime
 

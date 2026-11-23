@@ -74,7 +74,6 @@ def main():
     try:
         assert torch.cuda.is_available()
         cfg = DoorPushPurdueEnvCfg()
-        cfg.physics_profile = "isaacsim_physx"
         cfg.observed_load_feedback = True
         setup = ProbeSetup(**json.loads((REPO / "configs/purdue_synthetic_probe.json").read_text()))
         inspection = json.loads((REPO / "configs/perception_inspection.json").read_text())

@@ -5,6 +5,7 @@ requirements, and Git owns ordinary implementation and attempt history.
 
 | Period | Milestone | Canonical record |
 |---|---|---|
+| 2026-11-23 | D4 and the paired gantry benchmark moved to upstream Newton Steel. The native camera and safe interruption were verified. | [[topics/paired-physics-benchmarks]], [[experiments/observed-cycle-collection#Native OVRTX D4-N]] |
 | 2026-11-13–16 | Standard native Steel/Warp collection and door qualification commissioned. The second guarded D4 Steel nominal stopped during push and passed its safety stop. | [[topics/purdue-b1-robot-and-contact]], [[experiments/observed-cycle-collection]] |
 | 2026-11-08 | Whole-cycle teacher collection closed at 17/36. D3/D4 investigations preserved the remaining refusals. | [[experiments/observed-cycle-collection]] |
 | 2026-10-29 | One maintained perception provider; explicit single-episode diagnostics; canonical workflow map and concise experiment records. No scientific recipe, threshold or qualification change. | [[topics/system-architecture]], [[topics/perception-model-setup]] |

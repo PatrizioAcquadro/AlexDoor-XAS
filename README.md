@@ -49,8 +49,8 @@ Run from the checkout on the RTX workstation. The launcher selects the physics i
 | Entry point | Default runtime |
 |---|---|
 | `collect_perception.py`, `qualify_door.py` | Native Steel/Warp (`newton_steel_warp`) in the dedicated native environment |
-| `collect_d4_observed.py` | Isaac Lab beta2 Newton Steel (`newton_steel`) with RTX RGB-D. Select `newton_steel_native` for native OVRTX or `newton_steel_warp` for a bounded Warp component. |
-| `pilot_physics.py` and its dynamics, stop and workspace probes | Isaac Sim PhysX (`isaacsim_physx`) with the pilot calibration |
+| `collect_d4_observed.py` | Native Steel/OVRTX (`newton_steel_native`) in the same native environment |
+| Pilot physics, workspace and stop probes, live perception, and synthetic commissioning | Isaac Sim PhysX (`isaacsim_physx`) on the Kit workstation stack |
 
 For standard collection and qualification, install the native runtime and converted assets as described in the [Purdue runtime guide](knowledge/wiki/topics/purdue-b1-robot-and-contact.md#install-the-native-b1-runtime). These bounded commands exercise the 4° fixture and write diagnostic results.
 
@@ -63,31 +63,16 @@ scripts/isaac-run.sh scripts/qualify_door.py --asset-id "$asset" --condition nom
   --bounded-diagnostic "$fixture" --diagnostic --output-root outputs/generated/native-evaluation-check
 ```
 
-For a guarded D4 component check, supply the protocol, setup and operational recipe from the same reviewed run. Resolve any historical absolute paths in a working copy of the recipe using the [evidence storage guide](outputs/evidence/README.md).
+For a native D4-N attempt, supply the protocol, setup and operational recipe from the same reviewed run. Resolve historical asset paths in a working copy of the recipe using the [evidence storage guide](outputs/evidence/README.md).
 
 ```bash
 scripts/isaac-run.sh scripts/collect_d4_observed.py --protocol "$protocol" \
-  --setup "$setup" --operational-recipe "$recipe" --urdf-cache-dir "$usd_cache" \
-  --component-max-sim-s 0.1 --record-tracker-stream --output "$fresh_output"
+  --setup "$setup" --operational-recipe "$recipe" --record-tracker-stream --output "$fresh_output"
 ```
 
-The component time limit exercises interruption and continuing-physics stopping. To check the same protocol with native Steel and the Warp camera, use the native installer's converted asset layout and a separate output directory.
+For a short interruption and stop check, add `--component-max-sim-s 0.1`. Bounded components can also select `ISAAC_PHYSICS_PROFILE=newton_steel_warp`. With OVRTX, allow several minutes for a cold first frame and follow shader compilation in the run’s `ovrtx.log`. The [D4 experiment record](knowledge/wiki/experiments/observed-cycle-collection.md#native-ovrtx-d4-n) gives the observed results.
 
-```bash
-ISAAC_PHYSICS_PROFILE=newton_steel_warp scripts/isaac-run.sh scripts/collect_d4_observed.py \
-  --protocol "$protocol" --setup "$setup" --operational-recipe "$recipe" \
-  --component-max-sim-s 0.1 --record-tracker-stream --output "$fresh_native_output"
-```
-
-For a full native D4-N attempt, use the same declared protocol and recipe with a fresh output. The installer enables NVIDIA's OVRTX camera. On a cold shader cache, follow the compilation progress in the run's `ovrtx.log` and allow several minutes for the first frame.
-
-```bash
-ISAAC_PHYSICS_PROFILE=newton_steel_native scripts/isaac-run.sh scripts/collect_d4_observed.py \
-  --protocol "$protocol" --setup "$setup" --operational-recipe "$recipe" \
-  --record-tracker-stream --output "$fresh_native_output"
-```
-
-The [D4 experiment record](knowledge/wiki/experiments/observed-cycle-collection.md#native-steel-component-comparison) explains the measured differences. Run the corpus and synthetic runtime checks separately.
+Run the corpus and synthetic runtime checks separately.
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py

@@ -1,6 +1,6 @@
 # Project status
 
-AlexDoor-XAS runs fixed-base Purdue Alex003 door manipulation in simulation. The frozen B1 corpus contains 32 qualified doors across 12 families, split into 19 training, six development and seven sealed test identities. Standard engineering collection and door qualification use native Steel/Warp. D4 defaults to guarded beta2 Steel/RTX and supports native Steel/OVRTX full attempts and bounded Warp components. The source checkout also supports recorded perception diagnostics, observed teacher collection, dataset preparation, ACT/Diffusion training, checkpoint replay and evaluation. [[topics/system-architecture|Workflows and consumers]]
+AlexDoor-XAS runs fixed-base Purdue Alex003 door manipulation in simulation. The frozen B1 corpus contains 32 qualified doors across 12 families, split into 19 training, six development and seven sealed test identities. Standard engineering collection and door qualification use native Steel/Warp. D4 uses the same native solver with OVRTX for observed collection and supports bounded Warp components. The source checkout also supports recorded perception diagnostics, observed teacher collection, dataset preparation, ACT/Diffusion training, checkpoint replay and evaluation. [[topics/system-architecture|Workflows and consumers]]
 
 | Question | Measured outcome |
 |---|---|
@@ -10,6 +10,6 @@ AlexDoor-XAS runs fixed-base Purdue Alex003 door manipulation in simulation. The
 
 ## Open work
 
-D3 needs finite material support over the moving door. D4 needs observed support through push, separation during release, ordinary stabilization and independently verified stopping in a complete cycle. The recorded D4 tracker repair has offline evidence. Its saved follow-up component has no terminal qualification receipt.
+D3 needs finite material support over the moving door. D4 needs observed support through push, separation during release, ordinary stabilization and independently verified stopping in a complete cycle. The native OVRTX nominal was stopped by the operator during push at 1.355°. Its independent stop passed. [[experiments/observed-cycle-collection#Native OVRTX D4-N]]
 
 General A3/A4 perception and contact admission, a matched Phase 6.2 dataset and the Phase 7 comparison remain open. Teacher and learned campaigns are paused. The sealed test set remains closed. Physical robot execution has not been qualified. [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]] · [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7]]

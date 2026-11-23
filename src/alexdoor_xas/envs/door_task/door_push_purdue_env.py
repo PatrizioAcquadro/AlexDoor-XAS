@@ -43,9 +43,7 @@ from alexdoor_xas.kinematics.posture import (
     joint_command_position_response,
 )
 from alexdoor_xas.recording.rgbd import RGBDCapture
-from isaac_physics_profile.camera import SteelMountedCamera
 
-from .physics import configure_purdue_physics
 from .purdue_contacts import ContactObserver
 
 ROOT = "/World/envs/env_0"
@@ -119,31 +117,20 @@ class DoorPushPurdueEnv(DirectRLEnv):
             raise ValueError("select_one_posture_preference")
         self._motion_impedance = []
         self._native_arm_impedance = None
-        self._mounted_camera = None
         self._native_contacts = None
-        with configure_purdue_physics(cfg) as self._steel:
-            super().__init__(cfg, **kwargs)
+        super().__init__(cfg, **kwargs)
         if cfg.native_steel:
-            from .native_steel import NativeSteelPurdueViews
+            from .steel_contacts import SteelPurdueViews
 
             self.sim.backend_manager.set_decimation(1)
             self._physics_handles_decimation = False
-            self._native_contacts = NativeSteelPurdueViews(self.sim, self.panel_path)
+            self._native_contacts = SteelPurdueViews(self.sim, self.panel_path)
         self.arm_ids = self._resolve_joints(ARM_JOINTS)
         self.steel_joint_load = None
-        if cfg.observed_load_feedback and (cfg.native_steel or self._steel):
-            from isaac_physics_profile.feedback import SteelJointLoad
+        if cfg.observed_load_feedback and cfg.native_steel:
+            from .steel_joint_load import SteelJointLoad
 
-            if cfg.native_steel:
-                backend = self.sim.backend_manager.backend
-                self.steel_joint_load = SteelJointLoad(
-                    self.robot, lambda: backend.state_0, lambda: backend.state_0.body_parent_f
-                )
-            else:
-                manager = self.sim.physics_manager
-                self.steel_joint_load = SteelJointLoad(
-                    self.robot, lambda: manager._state_0, lambda: manager.observables.body_parent_f
-                )
+            self.steel_joint_load = SteelJointLoad(self.robot, self.sim.backend_manager.backend)
         self.neck_ids = self._resolve_joints(NECK_JOINTS)
         self.observed_ids = self.arm_ids + self.neck_ids
         self.targets = tensor(self.robot.data.default_joint_pos).clone()
@@ -230,9 +217,6 @@ class DoorPushPurdueEnv(DirectRLEnv):
         )
         self.clamp_excess = torch.zeros((1, 7), device=self.device)
         self.pose_error = torch.zeros((1, 6), device=self.device)
-        contact_view = self._native_contacts
-        if self._steel:
-            contact_view = self.sim.physics_manager.contact_sim_view
         self.contacts = ContactObserver(
             self.sim,
             self.sim.stage,
@@ -241,14 +225,12 @@ class DoorPushPurdueEnv(DirectRLEnv):
             PEDESTAL,
             "/World/Ground/CollisionPlane",
             self.push_geometry.wrist_from_base,
-            physics_view=contact_view,
+            physics_view=self._native_contacts,
         )
         if cfg.cameras:
-            if self._steel:
-                self._mounted_camera = SteelMountedCamera(
-                    self.sim, self.robot, self.camera, ROOT + "/Zed"
-                )
-                self._mounted_camera.bind()
+            self._camera_body_id = self.robot.body_names.index(
+                "HEAD_LINK" if cfg.native_steel else "Zed"
+            )
             camera_prim = self.sim.stage.GetPrimAtPath(self.camera.cfg.prim_path)
             near, far = UsdGeom.Camera(camera_prim).GetClippingRangeAttr().Get()
             self.capture = RGBDCapture(float(near), float(far))
@@ -490,24 +472,25 @@ class DoorPushPurdueEnv(DirectRLEnv):
             world_body = np.array(UsdGeom.Xformable(body).ComputeLocalToWorldTransform(0)).T
             world_optic = np.array(UsdGeom.Xformable(optic).ComputeLocalToWorldTransform(0)).T
             if self.cfg.native_steel:
-                world_body, world_optic = world_body.copy(), world_optic.copy()
                 for transform in (world_body, world_optic):
                     transform[:3, :3] /= np.linalg.norm(transform[:3, :3], axis=0)
             local_optic = np.linalg.solve(world_body, world_optic)
             if self.cfg.native_steel:
                 self.authored_camera_from_head = local_optic
-            self._optical_translation = local_optic[:3, 3].copy()
+            self._optical_translation = torch.tensor(
+                local_optic[:3, 3], device=self.device, dtype=torch.float32
+            )[None]
             rotation = local_optic[:3, :3]
             rotation = rotation / np.linalg.norm(rotation, axis=0)
-            self._optical_quaternion = Rotation.from_matrix(rotation).as_quat()
+            self._optical_quaternion = torch.tensor(
+                Rotation.from_matrix(rotation).as_quat(), device=self.device, dtype=torch.float32
+            )[None]
             self.camera = Camera(left)
             self.scene.sensors["head_rgbd"] = self.camera
-        # This scene has one environment. Let Steel's isolated OpenUSD importer
-        # build the composed stage instead of importing it in Kit's cloner.
         if self.cfg.native_steel:
             cloner.replicate(plan)
         else:
-            self.scene.clone_environments(copy_from_source=self._steel)
+            self.scene.clone_environments(copy_from_source=False)
 
     def tool_pose(self):
         index = self.robot.body_names.index(self._tool_body_name)
@@ -929,23 +912,15 @@ class DoorPushPurdueEnv(DirectRLEnv):
         if self.capture is not None:
             # Fabric does not propagate the attached ZED's camera descendant pose.
             # Bridge the canonical optical transform from the measured rigid-body pose.
-            if self._mounted_camera is not None:
-                self._mounted_camera.sync()
-            else:
-                if not self.cfg.native_steel:
-                    self.sim.forward()
-                index = self.robot.body_names.index("HEAD_LINK" if self.cfg.native_steel else "Zed")
-                position, orientation = combine_frame_transforms(
-                    tensor(self.robot.data.body_link_pos_w)[:, index],
-                    tensor(self.robot.data.body_link_quat_w)[:, index],
-                    torch.as_tensor(
-                        self._optical_translation, device=self.device, dtype=torch.float32
-                    )[None],
-                    torch.as_tensor(
-                        self._optical_quaternion, device=self.device, dtype=torch.float32
-                    )[None],
-                )
-                self.camera.set_world_poses(position, orientation, convention="opengl")
+            if not self.cfg.native_steel:
+                self.sim.forward()
+            position, orientation = combine_frame_transforms(
+                tensor(self.robot.data.body_link_pos_w)[:, self._camera_body_id],
+                tensor(self.robot.data.body_link_quat_w)[:, self._camera_body_id],
+                self._optical_translation,
+                self._optical_quaternion,
+            )
+            self.camera.set_world_poses(position, orientation, convention="opengl")
             if self.capture.sample is None:
                 # Settle renderer history at the reset state without stepping physics.
                 for _ in range(self.cfg.reset_camera_frames):
@@ -974,9 +949,6 @@ class DoorPushPurdueEnv(DirectRLEnv):
         )
 
     def _reset_idx(self, env_ids):
-        if self._steel:
-            self.sim.physics_manager.contact_sim_view.reset()
-            self.contact_history = []
         if self._native_contacts is not None:
             self._native_contacts.reset()
             self.contact_history = []

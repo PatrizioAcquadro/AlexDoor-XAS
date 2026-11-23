@@ -15,7 +15,12 @@ NATIVE_STEEL_PROFILE = "newton_steel_native"
 
 
 def native_selected():
-    return os.environ.get("ISAAC_PHYSICS_PROFILE") in (NATIVE_PROFILE, NATIVE_STEEL_PROFILE)
+    profile = os.environ.get("ISAAC_PHYSICS_PROFILE", "isaacsim_physx")
+    if profile == "isaacsim_physx":
+        return False
+    if profile in (NATIVE_PROFILE, NATIVE_STEEL_PROFILE):
+        return True
+    raise ValueError(f"Unknown AlexDoor physics profile: {profile}")
 
 
 def launch_native_steel(cfg):
@@ -24,7 +29,6 @@ def launch_native_steel(cfg):
     from isaaclab_newton.physics import NewtonCfg, SteelSolverCfg
     from isaaclab_newton.renderers import NewtonWarpRendererCfg
 
-    cfg.physics_profile = None
     cfg.native_steel = True
     cfg.urdf_cache_dir = cfg.urdf_cache_dir or os.environ["ALEXDOOR_USD_CACHE"]
     cfg.sim.physics = NewtonCfg(

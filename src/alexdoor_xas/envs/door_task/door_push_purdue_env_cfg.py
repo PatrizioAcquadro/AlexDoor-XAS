@@ -5,8 +5,6 @@ from isaaclab.envs import DirectRLEnvCfg
 from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.utils.configclass import configclass
 
-from alexdoor_xas.simulation_profile import DEFAULT_PHYSICS_PROFILE
-
 
 @configclass
 class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
@@ -23,7 +21,6 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     scene = InteractiveSceneCfg(num_envs=1, env_spacing=3.0, replicate_physics=False)
     num_rerenders_on_reset = 2
     reset_camera_frames: int = 8
-    physics_profile: str | None = DEFAULT_PHYSICS_PROFILE
     native_steel: bool = False
     native_renderer_cfg: object | None = None
     diagnostic_hinge_stop_deg: float | None = None

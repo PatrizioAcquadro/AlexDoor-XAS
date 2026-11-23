@@ -309,7 +309,6 @@ def main(argv=None):
         json.loads((folder / "recipe.json").read_text()),
     )
     cfg = probe_config(door, setup, "cuda:0")
-    cfg.physics_profile = "isaacsim_physx"
     cfg.observed_load_feedback = True
     cfg.recover_force_only_gap = True
     cfg.measure_surface_components = True

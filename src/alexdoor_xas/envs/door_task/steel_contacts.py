@@ -4,7 +4,7 @@ import newton
 import numpy as np
 import warp as wp
 
-from isaac_physics_profile.contact_snapshot import SteelContactSnapshot
+from .steel_contact_snapshot import SteelContactSnapshot
 
 
 class BodyView:
@@ -14,7 +14,7 @@ class BodyView:
         self.indices = [adapter.body_ids[p] for p in paths]
 
     def get_transforms(self):
-        poses = self.adapter.manager._state_0.body_q.numpy()[self.indices]
+        poses = self.adapter.backend.state_0.body_q.numpy()[self.indices]
         return wp.array(poses, dtype=wp.float32, device="cpu")
 
 
@@ -29,23 +29,28 @@ class ContactView:
         return [self.adapter.owners[int(i)] for i in actor_ids.numpy()]
 
     def get_raw_contact_data(self, dt):
-        (force, point, normal, separation, other, _), counts, starts = self.adapter.snapshot.rows(
-            dt, self.owner_indices, None, self.capacity
+        (force, point, normal, separation, other), counts, starts = self.adapter.snapshot.rows(
+            dt, self.owner_indices, self.capacity
         )
         arrays = (force, point, normal, separation, counts, starts, other.astype(np.uint64))
         return tuple(wp.array(value, device="cpu") for value in arrays)
 
 
 class SteelPurdueViews:
-    def __init__(self, manager):
-        self.manager = manager
-        model = manager._model
-        self.shape_body = model.shape_body.numpy()
+    def __init__(self, sim, panel_path):
+        manager = sim.backend_manager
+        self.backend = backend = manager.backend
+        manager.add_contact_sensor(body_names_expr=panel_path)
+        # Contact points are local to the bodies at collision time.
+        poses = wp.clone(backend.state_0.body_q)
+        manager.register_pre_actuator_callback(lambda: wp.copy(poses, backend.state_0.body_q))
+        model = backend.model
+        shape_body = model.shape_body.numpy()
         self.body_ids = {p: i for i, p in enumerate(model.body_label)}
         self.owners = list(model.body_label)
-        self.shape_owner = self.shape_body.copy()
-        for i in np.flatnonzero(self.shape_body < 0):
-            self.shape_owner[i] = len(self.owners)
+        shape_owner = shape_body.copy()
+        for i in np.flatnonzero(shape_body < 0):
+            shape_owner[i] = len(self.owners)
             name = model.shape_label[i]
             if name == "/World/Ground/GroundPlane/CollisionPlane":
                 if int(model.shape_type.numpy()[i]) != int(newton.GeoType.PLANE):
@@ -54,18 +59,12 @@ class SteelPurdueViews:
                 name = "/World/Ground/CollisionPlane"
             self.owners.append(name)
         self.owner_ids = {p: i for i, p in enumerate(self.owners)}
-        self.snapshot = SteelContactSnapshot(
-            manager, self.shape_body, self.shape_owner, check_capacity=True
-        )
+        self.snapshot = SteelContactSnapshot(sim, poses, shape_body, shape_owner)
 
     def reset(self):
-        """Clear solved state in place for the single AlexDoor environment."""
-        manager = self.manager
-        solver = manager._solver
-        # Report sticky failures before reset clears them. Preserve the buffers bound to the graph.
-        solver.check_constraint_capacity()
-        solver.reset(manager._state_0)
-        manager._contacts.clear()
+        # Native forward() resets the solver. Report sticky failures before clearing contacts.
+        self.backend.solver.check_constraint_capacity()
+        self.backend.contacts.clear()
         self.snapshot.invalidate()
 
     def create_rigid_body_view(self, paths):

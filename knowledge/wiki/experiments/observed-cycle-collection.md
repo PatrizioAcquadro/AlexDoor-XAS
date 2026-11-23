@@ -31,3 +31,5 @@ Two early native OVRTX probes reached their 120-second deadline during reset. Th
 ## Native OVRTX D4-N
 
 The NVIDIA renderer log traced the first-frame wait to the Vulkan driver compiling its ray-tracing pipeline. The pipeline took 221.5 seconds on the cold D4 run and 4.2 seconds in a fresh process with the persistent cache. The 960 × 600 RGB-D frame passed the panel, contact-surround and frame visibility checks. The cold render and fresh-process logs are under `outputs/generated/ovrtx-d4-20261123/{baseline,full}/`.
+
+The native OVRTX nominal at revision `ea6bcb7` completed inspection, approach and contact. The operator stopped the run during push at 1.355° of the required 50.146°. The two-second stop and four-second continuation passed. The recording contains no hold, release or stabilization commands and contributes zero eligible training commands. No condition was added to the matrix. The run receipt and independent recording and stop review are in `outputs/generated/ovrtx-d4-20261123/full/report.json` and `outputs/generated/ovrtx-d4-20261123/verified-cycle.json`.

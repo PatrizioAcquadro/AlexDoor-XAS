@@ -8,11 +8,12 @@ _CORE_STATUS = {"disabled_tree_joint", "joint_friction_invalid", "constraint_ove
 class SteelContactSnapshot:
     """Share a native contact sample between all views of the same solver step."""
 
-    def __init__(self, manager, shape_body, shape_owner, *, check_capacity=False):
-        self.manager = manager
+    def __init__(self, sim, poses, shape_body, shape_owner):
+        self.sim = sim
+        self.poses = poses
+        self.backend = sim.backend_manager.backend
         self.shape_body = shape_body
         self.shape_owner = shape_owner
-        self.check_capacity = check_capacity
         self.capacity_checks = 0
         self._step = None
         self._sources = ()
@@ -27,14 +28,13 @@ class SteelContactSnapshot:
         # The native checker owns optional status semantics and failure diagnostics.
         # Core statuses are sticky flags, so all zeros are exactly its fast path.
         if status is None or any(buffer.numpy().any() for buffer in status):
-            self.manager._solver.check_constraint_capacity()
+            self.backend.solver.check_constraint_capacity()
 
     def _refresh(self):
         import warp as wp
         from scipy.spatial.transform import Rotation
 
-        manager = self.manager
-        contacts = manager._contacts
+        contacts = self.backend.contacts
         geometry = (
             contacts.rigid_contact_count,
             contacts.rigid_contact_shape0,
@@ -44,13 +44,13 @@ class SteelContactSnapshot:
             contacts.rigid_contact_normal,
             contacts.rigid_contact_margin0,
             contacts.rigid_contact_margin1,
-            manager.observables.contact_f,
-            manager.contact_poses,
+            self.backend.contact_observables.contact_f,
+            self.poses,
         )
-        status = manager._solver._status_sources() if self.check_capacity else {}
+        status = self.backend.solver._status_sources()
         core_status = status.keys() == _CORE_STATUS
         sources = (*geometry, *status.values()) if core_status else geometry
-        step = manager._sim.get_physics_step_count()
+        step = self.sim.get_physics_step_count()
         if len(sources) != len(self._sources) or any(
             a is not b for a, b in zip(sources, self._sources, strict=True)
         ):
@@ -64,9 +64,8 @@ class SteelContactSnapshot:
         for host, source in zip(self._host, sources, strict=True):
             wp.copy(host, source, stream=stream)
         wp.synchronize_stream(stream)
-        if self.check_capacity:
-            self._check_status(self._host[len(geometry) :] if core_status else None)
-            self.capacity_checks += 1
+        self._check_status(self._host[len(geometry) :] if core_status else None)
+        self.capacity_checks += 1
         count = int(self._host[0].numpy()[0])
         if not 0 <= count < contacts.rigid_contact_max:
             raise RuntimeError("Steel contact buffer saturated or invalid")
@@ -92,7 +91,6 @@ class SteelContactSnapshot:
         if np.any(normal_force < -1e-4):
             raise RuntimeError("Steel solved contact normal force has the wrong sign")
         normal_force = np.maximum(normal_force, 0)
-        tangent = force + normal_force[:, None] * normal
         self._arrays = (
             self.shape_owner[shape0],
             self.shape_owner[shape1],
@@ -100,21 +98,18 @@ class SteelContactSnapshot:
             midpoint,
             normal,
             separation,
-            tangent,
         )
         self._step = step
 
-    def rows(self, dt, owners, filters, capacity):
-        if not np.isclose(dt, self.manager._solver_dt):
+    def rows(self, dt, owners, capacity):
+        if not np.isclose(dt, self.backend.solver_dt):
             raise RuntimeError("Contact time step differs from the solved Steel interval")
         self._refresh()
-        a, b, force, point, normal, separation, tangent = self._arrays
+        a, b, force, point, normal, separation = self._arrays
         contacts = len(a)
         sides = np.concatenate((a, b))
         partners = np.concatenate((b, a))
         matches = sides[None, :] == owners[:, None]
-        if filters is not None:
-            matches &= partners[None, :] == filters[:, None]
         # Nonzero walks the matrix by sensor, then side, then original contact.
         sensor, slot = np.nonzero(matches)
         if len(slot) >= capacity:
@@ -129,7 +124,6 @@ class SteelContactSnapshot:
             normal[indices] * sign[:, None],
             separation[indices],
             partners[slot],
-            tangent[indices] * -sign[:, None],
         )
         # Consumers use one unused sentinel element to distinguish full buffers.
         return [np.pad(v, [(0, 1), *[(0, 0)] * (v.ndim - 1)]) for v in values], counts, starts

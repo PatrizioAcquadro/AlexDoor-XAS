@@ -61,7 +61,6 @@ def main():
     try:
         assert app.is_running() and torch.cuda.is_available()
         cfg = DoorPushPurdueEnvCfg()
-        cfg.physics_profile = "isaacsim_physx"
         cfg.observed_load_feedback = True
         setup = json.loads((args.repo / "configs/purdue_synthetic_probe.json").read_text())
         cfg.floor_pose = tuple(setup["floor_pose"])

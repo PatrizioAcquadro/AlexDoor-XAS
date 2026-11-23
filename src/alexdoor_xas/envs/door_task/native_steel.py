@@ -1,18 +1,14 @@
-"""Alex003 assets and solved-contact access for the upstream Newton backend."""
+"""Alex003 assets and arm impedance for the upstream Newton backend."""
 
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from types import SimpleNamespace
 
 import torch
-import warp as wp
 from ihmc_alex_isaaclab.robots.purdue_frames import ALEX_PURDUE_ASSET_ROOT
 from isaaclab.actuators import IdealPDActuatorCfg
 from isaaclab.actuators.newton import read_group_parameter, write_group_parameter
 from isaaclab.assets import ArticulationCfg
 from isaaclab.sim import UsdFileCfg
-
-from .steel_contacts import SteelPurdueViews
 
 ROBOT_ASSET = "alex_purdue_wsg32_umi_v1_full_convex"
 PEDESTAL_ASSET = "purdue_alex003_pedestal"
@@ -96,34 +92,3 @@ class NativeArmImpedance:
         write_group_parameter(
             self.collection, "arms", "drive", "kd", damping, joint_ids=self.columns
         )
-
-
-class NativeSteelPurdueViews(SteelPurdueViews):
-    """Present the official backend's solved rows to the shared contact observer."""
-
-    def __init__(self, sim, panel_path):
-        manager = sim.backend_manager
-        backend = manager.backend
-        manager.add_contact_sensor(body_names_expr=panel_path)
-        poses = wp.clone(backend.state_0.body_q)
-        # Contact points are local to the bodies at collision time.
-        manager.register_pre_actuator_callback(lambda: wp.copy(poses, backend.state_0.body_q))
-        self.backend = backend
-        super().__init__(
-            SimpleNamespace(
-                _model=backend.model,
-                _state_0=backend.state_0,
-                _contacts=backend.contacts,
-                _solver=backend.solver,
-                _solver_dt=backend.solver_dt,
-                _sim=sim,
-                observables=backend.contact_observables,
-                contact_poses=poses,
-            )
-        )
-
-    def reset(self):
-        # The native backend resets solver state on the subsequent forward().
-        self.backend.solver.check_constraint_capacity()
-        self.backend.contacts.clear()
-        self.snapshot.invalidate()

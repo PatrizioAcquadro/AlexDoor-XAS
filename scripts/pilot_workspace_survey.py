@@ -83,7 +83,6 @@ def main():
     ):
         raise ValueError("Survey opening must be inside the unchanged mechanical stop")
     cfg = probe_config(door, setup, "cuda:0")
-    cfg.physics_profile = "isaacsim_physx"
     cfg.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
     cfg.seed = 6100
     env = DoorPushPurdueEnv(cfg)
