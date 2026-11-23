@@ -78,7 +78,9 @@ scripts/isaac-run.sh scripts/perception.py point2pose-live --case camera --asset
 ```
 
 All recorded diagnostics require one explicit existing pilot `--episode`; live requires both `--asset` and
-`--case`. Every invocation starts one attempt. Historical campaign orchestration
+`--case`. Every invocation starts one attempt. Scan, replay and recorded operational protocols
+store the source checkout commit when available. With an unpacked distribution,
+`source_commit` is `null`. Historical campaign orchestration
 and the concurrent smoke alias remain at `24a2aa7`, alongside the retired temporal
 renewal evaluator. Scientific limits and saved evidence are unchanged.
 

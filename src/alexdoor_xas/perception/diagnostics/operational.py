@@ -1,13 +1,13 @@
 """Complete provider accounting under continuous ingress; truth stays in scoring."""
 
 import json
-import subprocess
 import time
 from pathlib import Path
 
 import h5py
 import numpy as np
 
+from alexdoor_xas.perception.diagnostics import source_commit
 from alexdoor_xas.perception.diagnostics.offline import finite_pose
 from alexdoor_xas.perception.diagnostics.smoke import sensor_at
 from alexdoor_xas.perception.diagnostics.targets import evaluate_targets
@@ -238,9 +238,7 @@ def recorded_operational(path, recipe, output, models, *, selection=None, replay
                 if replay
                 else "continuous recorded wall-clock ingress",
                 source=str(path),
-                source_commit=subprocess.check_output(
-                    ["git", "rev-parse", "HEAD"], text=True
-                ).strip(),
+                source_commit=source_commit(),
                 recipe=recipe.to_dict(),
                 selection=selection,
                 source_times_unchanged=True,

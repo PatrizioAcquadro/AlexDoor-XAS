@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import subprocess
 import time
 from dataclasses import asdict
 from pathlib import Path
@@ -11,6 +10,7 @@ import h5py
 import numpy as np
 from PIL import Image, ImageDraw
 
+from alexdoor_xas.perception.diagnostics import source_commit
 from alexdoor_xas.perception.evaluation import quantiles, write_json
 from alexdoor_xas.perception.geometry import project
 from alexdoor_xas.perception.scan import footprint_support, surface_support
@@ -279,7 +279,6 @@ def run_scan_diagnostic(path, recipe, output, models):
 
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=False)
-    root = Path(__file__).resolve().parents[4]
     urdf = (
         alex_root
         / "assets/robots/alex_purdue/urdf/baseline/alex_purdue_wsg32_umi_v1_full_convex.urdf"
@@ -292,9 +291,7 @@ def run_scan_diagnostic(path, recipe, output, models):
             mode="scan_diagnostics",
             recipe=recipe.to_dict(),
             selected_episode=str(path),
-            source_commit=subprocess.check_output(
-                ["git", "rev-parse", "HEAD"], cwd=root, text=True
-            ).strip(),
+            source_commit=source_commit(),
             provider_sources={
                 p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in Path(__file__).parent.glob("*.py")

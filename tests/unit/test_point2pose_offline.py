@@ -375,8 +375,15 @@ def test_mask_guard_is_strict_operationally_and_diagnostic_per_candidate():
 def test_replay_failure_keeps_scheduled_denominator_and_closes_provider(
     tmp_path, monkeypatch, runtime
 ):
+    from alexdoor_xas.perception import diagnostics
     from alexdoor_xas.perception.diagnostics import replay
 
+    # The published source archive has no Git metadata.
+    monkeypatch.setattr(
+        diagnostics,
+        "__file__",
+        str(tmp_path / "src/alexdoor_xas/perception/diagnostics/__init__.py"),
+    )
     closed = []
 
     def fail(_):
@@ -392,6 +399,7 @@ def test_replay_failure_keeps_scheduled_denominator_and_closes_provider(
         replay.replay_episode(
             recording(tmp_path / "episode.hdf5"), runtime.recipe, output, "unused", None, None
         )
+    assert json.loads((output / "protocol.json").read_text())["source_commit"] is None
     failure = json.loads((output / "failure.json").read_text())
     assert failure["scheduled_rows"] == failure["not_processed_rows"] == 3
     assert failure["completed_rows"] == 0 and closed == [True]

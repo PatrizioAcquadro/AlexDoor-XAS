@@ -1,7 +1,6 @@
 """Chronological single-episode diagnostic scoring, isolated from observed-only inference."""
 
 import json
-import subprocess
 from pathlib import Path
 
 import h5py
@@ -9,6 +8,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 from alexdoor_xas.action.frames import rot_z
+from alexdoor_xas.perception.diagnostics import source_commit
 from alexdoor_xas.perception.diagnostics.smoke import sensor_at
 from alexdoor_xas.perception.evaluation import quantiles, write_json
 from alexdoor_xas.perception.geometry import project
@@ -76,9 +76,7 @@ def replay_episode(
         output / "protocol.json",
         dict(
             mode="point2pose-pilot-replay",
-            source_commit=subprocess.check_output(
-                ["git", "rev-parse", "HEAD"], cwd=Path(__file__).resolve().parents[4], text=True
-            ).strip(),
+            source_commit=source_commit(),
             episode=str(path),
             stride=stride,
             useful_availability_min=0.95,
