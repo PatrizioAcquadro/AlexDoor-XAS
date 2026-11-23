@@ -67,8 +67,6 @@ def config(
     *,
     measure_contact,
     constraint_capacity=None,
-    velocity_limits=False,
-    rigid_gap=None,
     contact_view=None,
     import_worker=None,
     measure_joint_load=False,
@@ -102,8 +100,7 @@ def config(
                 out = Path(scratch) / "builder.pkl"
                 if not stage.Export(str(usd)):
                     raise RuntimeError("Could not export the common fixture scene")
-                args = [str(usd), str(out), "default" if rigid_gap is None else str(rigid_gap)]
-                args.extend(env_roots)
+                args = [str(usd), str(out), *env_roots]
                 if (
                     import_worker is not None
                     and import_worker.stdin is not None
@@ -140,7 +137,6 @@ def config(
                 articulation_constraint_max=constraint_capacity
                 or (128 if cls.measure_contact else 32),
                 enable_joint_limits=True,
-                enable_joint_velocity_limits=velocity_limits,
                 enable_joint_friction=True,
                 enable_sleeping=False,
             )

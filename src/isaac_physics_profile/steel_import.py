@@ -11,14 +11,12 @@ from ovphysx.samples.python_samples.schema_support import physx_schema_paths
 from pxr import Plug, Usd
 
 
-def import_scene(source, output, gap, *worlds):
+def import_scene(source, output, *worlds):
     for schema in physx_schema_paths():
         Plug.Registry().RegisterPlugins(str(schema))
     stage = Usd.Stage.Open(source)
     builder = ModelBuilder()
     expected = set(builder.custom_attributes)
-    if gap != "default":
-        builder.rigid_gap = float(gap)
     options = dict(
         load_visual_shapes=False,
         load_static_visual_shapes=False,
