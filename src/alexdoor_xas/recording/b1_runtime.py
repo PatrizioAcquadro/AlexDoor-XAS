@@ -8,16 +8,7 @@ from scipy.spatial.transform import Rotation
 
 from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS, origin_matrix
 from alexdoor_xas.recording.b1 import PHASES, B1Writer
-
-
-def array(value):
-    import torch
-    import warp as wp
-
-    value = value.torch if hasattr(value, "torch") else value
-    if isinstance(value, wp.array):
-        value = wp.to_torch(value)
-    return value.detach().cpu().numpy() if isinstance(value, torch.Tensor) else np.asarray(value)
+from alexdoor_xas.recording.b1 import as_numpy as array
 
 
 def joint_si_units(urdf, names):

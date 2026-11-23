@@ -16,12 +16,7 @@ from alexdoor_xas.perception.contracts import (
 )
 from alexdoor_xas.policies.common.b1_contract import OBS_KEYS, PilotBinding
 from alexdoor_xas.recording.b1 import OBS_KEYS as SENSOR_KEYS
-
-
-def numpy(value):
-    if hasattr(value, "detach"):
-        return value.detach().cpu().numpy()
-    return np.asarray(value)
+from alexdoor_xas.recording.b1 import as_numpy as numpy
 
 
 @dataclass(frozen=True)

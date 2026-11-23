@@ -24,6 +24,14 @@ OBS_KEYS = (
 )
 
 
+def as_numpy(value):
+    """Read a sensor array from NumPy, PyTorch, Warp or an Isaac tensor wrapper."""
+    value = getattr(value, "torch", value)
+    if hasattr(value, "detach"):
+        value = value.detach().cpu()
+    return value.numpy() if hasattr(value, "numpy") else np.asarray(value)
+
+
 def robot_feedback_at(h5, row):
     """Read measured feedback; legacy absence stays absent even with effort commands."""
     if h5.attrs.get("schema") != SCHEMA:

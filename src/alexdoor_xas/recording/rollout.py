@@ -8,13 +8,9 @@ import h5py
 import numpy as np
 
 from alexdoor_xas.recording.b1 import OBS_KEYS
+from alexdoor_xas.recording.b1 import as_numpy as numpy
 
 SCHEMA = "b1.policy_rollout.v1"
-
-
-def numpy(value):
-    # Transfer image tensors only when retained, without importing a GPU stack.
-    return value.detach().cpu().numpy() if hasattr(value, "detach") else np.asarray(value)
 
 
 class RolloutWriter:
