@@ -6,15 +6,11 @@ with two opposing fingers. Both engines load the same authored USD colliders,
 material, mass, offsets, initial conditions, commands, and explicit PD effort
 controller. The default experiment exercises tracking at one and eight
 independent environments, a lift and release of a free block, and the same
-block motion with Isaac RTX RGB-D, color/depth perception, and recording.
+block motion with RTX RGB-D, color/depth perception, and recording.
 
 ## Run and read the results
 
-From the repository root, set `ISAAC_SIM_DIR` to the installed Isaac Sim,
-`NEWTON_SITE` to an isolated Python site with Newton 1.8.0rc2, Warp 1.18.0,
-OpenUSD, the Newton USD schemas, and the OVPhysX schema package, and
-`BENCH_GPU_UUID` to the RTX UUID from
-`nvidia-smi -L`. Run:
+Use the workstation’s Isaac Sim PhysX runtime and the [[purdue-b1-robot-and-contact#Install the native B1 runtime|native Steel installation]]. Set `BENCH_GPU_UUID` to the RTX UUID from `nvidia-smi -L`. From the repository root run
 
 ```bash
 bash scripts/benchmark_physics.sh configs/physics_benchmark/common.json outputs/generated/paired-physics
@@ -36,14 +32,14 @@ and the captured Steel graph. The summary validates both backend receipts.
 The task measures bilateral native contact at 60 Hz, object displacement relative
 to the hand during lift/carry, release after supported contact, final support
 height, and post-release drift and velocity. The RGB-D fixture uses a fixed
-320 × 240 Isaac RTX camera at 30 Hz, with positive finite metric depth, advancing
+320 × 240 camera at 30 Hz with Kit RTX on PhysX and native OVRTX on Steel, with positive finite metric depth, advancing
 frame IDs, non-flat RGB, and observed red-object detection. Its detector logs
 the centroid and median depth without changing the common controller. Recorded
 NPZ windows include RGB, depth, simulation timestamps, and the detection outputs.
 
 ## Measured results
 
-The verified November 12 run used one warm-up and three measured windows per combination on the RTX 4090. The table gives median elapsed seconds per window. All three measured block episodes passed on each backend, both with and without RGB-D.
+The November 12 comparison used the retired beta2 Steel adapter and Kit RTX on both engines. It used one warm-up and three measured windows per combination on the RTX 4090. The table gives median elapsed seconds per window. All three measured block episodes passed on each backend, both with and without RGB-D.
 
 | Fixture | PhysX | Steel |
 |---|---:|---:|
@@ -53,6 +49,8 @@ The verified November 12 run used one warm-up and three measured windows per com
 | Same manipulation with RTX RGB-D and recording | 2.654 | 1.806 |
 
 Steel’s finger-tracking RMSE rose from 2.6–3.1 mm to about 4.0 mm. The initial Steel run exhausted its 32 constraint rows. The preserved comparison includes the corrected capacity and native receipts. Six saved recordings supplied 291 frames per backend. Logs, seeds, failures, task tolerances and memory are in `outputs/generated/paired-physics-20261112/verified/`. These measurements describe the shared gantry. A project can reuse the timing protocol with its own scene, evaluator and acceptance criteria.
+
+The November 23 migration used the same four fixtures and seeds on the RTX 4090. The native Steel graph and PhysX GPU checks passed. Both engines completed 3/3 block transfers and 3/3 RGB-D transfers, including release and settling. Each produced 291 measured RGB-D frames with detections in all frames. Median RGB-D episode time was 1.135 s on native Steel/OVRTX and 2.785 s on PhysX/Kit RTX. This measures both the solver and the renderer. Per-window results and the earlier frozen-frame failure are under `outputs/generated/adapter-retirement-20261123/{verified,paired}/`.
 
 ## AlexDoor measurements
 

@@ -82,21 +82,39 @@ class BenchFixture:
             contact_offset=scene["contact_offset_m"],
             rest_offset=0.0,
         )
-        self.origins = [i * scene["spacing_m"] for i in range(len(env_roots))]
-        for root, offset in zip(env_roots, self.origins, strict=True):
-            author_robot(stage, f"{root}/Robot", offset, cfg["robot"], material, collision)
+        origins = np.zeros((len(env_roots), 3), dtype=np.float32)
+        origins[:, 0] = np.arange(len(env_roots)) * scene["spacing_m"]
+        effort = ImplicitActuatorCfg(joint_names_expr=[".*"], stiffness=0, damping=0)
+        if backend == "steel":
+            from isaaclab import cloner
+            from isaaclab.assets import AssetBaseCfg
+            from isaaclab.cloner import CloneCfg
+
+            paths = [f"{env_roots[0]}/Robot"]
+            if case["task"] == "block":
+                paths.extend(f"{env_roots[0]}/{name}" for name in ("Table", "Block"))
+            if case.get("rgbd"):
+                paths.extend(("/World/Camera", "/World/Light"))
+            plan = cloner.clone_plan_from_env_0(
+                CloneCfg(),
+                [AssetBaseCfg(prim_path=path) for path in paths],
+                len(env_roots),
+                scene["spacing_m"],
+                positions=origins,
+            )
+            effort.joint_effort_limit = 100
+            author_robot(stage, f"{env_roots[0]}/Robot", 0.0, cfg["robot"], material, collision)
+        else:
+            effort.effort_limit_sim = 100
+            for root, offset in zip(env_roots, origins[:, 0], strict=True):
+                author_robot(
+                    stage, f"{root}/Robot", float(offset), cfg["robot"], material, collision
+                )
         self.robot = Articulation(
             ArticulationCfg(
                 prim_path="/World/envs/env_.*/Robot",
                 spawn=None,
-                actuators={
-                    "effort": ImplicitActuatorCfg(
-                        joint_names_expr=[".*"],
-                        stiffness=0,
-                        damping=0,
-                        effort_limit_sim=100,
-                    )
-                },
+                actuators={"effort": effort},
             )
         )
         if case["task"] == "block":
@@ -105,6 +123,8 @@ class BenchFixture:
             self.make_block(env_roots[0], scene, collision)
         if case.get("rgbd"):
             self.make_camera(cfg["camera"])
+        if backend == "steel":
+            cloner.replicate(plan)
         self.gain = torch.tensor(cfg["robot"]["stiffness"], device=sim.device)
         self.damping = torch.tensor(cfg["robot"]["damping"], device=sim.device)
         self.limit = torch.tensor(cfg["robot"]["effort_limits"], device=sim.device)
@@ -144,9 +164,16 @@ class BenchFixture:
         )
 
     def make_camera(self, camera):
-        from isaaclab_physx.renderers.isaac_rtx_renderer_cfg import IsaacRtxRendererCfg
         from scipy.spatial.transform import Rotation
 
+        if self.backend == "steel":
+            from isaaclab_ov.renderers import OVRTXRendererCfg
+
+            renderer = OVRTXRendererCfg()
+        else:
+            from isaaclab_physx.renderers.isaac_rtx_renderer_cfg import IsaacRtxRendererCfg
+
+            renderer = IsaacRtxRendererCfg()
         eye = np.array(camera["eye_m"])
         back = eye - np.asarray(camera["look_at_m"])
         back /= np.linalg.norm(back)
@@ -162,7 +189,7 @@ class BenchFixture:
                 width=camera["width"],
                 data_types=["rgb", "distance_to_image_plane"],
                 update_period=0,
-                renderer_cfg=IsaacRtxRendererCfg(),
+                renderer_cfg=renderer,
                 spawn=sim_utils.PinholeCameraCfg(focal_length=22, clipping_range=(0.1, 4.0)),
                 offset=CameraCfg.OffsetCfg(
                     pos=tuple(eye), rot=tuple(orientation.as_quat()), convention="opengl"
@@ -185,8 +212,9 @@ class BenchFixture:
                 filter_patterns=[[self.block_path] for _ in self.finger_paths],
             )
             return
-        manager = self.sim.physics_manager
-        model = manager._model
+        manager = self.sim.backend_manager
+        manager.add_contact_sensor(body_names_expr=self.block_path)
+        model = manager.backend.model
         owners = np.array(model.body_label, dtype=object)
         body = model.shape_body.numpy()
         self.shape_owner = np.full(len(body), "", dtype=object)
@@ -235,6 +263,8 @@ class BenchFixture:
 
     def advance(self, dt):
         self.robot.update(dt)
+        if self.camera is not None:
+            self.camera.update(dt)
         if self.block is not None:
             self.block.update(dt)
 
@@ -242,14 +272,14 @@ class BenchFixture:
         dt = self.sim.get_physics_dt()
         if self.backend == "physx":
             return np.linalg.norm(self.contact.get_contact_force_matrix(dt).numpy()[:, 0], axis=-1)
-        manager = self.sim.physics_manager
-        buf = manager._contacts
+        backend = self.sim.backend_manager.backend
+        buf = backend.contacts
         count = int(buf.rigid_contact_count.numpy()[0])
         if count >= buf.rigid_contact_max:
             raise RuntimeError("Steel contact buffer saturated")
         a = self.shape_owner[buf.rigid_contact_shape0.numpy()[:count]]
         b = self.shape_owner[buf.rigid_contact_shape1.numpy()[:count]]
-        force = manager.observables.contact_f.numpy()[:count, :3]
+        force = backend.contact_observables.contact_f.numpy()[:count, :3]
         normals = buf.rigid_contact_normal.numpy()[:count]
         normal = np.maximum(-np.sum(force * normals, axis=-1), 0)
         return np.asarray(
