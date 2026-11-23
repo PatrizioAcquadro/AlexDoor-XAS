@@ -1,11 +1,17 @@
 """Continuation/latch bookkeeping only; physical stop qualification is separate."""
 
+import signal
 from types import SimpleNamespace
 
 import numpy as np
 import pytest
 import torch
 
+from alexdoor_xas.qualification.interruption import (
+    CollectionBudgetExceeded,
+    collection_termination_reason,
+    install_interruption,
+)
 from alexdoor_xas.qualification.stop import verify_stop_continuation
 
 
@@ -76,27 +82,31 @@ def test_a_contact_violation_survives_successful_settling(tmp_path):
     assert env.tick == 4
 
 
-def test_interruption_is_raised_after_returning_from_Kit_callback(monkeypatch):
-    import runpy
-    import signal
-
-    import pytest
-
-    api = runpy.run_path("scripts/pilot_physics.py")
+@pytest.mark.parametrize(
+    "signum,expected_error,reason",
+    [
+        (signal.SIGTERM, KeyboardInterrupt, "interrupted"),
+        (signal.SIGUSR1, CollectionBudgetExceeded, "budget_termination"),
+    ],
+)
+def test_interruption_is_raised_after_returning_from_Kit_callback(
+    monkeypatch, signum, expected_error, reason
+):
     handlers, returned = {}, []
     monkeypatch.setattr(signal, "signal", lambda name, handler: handlers.update({name: handler}))
 
     def original_step():
-        handlers[signal.SIGTERM](signal.SIGTERM, None)
+        handlers[signum](signum, None)
         returned.append(True)  # Kit returns normally; no exception can be swallowed inside it.
         return "stepped"
 
     env = SimpleNamespace(step=original_step)
-    restore = api["install_interruption"](env)
-    with pytest.raises(KeyboardInterrupt, match="signal"):
+    restore = install_interruption(env)
+    with pytest.raises(expected_error) as stopped:
         env.step()
+    assert collection_termination_reason(stopped.value) == reason
     assert returned == [True]
-    with pytest.raises(KeyboardInterrupt):
+    with pytest.raises(expected_error):
         env.step()  # cancellation remains pending; do not advance another task step
     assert returned == [True]
     restore()
@@ -104,14 +114,10 @@ def test_interruption_is_raised_after_returning_from_Kit_callback(monkeypatch):
 
 
 def test_pending_interruption_allows_full_continuing_physics_stop(tmp_path, monkeypatch):
-    import runpy
-    import signal
-
-    api = runpy.run_path("scripts/pilot_physics.py")
     handlers = {}
     monkeypatch.setattr(signal, "signal", lambda name, handler: handlers.update({name: handler}))
     env = NumericalStopIO()
-    restore = api["install_interruption"](env)
+    restore = install_interruption(env)
     handlers[signal.SIGTERM](signal.SIGTERM, None)
     restore()  # the maintained CLI does this before its finally/stop path
     result = verify_stop_continuation(env, tmp_path / "interrupted-stop.npz")
@@ -239,18 +245,12 @@ def test_initial_screen_applies_same_roundoff_rule_to_hard_and_soft_limits(tmp_p
 
 
 def test_collection_simulation_guard_counts_steps_across_local_clock_resets(monkeypatch):
-    import runpy
-    import signal
-
-    import pytest
-
-    api = runpy.run_path("scripts/pilot_physics.py")
     monkeypatch.setattr(signal, "signal", lambda *a: None)
     env = SimpleNamespace(step=lambda: None, step_dt=0.5, _time_s=0.0)
-    restore = api["install_interruption"](env, max_sim_s=1.0)
+    restore = install_interruption(env, max_sim_s=1.0)
     env.step()
     env._time_s = 0.0
-    with pytest.raises(api["CollectionBudgetExceeded"], match="simulation_budget"):
+    with pytest.raises(CollectionBudgetExceeded, match="simulation_budget"):
         env.step()
     assert env.collection_physics_s == 1.0
     restore()

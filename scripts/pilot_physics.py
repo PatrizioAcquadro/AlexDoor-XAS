@@ -15,7 +15,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 from alexdoor_xas.qualification.interruption import (  # noqa: E402
-    CollectionBudgetExceeded,
+    collection_termination_reason,
     install_interruption,
 )
 
@@ -634,16 +634,8 @@ def main(argv=None):
                     task_success=bool(result["passed"] and campaign is None),
                     recording_complete=True,
                 )
-            except BaseException as error:
-                if not isinstance(error, (Exception, KeyboardInterrupt)):
-                    raise
-                termination = (
-                    "budget_termination"
-                    if isinstance(error, CollectionBudgetExceeded)
-                    else "interrupted"
-                    if isinstance(error, KeyboardInterrupt)
-                    else "collection_exception"
-                )
+            except (Exception, KeyboardInterrupt) as error:
+                termination = collection_termination_reason(error)
                 result = dict(
                     passed=False,
                     task_success=False,

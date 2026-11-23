@@ -20,7 +20,7 @@ from alexdoor_xas.qualification.b1_runtime import (  # noqa: E402
     native_selected,
 )
 from alexdoor_xas.qualification.interruption import (  # noqa: E402
-    CollectionBudgetExceeded,
+    collection_termination_reason,
     install_interruption,
 )
 
@@ -333,9 +333,7 @@ def collect(args, env, door, setup, recipe, episode, inspection, required_openin
             result = dict(
                 passed=False,
                 recording_complete=False,
-                stop_reason="budget_termination"
-                if isinstance(error, CollectionBudgetExceeded)
-                else "collection_exception",
+                stop_reason=collection_termination_reason(error),
                 error=repr(error),
                 traceback=traceback.format_exc(),
                 task_failure_before_exception=getattr(error, "probe_task_failure", None),

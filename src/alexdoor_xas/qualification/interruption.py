@@ -8,6 +8,14 @@ class CollectionBudgetExceeded(TimeoutError):
     pass
 
 
+def collection_termination_reason(error):
+    if isinstance(error, CollectionBudgetExceeded):
+        return "budget_termination"
+    if isinstance(error, KeyboardInterrupt):
+        return "interrupted"
+    return "collection_exception"
+
+
 def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
     """Raise outside Kit callbacks, then restore unguarded stepping for the stop."""
     started = perf_counter()
@@ -29,7 +37,7 @@ def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
         if pending and pending[0] == signal.SIGUSR1:
             raise CollectionBudgetExceeded("collection_resource_budget")
         if pending:
-            raise KeyboardInterrupt(f"Pilot interrupted by signal {pending[0]}")
+            raise KeyboardInterrupt(f"Collection interrupted by signal {pending[0]}")
 
     def step(*args, **kwargs):
         check()
