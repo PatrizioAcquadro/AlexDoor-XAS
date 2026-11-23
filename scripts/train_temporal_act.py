@@ -13,11 +13,15 @@ import torch
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from alexdoor_xas.assets.identity import RobotAssetRef  # noqa: E402
+from alexdoor_xas.assets.identity import (  # noqa: E402
+    RobotAssetRef,
+    assert_checkpoint_runtime_compatible,
+)
 from alexdoor_xas.dataset.normalize import DatasetNormStats  # noqa: E402
 from alexdoor_xas.dataset.sampling import collate_torch  # noqa: E402
 from alexdoor_xas.policies.act.model import act_loss  # noqa: E402
 from alexdoor_xas.policies.act.temporal import (  # noqa: E402
+    FORMAT,
     TemporalActPolicy,
     fit_temporal_stats,
     save_temporal_policy,
@@ -29,12 +33,50 @@ from alexdoor_xas.policies.act.temporal_training import (  # noqa: E402
     build_training_index,
 )
 from alexdoor_xas.policies.act.train import evaluate_l1  # noqa: E402
+from alexdoor_xas.policies.common.checkpoint import load_checkpoint_payload  # noqa: E402
 from alexdoor_xas.policies.common.data import to_device as _to_device  # noqa: E402
 from alexdoor_xas.policies.common.training import (  # noqa: E402
     capture_rng_states,
     restore_rng_states,
     torch_save_atomic,
 )
+from alexdoor_xas.policies.temporal import TemporalConfig  # noqa: E402
+
+
+def load_resume(path, *, seed, stats, selected_ids, config, robot):
+    # RNG byte states stay on CPU; load_state_dict moves the model and optimizer.
+    previous = torch.load(path, map_location="cpu", weights_only=False)
+    if previous["seed"] != seed or previous["stats"] != stats.to_dict():
+        raise ValueError("Resume seed/normalization mismatch")
+    source_ids = previous.get("training_episode_ids")
+    if "observation_config" in previous or "robot_asset" in previous:
+        if not previous.get("observation_config") or not previous.get("robot_asset"):
+            raise ValueError("Incomplete resume observation/robot contract")
+        saved_config = previous["observation_config"]
+        saved_robot = RobotAssetRef.from_dict(previous["robot_asset"])
+    else:
+        companion = path.with_name(f"checkpoint-{previous['step']:06d}.pt")
+        if not companion.is_file():
+            raise ValueError(f"Legacy resume requires its matching policy checkpoint: {companion}")
+        policy = load_checkpoint_payload(companion, FORMAT, "temporal ACT", "cpu")
+        if (
+            previous["model"].keys() != policy.state_dict.keys()
+            or any(not torch.equal(v, policy.state_dict[k]) for k, v in previous["model"].items())
+            or policy.stats.to_dict() != previous["stats"]
+        ):
+            raise ValueError("Legacy resume and companion policy differ")
+        policy_ids = validate_training_sources(stats, policy.meta.get("training_episode_ids"))
+        if source_ids is not None and tuple(source_ids) != policy_ids:
+            raise ValueError("Legacy resume and companion training sources differ")
+        source_ids = policy_ids
+        saved_config = policy.model_cfg["temporal_config"]
+        saved_robot = policy.robot_asset
+    if TemporalConfig(**saved_config).model_contract() != config.model_contract():
+        raise ValueError("Resume temporal/preprocessing recipe mismatch")
+    assert_checkpoint_runtime_compatible(saved_robot, robot)
+    if not set(validate_training_sources(stats, source_ids)) <= set(selected_ids):
+        raise ValueError("Resume cannot discard previously selected training sources")
+    return previous
 
 
 def main():
@@ -78,6 +120,14 @@ def main():
         args.manifest, data_root=args.data_root, focus_episode_ids=args.focus_episode
     )
     dev = TemporalTrainingSet(args.manifest, split="development", data_root=args.data_root)
+    config = train.episodes[0].config
+    robot = RobotAssetRef.from_dict(train.episodes[0].metadata["robot_asset"])
+    for episode in (*train.episodes, *dev.episodes):
+        if episode.config.model_contract() != config.model_contract():
+            raise ValueError("Training and development observation contracts differ")
+        assert_checkpoint_runtime_compatible(
+            RobotAssetRef.from_dict(episode.metadata["robot_asset"]), robot
+        )
     stats = (
         DatasetNormStats.from_dict(json.loads(args.normalization.read_text()))
         if args.normalization
@@ -86,18 +136,18 @@ def main():
     selected_ids = validate_training_sources(stats, [e.builder.episode_id for e in train.episodes])
     (args.output / "normalization.json").write_text(json.dumps(stats.to_dict(), indent=2))
     torch.manual_seed(args.seed)
-    model = temporal_model(train.episodes[0].config, seed=args.seed).cuda()
-    robot = RobotAssetRef.from_dict(train.episodes[0].metadata["robot_asset"])
+    model = temporal_model(config, seed=args.seed).cuda()
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
     step = 0
     if args.resume:
-        # RNG byte states must remain on CPU; load_state_dict moves model/optimizer tensors.
-        previous = torch.load(args.resume, map_location="cpu", weights_only=False)
-        if previous["seed"] != args.seed or previous["stats"] != stats.to_dict():
-            raise ValueError("Resume seed/normalization mismatch")
-        previous_ids = validate_training_sources(stats, previous.get("training_episode_ids"))
-        if not set(previous_ids) <= set(selected_ids):
-            raise ValueError("Resume cannot discard previously selected training sources")
+        previous = load_resume(
+            args.resume,
+            seed=args.seed,
+            stats=stats,
+            selected_ids=selected_ids,
+            config=config,
+            robot=robot,
+        )
         model.load_state_dict(previous["model"])
         optimizer.load_state_dict(previous["optimizer"])
         restore_rng_states(previous["rng"])
@@ -127,9 +177,7 @@ def main():
     def save():
         checkpoint = args.output / f"checkpoint-{step:06d}.pt"
         save_temporal_policy(checkpoint, model, stats, robot, training_episode_ids=selected_ids)
-        policy = TemporalActPolicy.from_checkpoint(
-            checkpoint, config=train.episodes[0].config, runtime_asset=robot
-        )
+        policy = TemporalActPolicy.from_checkpoint(checkpoint, config=config, runtime_asset=robot)
         sample = train.episodes[0].sample(train.records[0]["rows"][0])
         original = TemporalActPolicy(model, stats)
         original.reset(sample["episode_id"], sample["generation"])
@@ -148,6 +196,8 @@ def main():
                 step=step,
                 seed=args.seed,
                 stats=stats.to_dict(),
+                observation_config=config.to_dict(),
+                robot_asset=robot.to_dict(),
                 training_episode_ids=list(selected_ids),
             ),
         )

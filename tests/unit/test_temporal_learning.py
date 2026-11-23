@@ -182,3 +182,31 @@ def test_selected_train_sources_reject_missing_fit_and_invalid_identities(select
 
     with pytest.raises(ValueError):
         validate_training_sources(SimpleNamespace(train_episode_ids=("fit",)), selected)
+
+
+def test_resume_checks_robot_and_observation_semantics_with_unchanged_shapes(tmp_path):
+    from dataclasses import replace
+    from runpy import run_path
+    from types import SimpleNamespace
+
+    import torch
+
+    from alexdoor_xas.policies.temporal import TemporalConfig
+    from helpers import TEST_ROBOT_REF
+
+    load = run_path("scripts/train_temporal_act.py")["load_resume"]
+    cfg = TemporalConfig()
+    stats = SimpleNamespace(train_episode_ids=("train",), to_dict=lambda: {})
+    path = tmp_path / "resume.pt"
+    torch.save(
+        dict(
+            seed=1, stats={}, observation_config=cfg.to_dict(), robot_asset=TEST_ROBOT_REF.to_dict()
+        ),
+        path,
+    )
+    inputs = dict(seed=1, stats=stats, selected_ids=("train",), config=cfg, robot=TEST_ROBOT_REF)
+    assert load(path, **(inputs | dict(config=replace(cfg, warmup_s=1))))["seed"] == 1
+    with pytest.raises(ValueError, match="preprocessing"):
+        load(path, **(inputs | dict(config=replace(cfg, image_gap_s=0.1))))
+    with pytest.raises(ValueError, match="robot asset"):
+        load(path, **(inputs | dict(robot=replace(TEST_ROBOT_REF, asset_id="other"))))
