@@ -438,6 +438,12 @@ class PerceptionSession:
             native_result = self.engine.result
             state = "tracking" if present else "selected_identity_absent"
         result = dict(native_result or dict(objects=[]))
+        if (
+            native_result is not None
+            and self.config.get("measure_surface_components")
+            and self.config.get("local_surface_constraint") is not None
+        ):
+            result["local_surfaces"] = surfaces(cue, sensor, self.config)
         native_s = 0 if native_result is None else native_result["latency_s"]
         result.update(
             frame=frame,

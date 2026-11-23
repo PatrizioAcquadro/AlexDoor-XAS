@@ -503,11 +503,17 @@ def support_force_lead(force, previous_force, elapsed_s, lead_s):
     return float(force + lead_s * (force - previous_force) / elapsed_s)
 
 
-def support_gap_recovery(native_force, gap_m, active, setup):
+def support_gap_recovery(native_force, gap_m, active, setup, *, force_only=None):
     """Separate geometric gap recovery from force regulation inside contact tolerance."""
     if native_force > 0:
         active = False
-    separated = native_force == 0 and gap_m is not None and gap_m > setup.contact_gap_tolerance_m
+    # A force-only normal reference has no absolute position feedback to close
+    # small unloaded gaps. Contact tolerance remains a qualification boundary;
+    # ordinary position control keeps its previously qualified recovery rule.
+    if force_only is None:
+        force_only = setup.force_controlled_normal_reference
+    boundary = 0.0 if force_only else setup.contact_gap_tolerance_m
+    separated = native_force == 0 and gap_m is not None and gap_m > boundary
     catchup = separated and not active
     return catchup, active or catchup
 
@@ -608,9 +614,14 @@ def normal_contact_support(
     )
 
 
-def tangential_compensation(offset, error, enabled, setup, dt):
-    """Bounded integral correction of tracking bias along the leaf surface."""
-    if not enabled:
+def tangential_compensation(offset, error, enabled, setup, dt, *, finite_tangent_impedance=False):
+    """Correct ordinary tracking bias; retain its offset during finite impedance.
+
+    An outer integral of blocked material error would defeat the inner finite
+    elastic reference. Keep the already delivered material offset at entry,
+    without resetting preload or accumulating another tangential reference.
+    """
+    if not enabled or finite_tangent_impedance:
         return offset.copy()
     error = np.asarray(error).copy()
     error[0] = 0.0  # Normal loading remains the separate compression controller.
@@ -627,7 +638,12 @@ def release_reference(start_p, start_r, retreat_p, retreat_r, elapsed, setup):
     from scipy.spatial.transform import Rotation, Slerp
 
     halfway = setup.release_s / 2
-    withdrawn = start_p - setup.precontact_m * start_r[:, 0]
+    normal = start_r[:, 0]
+    withdrawn = start_p - setup.precontact_m * normal
+    # A prior achieved contact pose may be closer to the current surface than
+    # the declared withdrawal. Keep its tangential position and orientation,
+    # while preserving that clearance throughout the subsequent rotation.
+    retreat_p = np.asarray(retreat_p) - normal * max(0.0, (retreat_p - withdrawn) @ normal)
     if elapsed <= halfway:
         u = float(np.clip(elapsed / (halfway * 0.7), 0.0, 1.0))
         return start_p + (withdrawn - start_p) * u * u * (3 - 2 * u), start_r
@@ -985,13 +1001,19 @@ def run_probe(
                 normal,
             )
         gap_catchup = None
+        force_only = setup.force_controlled_normal_reference and getattr(
+            env.cfg, "recover_force_only_gap", False
+        )
+        # Inside contact tolerance the force reference owns compression.
+        # Stateful geometric recovery must not add a second gap integral.
         if (
-            setup.support_force_source == "guarded_qualification_window"
+            force_only
+            or setup.support_force_source == "guarded_qualification_window"
             or setup.normal_force_lead_s > 0
         ) and phase in ("push", "hold"):
             native_force = traces[-1]["native_mean_normal_force_n"]
             gap_catchup, gap_recovery_active = support_gap_recovery(
-                native_force, gap, gap_recovery_active, setup
+                native_force, gap, gap_recovery_active, setup, force_only=force_only
             )
         normal_feedback = dict(
             force_n=force,
@@ -1239,6 +1261,10 @@ def run_probe(
                 (phase == "contact" or loaded) and orientation_error <= setup.orientation_tolerance,
                 setup,
                 dt,
+                finite_tangent_impedance=(
+                    normal_options.get("normal_reference_only", False)
+                    and getattr(env.cfg, "pose_tool_frame_reference", False)
+                ),
             )
         min_clearance = min(min_clearance, clearance.measure(door, angle))
         visibility = None

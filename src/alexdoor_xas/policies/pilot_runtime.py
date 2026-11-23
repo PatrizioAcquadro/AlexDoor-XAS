@@ -19,6 +19,7 @@ from alexdoor_xas.perception.contracts import FieldSupport, validate_local_conta
 from alexdoor_xas.perception.evaluation import json_safe
 from alexdoor_xas.perception.local_admission import (
     LocalActionSupport,
+    MaterialMotionSupport,
     TargetFrontHeightExclusion,
     TargetReliefBox,
     TargetReliefExclusion,
@@ -251,6 +252,8 @@ class PilotMotionEvidence:
         pending, covered = list(self.cells), []
         normal_spheres, normal_margins = [], []
         relief_spheres, relief_boxes = [], []
+        material_spheres, material_boxes = [], []
+        material_box_by_sphere = {}
         height_by_sphere, height_certificates = {}, []
         free_margin, separation, lever = np.inf, np.inf, 0.0
         nonseparated_cell = None
@@ -259,7 +262,19 @@ class PilotMotionEvidence:
         control_angle = float(control_travel.sum())
 
         order = {}
+        finite_planar_root = False
         if self.background_mode:
+            # The existing rigid-interface calibration applies to planar
+            # material. A zero protrusion count alone also admits shallow relief;
+            # require its complete observed depth span to fit that same model.
+            finite_planar_root = (
+                cover is not None
+                and self.target_front_model["observed_protrusion_voxels"] == 0
+                and normal_range[1]
+                - normal_range[0]
+                - 2 * self.provider.config["plane_tolerance_m"]
+                <= self.interface_model["planarity_bound_m"]
+            )
             # Absolute interface offset is shared and cancels. The two real CAD
             # distal lines constrain a rigid unilateral interface; the finite
             # observed material and all static volumes are still checked below.
@@ -332,6 +347,22 @@ class PilotMotionEvidence:
         convex_motion = None
         relief_by_sphere = set()
         spatial_boxes = {}
+
+        def material_certificate(spheres, boxes=()):
+            if cover is None:
+                raise ValueError("missing_observed_material_cover")
+            return MaterialMotionSupport(
+                object_frame(candidate.initial_world),
+                tuple(map(tuple, cover.basis[:, 1:])),
+                tuple(cover.lower),
+                cover.cell_m,
+                cover.clearance,
+                tuple(spheres),
+                (temporal_p, temporal_a),
+                self.provider.config["plane_tolerance_m"],
+                tuple(boxes),
+                self.config["contact_monitor"]["normal_model_bound_m"],
+            )
 
         def relief_certificate(spheres, boxes=()):
             model = self.target_front_model
@@ -484,23 +515,22 @@ class PilotMotionEvidence:
                     and order[key[0]] > 0
                     and cover is not None
                 ):
-                    reserve = max(0.0, 0.02 - self.shape_stop[key[0]])
-                    finite = cover.projected_ball_margin(mapped, enlarged + reserve)
-                    # Body order applies to the planar interface only. Exclude
-                    # the complete observed handle/relief envelope independently;
-                    # its finite tangent extent includes a calibrated reserve.
-                    finite_protrusion_margin = (
-                        None if protrusion_margin is None else protrusion_margin - reserve
-                    )
-                    if (
-                        finite is not None
-                        and finite > 0
-                        and finite_protrusion_margin is not None
-                        and finite_protrusion_margin > 0
+                    # The sphere already encloses the complete actual motion
+                    # and calibrated stop. Its observed finite-material proof
+                    # replaces the unrelated nominal 20 mm stop allowance.
+                    finite = material_certificate(((*center.tolist(), radius),)).margin(patch)
+                    # No observed relief is usable ONLY inside that finite
+                    # measured cover. It never establishes global empty space
+                    # or replaces the absolute front-offset bound above.
+                    no_relief = finite_planar_root
+                    if finite > 0 and (
+                        no_relief or protrusion_margin is not None and protrusion_margin > 0
                     ):
-                        foreground = min(finite, order[key[0]], finite_protrusion_margin)
-                        relief_used = True
-                        gap = max(0.0, gap)
+                        foreground = min(finite, order[key[0]])
+                        if not no_relief:
+                            foreground = min(foreground, protrusion_margin)
+                            relief_used = True
+                        gap = 0.0
                 if foreground is None:
                     # Each fixed initial train target is included in this
                     # common calibration. No runtime asset lookup selects it.
@@ -655,13 +685,27 @@ class PilotMotionEvidence:
                 )
                 if height is not None:
                     gap = height.margin(patch)
-            if gap <= 0:
+            material_box = None
+            foreground = gap
+            if gap <= 0 and cell.shape in order and order[cell.shape] > 0 and cover is not None:
+                if finite_planar_root or localized:
+                    box = spatial_box(cell, extra, domain)
+                    finite = material_certificate((sphere,), (box,)).margin(patch)
+                    if finite > 0:
+                        material_box = box
+                        foreground = min(finite, order[cell.shape])
+                        gap = 0.0
+            if foreground <= 0:
                 return None
             count_query(center, domain_radius, (cell.shape, cell.path, "coupled_convex"))
             support = self.workspace.query_convex_background(
-                vertices, radius, current_foreground_margin_m=gap
+                vertices, radius, current_foreground_margin_m=foreground
             )
             if support.collision_clearance_m is None:
+                if material_box is not None:
+                    # Finite support of the physical box does not authorize
+                    # the empty corners of its larger sphere.
+                    return None
                 # A larger ball may use the existing constructive background
                 # reader ONLY after its own complete foreground proof passes.
                 # A physical box does not certify empty corners of this larger
@@ -696,6 +740,11 @@ class PilotMotionEvidence:
                     return None
                 diagnostics["coupled_outer_ball_proofs"] = (
                     diagnostics.get("coupled_outer_ball_proofs", 0) + 1
+                )
+            if material_box is not None:
+                material_box_by_sphere[sphere] = material_box
+                diagnostics["finite_material_box_proofs"] = (
+                    diagnostics.get("finite_material_box_proofs", 0) + 1
                 )
             if height is not None:
                 height_by_sphere[sphere] = height
@@ -858,6 +907,14 @@ class PilotMotionEvidence:
                     relief_boxes.append(spatial_box(cell, extra))
                 if sphere in height_by_sphere:
                     height_certificates.append(height_by_sphere[sphere])
+                if gap <= 0 and self.background_mode and cover is not None:
+                    # Every other physical volume has a complete separation
+                    # proof. Retain ALL potentially contacting volumes for
+                    # finite support and fresh receipt revalidation.
+                    box = material_box_by_sphere.get(sphere)
+                    material_certificate((sphere,), (box,)).require(patch)
+                    material_spheres.append(sphere)
+                    material_boxes.append(box)
                 normal_spheres.append(sphere)
                 normal_margins.append(float(gap))
                 free_margin = min(free_margin, margin)
@@ -994,6 +1051,9 @@ class PilotMotionEvidence:
             else None,
             target_height_exclusions=tuple(height_certificates),
             distal_interval_growth_m=tuple(distal_growth),
+            material_motion_support=material_certificate(material_spheres, material_boxes)
+            if material_spheres
+            else None,
         )
         return admit_local_action(
             observation.estimate, proposal, evidence, limits, now, generation=observation.generation
@@ -1043,7 +1103,7 @@ def observed_pilot_runtime(
     """Build real sensing/load/contact/control inputs from a measured recipe."""
     from alexdoor_xas.perception.contact import ContactMonitorConfig, ObservedContactMonitor
     from alexdoor_xas.perception.load import LoadCalibration, PurdueLoadSource
-    from alexdoor_xas.perception.provider import load_recipe
+    from alexdoor_xas.perception.provider import PrototypeRecipe, load_recipe
     from alexdoor_xas.perception.session import session_provider
     from alexdoor_xas.policies.encoding import RGBDEncoder
     from alexdoor_xas.policies.observations import B1Observer
@@ -1057,9 +1117,22 @@ def observed_pilot_runtime(
         raise ValueError("stop_controller_calibration_mismatch")
     calibration = camera_calibration(env)
     recipe = load_recipe(config["geometry_recipe"], Path(__file__).resolve().parents[3])
+    if getattr(env.cfg, "measure_surface_components", False):
+        recipe = PrototypeRecipe(json.dumps({**recipe.config, "measure_surface_components": True}))
     load_calibration = LoadCalibration(**json.loads(Path(config["load_calibration"]).read_text()))
     if load_calibration.verified is not True or load_calibration.stop_verified is not True:
         raise ValueError("unverified_robot_load_or_stop_recipe")
+    stopped_response = config.get("stopped_residual_response", False)
+    if type(stopped_response) is not bool:
+        raise ValueError("invalid_stopped_residual_response_flag")
+    if stopped_response:
+        from alexdoor_xas.perception.stopped_response import CausalResidualStopController
+
+        if not 0 < config["stop_force_domain_n"] <= 10:
+            raise ValueError("unqualified_stopped_response_force_domain")
+        env.stop_response = CausalResidualStopController(load_calibration)
+    else:
+        env.stop_response = None
     robot = RobotGeometry(env.robot.cfg.spawn.asset_path, ARM_JOINTS)
     fk = PurdueFK(env.robot.cfg.spawn.asset_path, str(env.device))
     faces = derive_push_geometry(env.robot.cfg.spawn.asset_path).contact_covers()

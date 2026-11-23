@@ -1020,3 +1020,61 @@ def test_supported_forward_command_cancels_elastic_intent_before_later_accidenta
     for t in np.arange(1.2 + 1 / 60, 1.35, 1 / 60):
         result = m.update(*inputs(float(t), force=0))
     assert result.status == "lost" and result.reason == "contact_load_lost_or_uncertain"
+
+
+@pytest.mark.parametrize("reserve_factor,admitted", [(0.9, False), (1.1, True), (1.5, True)])
+def test_complete_volume_pays_contact_projection_before_monitor(reserve_factor, admitted):
+    from alexdoor_xas.perception.local_admission import MaterialMotionSupport
+
+    now, estimate, tool, load, original = inputs(1.0)
+    patch = estimate.local.patches[0]
+    pose = replace(patch.pose_support, position_bound_m=0.0, rotation_bound_rad=0.0)
+    patch = replace(
+        patch,
+        pose_support=pose,
+        geometry_support=replace(pose, rotation_bound_rad=0.1),
+    )
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    config = monitor().config
+    projection = config.normal_model_bound_m * np.sin(0.1)
+    certificate = MaterialMotionSupport(
+        patch.world_pose,
+        ((0.0, 0.0), (1.0, 0.0), (0.0, 1.0)),
+        (-0.1, 1.0),
+        0.025,
+        np.full((9, 9), 0.02 + reserve_factor * projection),
+        ((*patch.world_pose.origin, 0.02),),
+        (0.0, 0.0),
+        normal_model_bound_m=config.normal_model_bound_m,
+    )
+    evidence = replace(
+        original.local_evidence,
+        support=pose,
+        material_motion_support=certificate,
+        swept_collision_margin_m=0.01,
+    )
+    receipt = admit_local_action(
+        estimate, original.proposal, evidence, original.limits, now, generation=0
+    )
+    assert receipt.admitted is admitted
+    if not admitted:
+        assert receipt.reason == "material_motion_support_exhausted"
+        return
+    assert 0 < receipt.margins_m[0][1] < projection
+    result = monitor().update(now, estimate, tool, load, receipt)
+    assert result.status == "seeking"
+    assert result.uncertainty_m >= config.normal_model_bound_m
+    assert result.decision["additional_tangent_uncertainty_m"] == 0
+    assert result.decision["prepaid_tangent_uncertainty_m"] == pytest.approx(projection)
+    larger_model = monitor()
+    larger_model.config = replace(config, normal_model_bound_m=0.009)
+    assert (
+        larger_model.update(now, estimate, tool, load, receipt).reason
+        == "contact_model_exceeds_admitted_certificate"
+    )
+    changed = replace(patch, pose_support=replace(pose, rotation_bound_rad=0.1))
+    current = replace(estimate, local=replace(estimate.local, patches=(changed,)))
+    assert (
+        monitor().update(now, current, tool, load, receipt).reason
+        == "material_motion_support_exhausted"
+    )

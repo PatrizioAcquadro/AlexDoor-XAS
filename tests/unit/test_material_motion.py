@@ -1,0 +1,341 @@
+"""Complete physical contact volumes stay inside finite observed material at receipt."""
+
+from dataclasses import replace
+
+import numpy as np
+import pytest
+
+from alexdoor_xas.action.frames import ObjectFrame
+from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA
+from alexdoor_xas.perception.admission import require_current_admission
+from alexdoor_xas.perception.local_admission import MaterialMotionSupport, admit_local_action
+from perception_helpers import local_inputs
+
+
+def finite_grid(patch, half=0.125, cell=0.015625, radius=0.01):
+    origin = patch.world_pose.origin
+    lower = origin[1:] - half
+    axis = np.arange(round(2 * half / cell) + 1) * cell
+    a, b = np.meshgrid(axis, axis)
+    clearance = np.minimum.reduce([a, b, 2 * half - a, 2 * half - b])
+    return MaterialMotionSupport(
+        patch.world_pose,
+        ((0.0, 0.0), (1.0, 0.0), (0.0, 1.0)),
+        tuple(lower),
+        cell,
+        clearance,
+        ((*origin, radius),),
+        (0.0, 0.0),
+    )
+
+
+@pytest.mark.parametrize("space", [A1_JOINT_DELTA, A2_EE_DELTA])
+def test_complete_volume_replaces_nominal_robot_reserve_only_with_independent_sweep(space):
+    estimate, proposal, evidence, limits = local_inputs(space)
+    cert = finite_grid(estimate.local.patches[0])
+    limits = replace(limits, robot_position_bound_m=1.0, stop_travel_m=1.0)
+    assert not admit_local_action(estimate, proposal, evidence, limits, 1, generation=0).admitted
+    evidence = replace(evidence, material_motion_support=cert, swept_collision_margin_m=0.01)
+    result = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    assert result.admitted
+    assert result.decision["margin_kind"] == "complete_physical_material_motion"
+    require_current_admission(result, estimate, proposal.times_s[-1])
+    for invalid in [
+        replace(evidence, swept_collision_margin_m=None),
+        replace(evidence, swept_collision_margin_m=0.0),
+        replace(evidence, finger_clearance_m=(None, 0.04)),
+    ]:
+        assert not admit_local_action(estimate, proposal, invalid, limits, 1, generation=0).admitted
+
+
+@pytest.mark.parametrize("perturbation", ["shift", "uncertainty", "hole", "outside"])
+def test_receipt_and_admission_keep_holes_entire_spheres_and_new_pose(perturbation):
+    estimate, proposal, evidence, limits = local_inputs()
+    patch = estimate.local.patches[0]
+    cert = finite_grid(patch)
+    evidence = replace(
+        evidence,
+        material_motion_support=cert,
+        swept_collision_margin_m=0.01,
+        response_position_bound_m=0.3,
+    )
+    result = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    assert result.admitted
+    if perturbation in ("hole", "outside"):
+        if perturbation == "hole":
+            grid = cert.clearance_m.copy()
+            grid[8, 8] = 0
+            cert = replace(cert, clearance_m=grid)
+        else:
+            cert = replace(cert, spheres=((1.0, 1.0, 1.1, 0.01),))
+        failure = admit_local_action(
+            estimate,
+            proposal,
+            replace(evidence, material_motion_support=cert),
+            limits,
+            1,
+            generation=0,
+        )
+        assert not failure.admitted and failure.reason == "material_motion_support_exhausted"
+    else:
+        changed = (
+            replace(
+                patch,
+                world_pose=replace(
+                    patch.world_pose, origin=patch.world_pose.origin + [0, 0.115, 0]
+                ),
+            )
+            if perturbation == "shift"
+            else replace(patch, pose_support=replace(patch.pose_support, position_bound_m=0.12))
+        )
+        current = replace(estimate, local=replace(estimate.local, patches=(changed,)))
+        with pytest.raises(ValueError, match="material_motion_support_exhausted"):
+            require_current_admission(result, current, proposal.times_s[-1])
+
+
+def test_boundary_and_motion_are_not_fitted_tolerances():
+    estimate, _, _, _ = local_inputs()
+    patch = estimate.local.patches[0]
+    zero = replace(patch.pose_support, position_bound_m=0.0, rotation_bound_rad=0.0)
+    patch = replace(
+        patch,
+        world_pose=ObjectFrame(np.zeros(3), np.eye(3)),
+        geometry_support=zero,
+        pose_support=zero,
+    )
+    cert = finite_grid(patch, radius=0.125)
+    assert cert.margin(patch) == 0
+    with pytest.raises(ValueError, match="material_motion_support_exhausted"):
+        cert.require(patch)
+    assert replace(cert, spheres=((0.0, 0.0, 0.0, 0.12499),)).require(patch) > 0
+    assert replace(cert, spheres=((0.0, 0.0, 0.0, 0.12501),)).margin(patch) < 0
+    cert = replace(cert, spheres=((0.0, 0.0, 0.0, 0.01),), interval_motion_m_rad=(0.005, 0.01))
+    assert cert.margin(patch, remaining_fraction=0) - cert.margin(patch) == pytest.approx(0.0051)
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        dict(spheres=()),
+        dict(cell_m=0),
+        dict(spheres=((1.0, 0.0, 1.1, -0.01),)),
+        dict(interval_motion_m_rad=(-0.1, 0)),
+        dict(geometry_position_prepaid_m=0.1),
+        dict(normal_model_bound_m=-0.01),
+    ],
+)
+def test_missing_or_invalid_volume_does_not_supply_support(changes):
+    estimate, proposal, evidence, limits = local_inputs()
+    cert = replace(finite_grid(estimate.local.patches[0]), **changes)
+    result = admit_local_action(
+        estimate,
+        proposal,
+        replace(evidence, material_motion_support=cert, swept_collision_margin_m=0.01),
+        limits,
+        1,
+        generation=0,
+    )
+    assert not result.admitted
+
+
+def test_complete_box_avoids_empty_sphere_corners_but_keeps_interior_holes():
+    from alexdoor_xas.perception.local_admission import TargetReliefBox
+
+    estimate, _, _, _ = local_inputs()
+    patch = estimate.local.patches[0]
+    zero = replace(patch.pose_support, position_bound_m=0.0, rotation_bound_rad=0.0)
+    patch = replace(
+        patch,
+        world_pose=ObjectFrame(np.zeros(3), np.eye(3)),
+        geometry_support=zero,
+        pose_support=zero,
+    )
+    # Long normal extent has a large sphere but a small complete tangent extent.
+    box = TargetReliefBox(
+        tuple(map(tuple, np.eye(3))), (-0.2, -0.02, -0.02), (0.2, 0.02, 0.02), 0.005
+    )
+    cert = replace(finite_grid(patch), spheres=((0.0, 0.0, 0.0, 0.21),), boxes=(box,))
+    assert replace(cert, boxes=()).margin(patch) < 0
+    assert cert.require(patch) > 0
+    grid = cert.clearance_m.copy()
+    grid[8, 8] = 0.0
+    assert replace(cert, clearance_m=grid).margin(patch) < 0
+    wider = replace(box, upper_m=(0.2, 0.125, 0.02))
+    assert replace(cert, boxes=(wider,)).margin(patch) < 0
+    changed = replace(patch, pose_support=replace(zero, rotation_bound_rad=0.6))
+    assert cert.margin(changed) < 0
+
+
+def test_initial_world_grid_does_not_rotate_again_with_the_shared_object_basis():
+    estimate, proposal, evidence, limits = local_inputs()
+    patch = estimate.local.patches[0]
+    cert = finite_grid(patch)
+    # Static local frame confidence does not describe another physical motion
+    # of the already measured world grid. Registration error still does.
+    uncertain_basis = replace(
+        patch, geometry_support=replace(patch.geometry_support, rotation_bound_rad=1.0)
+    )
+    assert cert.margin(uncertain_basis) == cert.margin(patch)
+    uncertain_registration = replace(
+        patch, pose_support=replace(patch.pose_support, rotation_bound_rad=1.0)
+    )
+    assert cert.margin(uncertain_registration) < cert.margin(patch)
+    # Exact common-factor cancellation, including a nontrivial zone offset.
+    from scipy.spatial.transform import Rotation
+
+    def transform(rot, offset):
+        t = np.eye(4)
+        t[:3, :3] = Rotation.from_rotvec(rot).as_matrix()
+        t[:3, 3] = offset
+        return t
+
+    c0 = transform([0.1, 0.2, -0.3], [0.3, -0.4, 0.6])
+    ct = transform([-0.2, 0.4, 0.1], [-0.1, 0.3, 0.7])
+    motion = transform([0.2, 0.0, 0.5], [0.1, 0.02, -0.03])
+    basis = transform([0.8, -0.5, 0.4], [0.4, 0.5, 0.6])
+    np.testing.assert_allclose(
+        (c0 @ basis) @ np.linalg.inv(ct @ motion @ basis),
+        c0 @ np.linalg.inv(motion) @ np.linalg.inv(ct),
+        atol=1e-15,
+    )
+
+
+def test_axis_transport_keeps_legacy_fallback_and_revalidates_current_source_at_receipt():
+    from alexdoor_xas.perception.contracts import AxisRotationBounds
+
+    estimate, proposal, evidence, limits = local_inputs()
+    patch = estimate.local.patches[0]
+    cert = finite_grid(patch)
+    legacy = cert.margin(patch)
+    angle = patch.pose_support.rotation_bound_rad
+    origin = tuple(patch.world_pose.origin)
+    patch = replace(
+        patch,
+        pose_uncertainty_sources=(("dynamic_pose", 0.004, angle, 0.0, origin),),
+    )
+    assert cert.margin(patch) == legacy
+    patch = replace(
+        patch,
+        pose_rotation_axis_bounds=AxisRotationBounds(
+            tuple(map(tuple, np.eye(3))), (0.001, 0.002, 0.001), angle
+        ),
+    )
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    evidence = replace(evidence, material_motion_support=cert, swept_collision_margin_m=0.01)
+    result = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    assert result.admitted
+    require_current_admission(result, estimate, proposal.times_s[-1])
+    # A new larger source cannot retain an old, finer directional certificate.
+    changed = replace(
+        patch,
+        pose_support=replace(patch.pose_support, rotation_bound_rad=angle * 2),
+        pose_uncertainty_sources=(("dynamic_pose", 0.004, angle * 2, 0.0, origin),),
+    )
+    current = replace(estimate, local=replace(estimate.local, patches=(changed,)))
+    with pytest.raises(ValueError, match="stale_axis_rotation_bound"):
+        require_current_admission(result, current, proposal.times_s[-1])
+    with pytest.raises(ValueError, match="invalid_axis_rotation_source"):
+        cert.margin(replace(patch, pose_uncertainty_sources=()))
+
+
+def test_complete_cell_box_coverage_preserves_holes_boundaries_and_stop_radius():
+    from itertools import product
+
+    from scipy.ndimage import distance_transform_edt
+
+    from alexdoor_xas.perception.local_admission import TargetReliefBox
+
+    estimate, _, _, _ = local_inputs()
+    patch = estimate.local.patches[0]
+    zero = replace(patch.pose_support, position_bound_m=0.0, rotation_bound_rad=0.0)
+    patch = replace(
+        patch,
+        world_pose=ObjectFrame(np.zeros(3), np.eye(3)),
+        geometry_support=zero,
+        pose_support=zero,
+    )
+    cell = 0.01
+    known = np.ones((9, 9), bool)
+    known[[0, -1], :] = False
+    known[:, [0, 6, 7, 8]] = False
+    clearance = np.maximum(0, distance_transform_edt(known) * cell - np.sqrt(2) * cell)
+    cert = replace(
+        finite_grid(patch),
+        lower_m=(0.0, 0.0),
+        cell_m=cell,
+        clearance_m=clearance,
+        spheres=((0.0, 0.0, 0.0, 1.0),),
+    )
+    box = TargetReliefBox(
+        tuple(map(tuple, np.eye(3))), (-0.2, 0.032, 0.039), (0.2, 0.034, 0.041), 0.01
+    )
+    assert replace(cert, boxes=(box,)).require(patch) > 0
+    # The discarded exterior column is not crossed, even by the reserved stop.
+    assert clearance[4, 4] - box.radius_m < 0
+    for low, high, radius in product(
+        [0.0249, 0.025, 0.0251, 0.032], [0.0349, 0.035, 0.0351, 0.055], [0, 0.005, 0.02]
+    ):
+        for hole in (False, True):
+            mask = known.copy()
+            if hole:
+                mask[4, 3] = False
+            grid = np.maximum(0, distance_transform_edt(mask) * cell - np.sqrt(2) * cell)
+            unknown = np.argwhere(~mask)[:, ::-1] * cell
+            lo, hi = np.array([low, 0.039]), np.array([high, 0.041])
+            # Independent exact distance from the rectangle to every unknown square.
+            gaps = np.maximum(np.maximum(unknown - cell / 2 - hi, lo - (unknown + cell / 2)), 0)
+            exact = np.linalg.norm(gaps, axis=1).min() - radius
+            changed = replace(box, lower_m=(-0.2, *lo), upper_m=(0.2, *hi), radius_m=radius)
+            measured = replace(cert, clearance_m=grid, boxes=(changed,)).margin(patch)
+            assert measured <= exact + 1e-14
+            if exact <= 0:
+                assert measured <= 0
+
+
+@pytest.mark.parametrize("origin", [(0, 0, 0), (0.2, -0.3, 0.8)])
+@pytest.mark.parametrize("kind", ["material_sphere", "material_box", "relief"])
+def test_interval_forecast_pays_same_pivot_and_normal_offset_as_aging_receipt(origin, kind):
+    from alexdoor_xas.perception.local_admission import TargetReliefBox, TargetReliefExclusion
+
+    estimate, _, _, _ = local_inputs()
+    original = estimate.local.patches[0]
+    zero = replace(original.pose_support, position_bound_m=0.0, rotation_bound_rad=0.0)
+    patch = replace(
+        original,
+        world_pose=ObjectFrame(np.zeros(3), np.eye(3)),
+        geometry_support=zero,
+        pose_support=zero,
+    )
+    motion = (0.1 / 60, 0.15 / 60)
+    if kind == "relief":
+        cert = TargetReliefExclusion(
+            patch.world_pose,
+            ((0, 0), (1, 0), (0, 1)),
+            (-0.01, -0.01),
+            (0.01, 0.01),
+            ((0, 0.1, 0, 0.01),),
+            motion,
+        )
+    else:
+        cert = replace(finite_grid(patch), interval_motion_m_rad=motion, normal_model_bound_m=0.003)
+        if kind == "material_box":
+            box = TargetReliefBox(
+                tuple(map(tuple, np.eye(3))), (-0.2, -0.01, -0.01), (0.2, 0.01, 0.01), 0.001
+            )
+            cert = replace(cert, spheres=((0, 0, 0, 0.21),), boxes=(box,))
+    margins = []
+    for elapsed in [0, 0.25, 0.5, 1]:
+        position, angle = elapsed * np.array(motion)
+        lever = np.linalg.norm(origin)
+        aged = replace(
+            patch,
+            pose_support=replace(
+                zero,
+                position_bound_m=position + 2 * lever * np.sin(angle / 2),
+                rotation_bound_rad=angle,
+            ),
+            pose_uncertainty_sources=(("temporal_growth", position, angle, lever, origin),),
+        )
+        margins.append(cert.margin(aged, remaining_fraction=1 - elapsed))
+    assert margins[0] > 0
+    assert np.all(np.diff(margins) >= -1e-14)

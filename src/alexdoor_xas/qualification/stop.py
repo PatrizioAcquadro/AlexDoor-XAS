@@ -1,9 +1,50 @@
-"""Passive measured-stop continuation, separate from policy/teacher commands."""
+"""Measured stopped-physics continuation, separate from policy/teacher commands."""
 
 from pathlib import Path
 
 import numpy as np
 from scipy.spatial.transform import Rotation
+
+
+def stop_continuation_outcome(values, *, expected_ticks, step_dt, violations=()):
+    """Score the original complete stop contract, including terminal settling.
+
+    Columns are elapsed time, tool translation/rotation, peak/final joint
+    speed and measured contact force. Missing/nonfinite samples never qualify.
+    This outcome alone does not establish full-body or load-model qualification.
+    """
+    values = np.asarray(values, dtype=float)
+    if values.size == 0:
+        values = values.reshape(0, 6)
+    if values.ndim != 2 or values.shape[1] != 6:
+        raise ValueError("invalid_stop_sample_columns")
+    if expected_ticks < 1 or not np.isfinite(step_dt) or step_dt <= 0:
+        raise ValueError("invalid_stop_sampling_contract")
+    reasons = set(violations)
+    if len(values) != expected_ticks:
+        reasons.add("incomplete_stop_continuation")
+    if not np.isfinite(values).all():
+        reasons.add("nonfinite_stop_samples")
+    position = float(values[:, 1].max()) if len(values) else np.nan
+    rotation = float(values[:, 2].max()) if len(values) else np.nan
+    final_speed = float(values[-1, 4]) if len(values) else np.nan
+    if position > 0.01:
+        reasons.add("stop_tool_translation")
+    if rotation > np.deg2rad(3):
+        reasons.add("stop_tool_rotation")
+    if final_speed > 0.01:
+        reasons.add("stop_not_settled")
+    return dict(
+        passed=bool(len(values) and not reasons),
+        duration_s=len(values) * step_dt,
+        position_travel_max_m=position,
+        rotation_travel_max_rad=rotation,
+        actual_joint_speed_peak_rad_s=float(values[:, 3].max()) if len(values) else np.nan,
+        final_joint_speed_rad_s=final_speed,
+        normal_force_mean_tick_peak_n=float(values[:, 5].max()) if len(values) else np.nan,
+        violations=sorted(reasons),
+        scope="Numerical stop checks; provenance, full-body and load qualification are separate",
+    )
 
 
 def verify_stop_continuation(env, output, *, duration_s=2.0, force_limit_n=80.0):
@@ -107,23 +148,11 @@ def verify_stop_continuation(env, output, *, duration_s=2.0, force_limit_n=80.0)
             tool_quaternion=np.asarray(quaternions),
             **streams,
         )
-    values = np.asarray(rows)
-    passed = bool(
-        len(rows) == round(duration_s / env.step_dt)
-        and np.isfinite(values).all()
-        and not violations
-        and values[:, 1].max() <= 0.01
-        and values[:, 2].max() <= np.deg2rad(3)
-        and values[-1, 4] <= 0.01
+    result = stop_continuation_outcome(
+        rows,
+        expected_ticks=round(duration_s / env.step_dt),
+        step_dt=env.step_dt,
+        violations=violations,
     )
-    return dict(
-        passed=passed,
-        duration_s=len(rows) * env.step_dt,
-        position_travel_max_m=float(values[:, 1].max()),
-        rotation_travel_max_rad=float(values[:, 2].max()),
-        actual_joint_speed_peak_rad_s=float(values[:, 3].max()),
-        final_joint_speed_rad_s=float(values[-1, 4]),
-        normal_force_mean_tick_peak_n=float(values[:, 5].max()),
-        violations=sorted(set(violations)),
-        scope="Measured continuing-physics stop; no corrective or release trajectory",
-    )
+    result["scope"] = "Measured continuing-physics stop; no corrective or release trajectory"
+    return result

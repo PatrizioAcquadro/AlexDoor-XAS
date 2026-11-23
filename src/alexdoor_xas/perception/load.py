@@ -183,6 +183,38 @@ class LoadEstimate:
         )
 
 
+def require_joint_output_feedback(feedback, calibration):
+    """Require the calibrated robot-output origin, units, sign and health contract."""
+    if (
+        feedback.joint_names != ARM_JOINTS
+        or feedback.semantics != "joint_output"
+        or feedback.source not in ("reported_joint_state", "simulated_actuator_feedback")
+        or feedback.units != "N m"
+        or feedback.sign_convention != "positive_joint_coordinate"
+        or feedback.healthy is not True
+        or feedback.reason
+    ):
+        raise ValueError("unverified_torque_semantics")
+    if type(calibration.external_sign) is not int or calibration.external_sign not in (-1, 1):
+        raise ValueError("unverified_feedback_sign")
+
+
+def residual_component_bounds(calibration, dq, ddq, bounds):
+    """Apply the existing coupled dynamic error budget once."""
+    # Dynamics couple the arm: a stationary joint can carry residual error
+    # from another joint's motion. Use whole-arm norms, not its own speed.
+    for coefficient, magnitude in (
+        (calibration.velocity_residual_nm_per_rad_s, np.max(np.abs(dq))),
+        (calibration.acceleration_residual_nm_per_rad_s2, np.max(np.abs(ddq))),
+    ):
+        if coefficient is not None:
+            coefficient = finite_vector(coefficient, 7)
+            if np.any(coefficient < 0):
+                raise ValueError("invalid_dynamic_residual_bound")
+            bounds = bounds + coefficient * magnitude
+    return bounds
+
+
 class ResidualLoadModel:
     def __init__(self, calibration):
         self.calibration = calibration
@@ -206,18 +238,7 @@ class ResidualLoadModel:
         fail closed. Force norm includes tangential load; torque is not called force.
         """
         c = self.calibration
-        if (
-            feedback.joint_names != ARM_JOINTS
-            or feedback.semantics != "joint_output"
-            or feedback.source not in ("reported_joint_state", "simulated_actuator_feedback")
-            or feedback.units != "N m"
-            or feedback.sign_convention != "positive_joint_coordinate"
-            or feedback.healthy is not True
-            or feedback.reason
-        ):
-            raise ValueError("unverified_torque_semantics")
-        if type(c.external_sign) is not int or c.external_sign not in (-1, 1):
-            raise ValueError("unverified_feedback_sign")
+        require_joint_output_feedback(feedback, c)
         q, dq, ddq, bounds = [finite_vector(v, 7) for v in (q, dq, ddq, c.residual_bound_nm)]
         acceleration_max = finite_vector(c.acceleration_max_rad_s2, 7)
         extended_acceleration = c.weak_load_acceleration_max_rad_s2
@@ -302,17 +323,7 @@ class ResidualLoadModel:
             )
         if violations:
             raise LoadEnvelopeError(dict(time_s=feedback.timestamp_s, violations=violations))
-        # Dynamics couple the arm: a stationary joint can carry residual error
-        # from another joint's motion. Use whole-arm norms, not its own speed.
-        for coefficient, magnitude in (
-            (c.velocity_residual_nm_per_rad_s, np.max(np.abs(dq))),
-            (c.acceleration_residual_nm_per_rad_s2, np.max(np.abs(ddq))),
-        ):
-            if coefficient is not None:
-                coefficient = finite_vector(coefficient, 7)
-                if np.any(coefficient < 0):
-                    raise ValueError("invalid_dynamic_residual_bound")
-                bounds = bounds + coefficient * magnitude
+        bounds = residual_component_bounds(c, dq, ddq, bounds)
         jac = np.asarray(jacobian_world, dtype=float)
         if jac.shape != (6, 7) or not np.isfinite(jac).all():
             raise ValueError("invalid_load_jacobian")
@@ -332,8 +343,21 @@ class ResidualLoadModel:
         normal = finite_vector(normal_world, 3)
         if not np.isclose(np.linalg.norm(normal), 1, atol=1e-6):
             raise ValueError("invalid_load_normal")
-        normal_lower = -normal @ wrench[:3] - np.abs(normal) @ radius[:3]
-        upper = np.linalg.norm(wrench[:3]) + np.linalg.norm(radius[:3])
+        # Project the same joint-error box once onto the requested normal.
+        # Summing the three independent world-axis maxima can pay conflicting
+        # joint-error signs; retain that valid bound for floating-point ties.
+        normal_radius = min(
+            np.abs(normal @ inverse[:3]) @ bounds,
+            np.abs(normal) @ radius[:3],
+        )
+        normal_lower = -normal @ wrench[:3] - normal_radius
+        # The farthest corner of this same component box bounds force norm.
+        # Retain the old valid radial bound for rounding ties.
+        force_abs_upper = np.abs(wrench[:3]) + radius[:3]
+        upper = min(
+            np.linalg.norm(force_abs_upper),
+            np.linalg.norm(wrench[:3]) + np.linalg.norm(radius[:3]),
+        )
         halo_used = np.stack((q < q_min, q > np.asarray(c.q_max))) & (tolerance > 0)
         halo_cap = float(np.min(halo_caps[halo_used])) if halo_used.any() else np.inf
         if upper > halo_cap:
@@ -347,6 +371,7 @@ class ResidualLoadModel:
                     uncertainty_terms_n=dict(
                         estimated_force_norm=float(np.linalg.norm(wrench[:3])),
                         residual_force_radius=float(np.linalg.norm(radius[:3])),
+                        force_component_abs_upper=force_abs_upper.tolist(),
                     ),
                     position_excess_rad=np.maximum(q_min - q, q - c.q_max).clip(0).tolist(),
                 )
@@ -369,6 +394,7 @@ class ResidualLoadModel:
                     uncertainty_terms_n=dict(
                         estimated_force_norm=float(np.linalg.norm(wrench[:3])),
                         residual_force_radius=float(np.linalg.norm(radius[:3])),
+                        force_component_abs_upper=force_abs_upper.tolist(),
                     ),
                 )
             )
@@ -391,7 +417,13 @@ class ResidualLoadModel:
                 if not np.isclose(np.linalg.norm(tool_normal), 1, atol=1e-6):
                     raise ValueError("invalid_robot_tool_normal")
                 normal_error = coefficients @ [1.0, np.max(np.abs(dq)), np.max(np.abs(ddq))]
-                normal_error += np.linalg.norm(normal - tool_normal) * np.linalg.norm(radius[:3])
+                # Transport the calibrated scalar bound with the same joint
+                # box, without independent world-axis maxima in the difference.
+                difference = normal - tool_normal
+                normal_error += min(
+                    np.abs(difference @ inverse[:3]) @ bounds,
+                    np.linalg.norm(difference) * np.linalg.norm(radius[:3]),
+                )
                 normal_lower = max(normal_lower, -normal @ wrench[:3] - normal_error)
 
         return LoadEstimate(

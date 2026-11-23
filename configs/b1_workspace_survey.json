@@ -1,0 +1,17 @@
+{
+  "schema": "b1.workspace-survey.v1",
+  "scope": "Separate simulated pre-task RGB-D calibration; no manipulation or imitation",
+  "task_setup": "configs/b1_shared_pilot_setup.json",
+  "views": {
+    "front": {"floor_x_m": -1.037, "floor_yaw_rad": 0.0, "neck_yaw_sign": 1},
+    "back": {"floor_x_m": 0.8, "floor_yaw_rad": 3.141592653589793, "neck_yaw_sign": -1}
+  },
+  "domain": ["animated-door-1-88abf40", "door-2738468b94d74c5f", "psx-industrial-001-4f5561b"],
+  "rules": [
+    "The base stays fixed throughout each survey; the task's accepted placement is unchanged",
+    "Use the same head ZED, calibrated robot geometry and parked arm; no extra sensor or hinge actuation; an explicitly declared initial opening may expose background while the original dynamics remain active",
+    "Retain observed depths and their original calibration/clock; do not fabricate current observations",
+    "Only common observed free-space evidence may be reused; no asset-ID-conditioned admission lookup",
+    "Unknown regions, scene-change assumptions and dynamic-door exclusion remain explicit"
+  ]
+}

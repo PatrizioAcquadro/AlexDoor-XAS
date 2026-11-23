@@ -27,6 +27,9 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     native_steel: bool = False
     diagnostic_hinge_stop_deg: float | None = None
     observed_load_feedback: bool = False
+    measure_surface_components: bool = False
+    recover_force_only_gap: bool = False
+    pose_tool_frame_reference: bool = False
     pose_held_surface: bool = False
     action_mode: str = "A2"
     cameras: bool = True
@@ -41,6 +44,12 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     # Optional pose-command reserve; hard position/admission limits stay separate.
     pose_target_margin_rad: tuple | None = None
     pose_target_domain_rad: tuple | None = None
+    # Optional soft nullspace preference; physical and admission bounds stay separate.
+    pose_centering_domain_rad: tuple | None = None
+    # Optional coupled preference in measured support; actual admission stays separate.
+    pose_posture_support_rad: tuple | None = None
+    # Existing stopping/acceleration reserve, excluding the measured velocity term.
+    pose_posture_stopping_reserve_rad: tuple | None = None
     # Optional outer pose feedback; inner actuator impedance remains unchanged.
     pose_feedback_time_constant_s: float | None = None
     pose_reference_feedforward: bool = False

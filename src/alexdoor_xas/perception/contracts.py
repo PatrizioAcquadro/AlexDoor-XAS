@@ -142,6 +142,60 @@ class NormalAlignmentEvidence:
 
 
 @dataclass(frozen=True)
+class AxisRotationBounds:
+    """Measured basis-column chords for inverse rigid material transport.
+
+    For Q=Bi Bc.T and u=Bc.T v, the center error is at most
+    sum(abs(u[j]) * (initial_chord[j] + current_chord[j])). Orthogonal
+    multiplication preserves norms, so this includes errors of both bases.
+    A finite ball adds radius times the unchanged global rotation chord.
+    """
+
+    basis_world: tuple[tuple[float, float, float], ...]
+    chord_bounds: tuple[float, float, float]
+    rotation_bound_rad: float
+
+    def displacement_bound(self, vectors, radius, rotation_bound_rad):
+        basis = np.asarray(self.basis_world, float)
+        chords = np.asarray(self.chord_bounds, float)
+        vectors = np.asarray(vectors, float)
+        roundoff = 32 * np.finfo(float).eps
+        if (
+            basis.shape != (3, 3)
+            or chords.shape != (3,)
+            or vectors.ndim != 2
+            or vectors.shape[1:] != (3,)
+            or not len(vectors)
+            or not np.isfinite(
+                np.r_[
+                    basis.ravel(),
+                    chords,
+                    vectors.ravel(),
+                    radius,
+                    self.rotation_bound_rad,
+                    rotation_bound_rad,
+                ]
+            ).all()
+            or radius < 0
+            or not 0 <= self.rotation_bound_rad <= np.pi
+            or (chords < 0).any()
+            or not np.allclose(basis.T @ basis, np.eye(3), rtol=roundoff, atol=roundoff)
+            or np.linalg.det(basis) < 0
+        ):
+            raise ValueError("invalid_axis_rotation_bound")
+        if not np.isclose(
+            self.rotation_bound_rad, rotation_bound_rad, rtol=roundoff, atol=roundoff
+        ):
+            raise ValueError("stale_axis_rotation_bound")
+        chord = 2 * np.sin(self.rotation_bound_rad / 2)
+        if (chords > chord + roundoff).any():
+            raise ValueError("invalid_axis_rotation_bound")
+        scalar = (np.linalg.norm(vectors, axis=1).max() + radius) * chord
+        directional = (np.abs(vectors @ basis) @ chords).max() + radius * chord
+        return float(min(scalar, directional))
+
+
+@dataclass(frozen=True)
 class LocalPatchState:
     """Measured material geometry, independent of a hinge or action permission.
 
@@ -177,6 +231,10 @@ class LocalPatchState:
         tuple[str, float | None, float | None, float | None, tuple[float, float, float]], ...
     ] = ()
     normal_alignment: NormalAlignmentEvidence | None = None
+
+    # Optional finer bound of the SAME dynamic_pose primitive. Its scalar angle
+    # is retained to reject stale axis precision after the source bound changes.
+    pose_rotation_axis_bounds: AxisRotationBounds | None = None
 
 
 @dataclass(frozen=True)

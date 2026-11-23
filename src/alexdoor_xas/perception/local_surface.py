@@ -21,6 +21,8 @@ class SurfacePose:
     pairs: int
     normal_origin_world: np.ndarray
     normal_point_bound_m: float
+    rotation_basis_world: np.ndarray | None = None
+    rotation_axis_chord_bounds: np.ndarray | None = None
 
 
 def _angle(a, b):
@@ -108,10 +110,19 @@ def _planar_core_bound(points, normal, offset, point_error_m):
     return min(normal_bounds)
 
 
-def observed_basis(surface, point_error_m, *, normal_points=None):
+def _observed_basis_axes(surface, point_error_m, *, normal_points=None):
     """Bound a plane/edge basis using finite baselines and a metric error bound."""
     if not np.isfinite(point_error_m) or point_error_m <= 0:
         raise ValueError("missing_metric_point_error")
+    if normal_points is not None:
+        normal_points = np.asarray(normal_points, float)
+        if (
+            normal_points.ndim != 2
+            or normal_points.shape[1:] != (3,)
+            or len(normal_points) < 5
+            or not np.isfinite(normal_points).all()
+        ):
+            raise ValueError("invalid_observed_normal_support")
     points = np.asarray(surface.points if normal_points is None else normal_points, float)
     normal = np.asarray(surface.normal, float)
     normal_norm = np.linalg.norm(normal)
@@ -162,13 +173,27 @@ def observed_basis(surface, point_error_m, *, normal_points=None):
         bound = min(old_bound, _orthogonal_rotation_bound(normal_bound, edge_from_z))
         z = direction - normal * (normal @ direction)
         z /= np.linalg.norm(z)
-        alternatives.append((bound, np.column_stack((normal, np.cross(z, normal), z))))
+        # Keep the original normal/edge errors separately. The cross-product
+        # column is bounded by their chord sum; the scalar SO(3) bound remains
+        # an independent ceiling for every column. No independence is assumed.
+        normal_chord = 2 * np.sin(min(normal_bound, np.pi) / 2)
+        edge_chord = 2 * np.sin(min(edge_from_z, np.pi) / 2)
+        axes = np.minimum(
+            2 * np.sin(bound / 2),
+            [normal_chord, normal_chord + edge_chord, edge_chord],
+        )
+        alternatives.append((bound, np.column_stack((normal, np.cross(z, normal), z)), axes))
     if not alternatives:
         raise ValueError("missing_conditioned_observed_edge")
-    bound, basis = min(alternatives, key=lambda item: item[0])
+    bound, basis, axes = min(alternatives, key=lambda item: item[0])
     if bound >= np.pi / 2:
         raise ValueError("unconditioned_observed_basis")
-    return basis, float(bound), float(normal_bound)
+    return basis, float(bound), float(normal_bound), axes
+
+
+def observed_basis(surface, point_error_m, *, normal_points=None):
+    """Preserve the public scalar basis contract and its original bounds."""
+    return _observed_basis_axes(surface, point_error_m, normal_points=normal_points)[:3]
 
 
 def measured_material_surface(sensor, mask, pixels, predicted, reference, config, diagnostics):
@@ -271,6 +296,7 @@ def constrained_surface_pose(
     current_points,
     point_error_m,
     *,
+    current_normal_points=None,
     map_anchor,
 ):
     """Use all supplied measured native inliers; recompute their residual envelope.
@@ -279,8 +305,12 @@ def constrained_surface_pose(
     complete bound. Calibration, initial geometry, temporal growth and collision
     model disagreement remain separate contributions at the consumer.
     """
-    initial_basis, initial_error, _ = observed_basis(initial_surface, point_error_m)
-    current_basis, current_error, normal_error = observed_basis(current_surface, point_error_m)
+    initial_basis, initial_error, _, initial_axes = _observed_basis_axes(
+        initial_surface, point_error_m
+    )
+    current_basis, current_error, normal_error, current_axes = _observed_basis_axes(
+        current_surface, point_error_m, normal_points=current_normal_points
+    )
     source, current = np.asarray(source_points, float), np.asarray(current_points, float)
     anchor = np.asarray(map_anchor, float)
     cameras = (np.asarray(initial_camera, float), np.asarray(current_camera, float))
@@ -324,9 +354,16 @@ def constrained_surface_pose(
     residual = np.linalg.norm(source @ rotation.T + translation - current, axis=1)
     pose = np.eye(4)
     pose[:3, :3], pose[:3, 3] = rotation, translation
+    # The same maximum residual plus point error bounds translation at every
+    # measured pair, and by convexity at their centroid. Choose among those
+    # anchors by the COMPLETE observed root's largest lever, never by an action
+    # margin. Pose, residual envelope and rotation bounds remain unchanged.
+    reference = (initial_surface.points - cameras[0][:3, 3]) @ cameras[0][:3, :3]
+    anchors = np.vstack((source.mean(0), source))
+    origin = min(anchors, key=lambda point: np.linalg.norm(reference - point, axis=1).max())
     return SurfacePose(
         pose,
-        source.mean(0),
+        origin.copy(),
         float(residual.max() + point_error_m),
         min(np.pi, initial_error + current_error),
         normal_error,
@@ -335,4 +372,9 @@ def constrained_surface_pose(
         len(source),
         normal_origin,
         normal_point_bound,
+        current_basis.copy(),
+        np.minimum(
+            2 * np.sin(min(np.pi, initial_error + current_error) / 2),
+            initial_axes + current_axes,
+        ),
     )

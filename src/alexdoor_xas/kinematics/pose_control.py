@@ -77,6 +77,63 @@ def normal_reference_transport(normal_jacobian, stiffness, delivered_offset, pre
     return increment
 
 
+def tool_frame_elastic_reference(jacobian, stiffness, delivered_offset, rotation, reference=None):
+    """Return joint pose bias and its retained six-axis tool-frame reference.
+
+    Initialize only from already delivered target minus measured joints. The
+    wrench-shaped coordinate represents an elastic pose reference, not a sensor
+    reading or external-force estimate. Joint-nullspace preload is not inferred.
+    Callers supply the current rigid tool rotation and commit only on dispatch.
+    """
+    if not isinstance(jacobian, torch.Tensor) or jacobian.shape[-2:] != (6, 7):
+        raise ValueError("invalid_elastic_pose_reference")
+    batch = jacobian.shape[:-2]
+    values = [
+        (jacobian, batch + (6, 7)),
+        (stiffness, batch + (7,)),
+        (delivered_offset, batch + (7,)),
+        (rotation, batch + (3, 3)),
+    ]
+    if reference is not None:
+        values.append((reference, batch + (6,)))
+    if not all(
+        isinstance(v, torch.Tensor)
+        and v.shape == shape
+        and v.device == jacobian.device
+        and v.dtype == jacobian.dtype
+        and bool(torch.isfinite(v).all())
+        for v, shape in values
+    ):
+        raise ValueError("invalid_elastic_pose_reference")
+    if not bool((stiffness > 0).all()):
+        raise ValueError("invalid_elastic_pose_reference")
+    if reference is None:
+        compliance = (jacobian / stiffness.unsqueeze(-2)) @ jacobian.transpose(-1, -2)
+        pose_bias = jacobian @ delivered_offset.unsqueeze(-1)
+        wrench, info = torch.linalg.solve_ex(compliance, pose_bias)
+        if bool((info != 0).any()) or not bool(torch.isfinite(wrench).all()):
+            raise ValueError("unreachable_elastic_pose_reference")
+        wrench = wrench.squeeze(-1)
+        reference = torch.cat(
+            tuple(
+                (rotation.transpose(-1, -2) @ part.unsqueeze(-1)).squeeze(-1)
+                for part in (wrench[..., :3], wrench[..., 3:])
+            ),
+            -1,
+        )
+    world = torch.cat(
+        tuple(
+            (rotation @ part.unsqueeze(-1)).squeeze(-1)
+            for part in (reference[..., :3], reference[..., 3:])
+        ),
+        -1,
+    )
+    offset = (jacobian.transpose(-1, -2) @ world.unsqueeze(-1)).squeeze(-1) / stiffness
+    if not bool(torch.isfinite(offset).all()):
+        raise ValueError("invalid_elastic_pose_reference")
+    return offset, reference
+
+
 def bounded_pose_step(
     jacobian,
     error,
@@ -95,6 +152,8 @@ def bounded_pose_step(
     normal_reference_only=False,
     normal_transport_m=None,
     finite_tangent_impedance=False,
+    finite_tangent_reference_offset=None,
+    centering_limits=None,
 ):
     """Bounded pose solve with optional measured-error integration on prior targets.
 
@@ -112,7 +171,9 @@ def bounded_pose_step(
     normal joint covector changes. Optional finite tangential impedance removes
     elastic pose memory from the other five axes' error integration. Their causal
     reference increments remain, and the explicit normal channel retains load
-    support. Preview calls remain pure.
+    support. A causal entry offset preserves already delivered elastic preload;
+    only subsequent tangential elastic displacement supplies finite impedance.
+    Preview calls remain pure.
     """
     if jacobian.shape[-2:] != (6, 7) or error.shape[-1] != 6:
         raise ValueError("Purdue pose control requires a 6x7 Jacobian and six pose errors")
@@ -141,6 +202,17 @@ def bounded_pose_step(
         raise ValueError("invalid_normal_reference_mode")
     if type(finite_tangent_impedance) is not bool:
         raise ValueError("invalid_finite_tangent_impedance")
+    if finite_tangent_reference_offset is not None:
+        if not finite_tangent_impedance:
+            raise ValueError("finite_tangent_offset_requires_impedance")
+        if (
+            not isinstance(finite_tangent_reference_offset, torch.Tensor)
+            or finite_tangent_reference_offset.shape != positions.shape
+            or finite_tangent_reference_offset.device != positions.device
+            or finite_tangent_reference_offset.dtype != positions.dtype
+            or not bool(torch.isfinite(finite_tangent_reference_offset).all())
+        ):
+            raise ValueError("invalid_finite_tangent_reference_offset")
     if finite_tangent_impedance and not normal_reference_only:
         raise ValueError("finite_tangent_requires_normal_reference")
     if normal_reference_only and compliant_normal is None:
@@ -183,6 +255,10 @@ def bounded_pose_step(
         # integrate a blocked tangential error into increasing contact effort.
         elastic_error = (jacobian @ (previous_targets - positions).unsqueeze(-1)).squeeze(-1)
         pose_error = error - elastic_error
+        if finite_tangent_reference_offset is not None:
+            pose_error = pose_error + (
+                jacobian @ finite_tangent_reference_offset.unsqueeze(-1)
+            ).squeeze(-1)
         pose_error = pose_error - normal * (normal * pose_error).sum(dim=-1, keepdim=True)
     primary = jacobian.transpose(-1, -2) @ torch.linalg.solve(
         jacobian @ jacobian.transpose(-1, -2) + damping**2 * eye, pose_error.unsqueeze(-1)
@@ -213,7 +289,23 @@ def bounded_pose_step(
             dim=-1, keepdim=True
         )
         primary = primary - normal_component(primary)
-    center = ((lo + hi) / 2 - positions) / span.square()
+    center_lo, center_hi = lo, hi
+    if centering_limits is not None:
+        if (
+            not isinstance(centering_limits, torch.Tensor)
+            or centering_limits.shape != limits.shape
+            or centering_limits.device != positions.device
+            or centering_limits.dtype != positions.dtype
+            or not bool(torch.isfinite(centering_limits).all())
+            or not bool((centering_limits[..., 0] < centering_limits[..., 1]).all())
+            or bool((centering_limits[..., 0] < lo).any())
+            or bool((centering_limits[..., 1] > hi).any())
+        ):
+            raise ValueError("invalid_pose_centering_limits")
+        center_lo, center_hi = centering_limits[..., 0], centering_limits[..., 1]
+    # A soft posture preference in the existing Jacobian nullspace. Its domain
+    # does not clip targets or replace the physical/admission limits below.
+    center = ((center_lo + center_hi) / 2 - positions) / (center_hi - center_lo).square()
     if feedback:
         gain = dt / feedback_time_constant_s
         primary = primary * gain

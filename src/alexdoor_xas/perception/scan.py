@@ -632,7 +632,11 @@ class ObservedSpace:
 
                 # The historical reader consumes only clearance. An occupied
                 # return can veto a witness but cannot turn an unknown into one.
-                if any_good and (ray_planes is None or len(free) > witnesses_before_view):
+                if (
+                    any_good
+                    and not occupied
+                    and (ray_planes is None or len(free) > witnesses_before_view)
+                ):
                     indexed = getattr(self, "_static_points", {}).get(view_key)
                     if indexed is not None:
                         tree, pixels = indexed

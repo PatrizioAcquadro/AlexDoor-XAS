@@ -224,3 +224,24 @@ def test_local_joint_limit_requires_blocked_direction():
     inward = constrained_step_evidence(jac, q, limits, np.array([-0.02, 0, 0, 0, 0, 0]))
     assert outward["blocked"] and outward["active_joint_indices"] == [0]
     assert not inward["blocked"]
+
+
+@pytest.mark.parametrize("sign", [-1, 1])
+@pytest.mark.parametrize("withdrawal", [0.03, 0.06])
+@pytest.mark.parametrize("retreat_distance", [0.02, 0.08])
+def test_release_rotation_preserves_declared_withdrawal(sign, withdrawal, retreat_distance):
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, release_reference
+
+    setup = ProbeSetup(precontact_m=withdrawal)
+    start = np.array([0.2, -0.15 * sign, 1.09])
+    rotation = Rotation.from_euler("z", sign * 60, degrees=True).as_matrix()
+    retreat = start + rotation @ np.array([-retreat_distance, 0.01, 0.0])
+    retreat_rotation = Rotation.from_euler("z", sign * 55, degrees=True).as_matrix()
+    for elapsed in np.linspace(setup.release_s / 2, setup.release_s, 31):
+        point, orientation = release_reference(
+            start, rotation, retreat, retreat_rotation, elapsed, setup
+        )
+        assert (point - start) @ rotation[:, 0] <= -withdrawal + 1e-12
+    expected = start + rotation @ np.array([-max(withdrawal, retreat_distance), 0.01, 0.0])
+    np.testing.assert_allclose(point, expected, atol=1e-12)
+    np.testing.assert_allclose(orientation, retreat_rotation, atol=1e-12)
