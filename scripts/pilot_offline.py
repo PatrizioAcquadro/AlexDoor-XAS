@@ -62,28 +62,6 @@ def memory_checkpoint(root, stage, *, additional_bytes=0):
     require_host_memory(state, additional_bytes=additional_bytes)
 
 
-def dataset_ram_bytes(directory):
-    """Use logical observation size, including compact/VDS datasets, not file size."""
-    metadata = json.loads((directory / "meta.json").read_text())
-    size = 0
-    for name in metadata["episodes"]:
-        if Path(name).name != name:
-            raise ValueError("Episode path must stay inside its dataset")
-        with h5py.File(directory / name, "r") as source:
-            values = source["observations"]
-            if isinstance(values, h5py.Group):
-                width = values["frames"].shape[1]
-                width += values["coverage"].shape[1] if "coverage" in values else 0
-                size += (
-                    len(values["indices"])
-                    * (values["indices"].shape[1] * width + 18)
-                    * np.result_type(values["frames"].dtype, values["proprio"].dtype).itemsize
-                )
-            else:
-                size += int(values.size) * values.dtype.itemsize
-    return size
-
-
 def dataset_loading_bytes(directory):
     """Budget active normalization/batches and small eager metadata, not visual corpus."""
     metadata = json.loads((directory / "meta.json").read_text())

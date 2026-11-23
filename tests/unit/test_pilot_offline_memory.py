@@ -7,7 +7,6 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import h5py
-import numpy as np
 import pytest
 
 from alexdoor_xas.dataset import b1
@@ -60,18 +59,22 @@ def test_evaluation_releases_A1_before_constructing_A2(tmp_path, monkeypatch, of
     assert all(ref() is None for ref in datasets)
 
 
-def test_logical_VDS_bytes_are_not_mistaken_for_compact_file_size(tmp_path, offline):
+def test_loading_budget_counts_eager_arrays_and_leaves_images_on_disk(tmp_path, offline):
     path = tmp_path / "episode.hdf5"
-    with h5py.File(path, "w", libver="latest") as file:
-        file.create_dataset("unique", data=np.ones((1, 128)), compression="gzip")
-        layout = h5py.VirtualLayout((1024, 128), dtype="f8")
-        source = h5py.VirtualSource(".", "unique", shape=(1, 128))
-        for index in range(1024):
-            layout[index : index + 1] = source
-        file.create_virtual_dataset("observations", layout)
-    (tmp_path / "meta.json").write_text(json.dumps({"episodes": [path.name]}))
-    assert offline.dataset_ram_bytes(tmp_path) == 1024 * 128 * 8
-    assert path.stat().st_size < offline.dataset_ram_bytes(tmp_path)
+    with h5py.File(path, "w") as file:
+        # A chunked image dataset occupies no disk space until written.
+        file.create_dataset("observations", (16, 128), maxshape=(None, 128), dtype="f4")
+        file.create_dataset("time_s", (16,), maxshape=(None,), dtype="f8")
+        for space, width in ((offline.A1_JOINT_DELTA, 7), (offline.A2_EE_DELTA, 6)):
+            file.create_dataset(f"{space}/actions", (15, width), dtype="f4")
+    meta = {"episodes": [path.name], "perception": {"config": {"visual_dims": [128]}}}
+    (tmp_path / "meta.json").write_text(json.dumps(meta))
+    budget = offline.dataset_loading_bytes(tmp_path)
+    with h5py.File(path, "r+") as file:
+        file["observations"].resize((2**24, 128))
+        file["time_s"].resize((32,))
+    assert offline.dataset_loading_bytes(tmp_path) == budget + 16 * 8
+    assert budget < GIB
 
 
 def test_low_RAM_is_recorded_and_refused_before_allocation(tmp_path, monkeypatch, offline):
