@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -27,6 +28,9 @@ def main():
         raise RuntimeError(f"GPU occupied; no simulator started: {active}")
     args.output.mkdir(exist_ok=False)
     shutil.copy2(__file__, args.output / "probe-source.py")
+    sys.path.insert(0, str(args.repo / "src"))
+    from alexdoor_xas.qualification.stop import LOADED_STOP_LIMITS
+
     protocol = dict(
         scope="robot-only, 120 Hz physics/60 Hz control, cameras disabled, native PhysX",
         hold="2s unloaded, 3s 4N -world X, 2s removed, fixed ready target",
@@ -34,21 +38,11 @@ def main():
             "independent resets; 2s settle, 2s preload, .5s cosine motion, "
             "stop, 2s maintained, 2s removed"
         ),
-        criteria=dict(
-            steady_joint_error_rad=0.02,
-            hold_travel_mm=10.0,
-            rotation_deg=3.0,
-            stop_travel_mm=10.0,
-            final_speed_rad_s=0.01,
-            removal_final_mm=2.0,
-        ),
+        criteria=LOADED_STOP_LIMITS,
         calibration="reuse supplied saved calibration unchanged; no qualification flags",
         reference="evaluator-only injection, not passed to control or residual model",
     )
     (args.output / "protocol.json").write_text(json.dumps(protocol, indent=2) + "\n")
-    import sys
-
-    sys.path.insert(0, str(args.repo / "src"))
     from isaaclab.app import AppLauncher
 
     app = AppLauncher(headless=True, device="cuda:0").app
@@ -190,7 +184,7 @@ def main():
                     body_ids=torch.tensor([body], device=env.device),
                     is_global=True,
                 )
-            if stopped and hasattr(env, "stop_motion"):
+            if stopped:
                 env.step(torch.zeros((1, 6), device=env.device))
             else:
                 measured = array(env.robot.data.joint_pos)[0, env.arm_ids]
@@ -275,28 +269,27 @@ def main():
             run(name + "_stopped_loaded", 120, frozen[0, ids], force, True)
             run(name + "_stopped_removed", 120, frozen[0, ids], 0.0, True)
             np.testing.assert_array_equal(array(env.targets), frozen)
-            if hasattr(env, "stop_motion"):
-                io.stop()
-                np.testing.assert_array_equal(array(env.targets), frozen)
-                refused = []
-                for command in (
-                    lambda: env.step_a1(np.ones(7) * 0.001),
-                    lambda: env.command_pose(*env.tool_pose()),
-                    lambda: env.step_a3(np.zeros(6), None),
-                    lambda: env.set_neck_target([0.0, 0.0]),
-                    lambda: env.step(torch.ones((1, 6), device=env.device) * 0.001),
-                    lambda: io.execute(None),
-                ):
-                    try:
-                        command()
-                    except RuntimeError as error:
-                        assert str(error) == "motion_stopped"
-                        refused.append(True)
-                    else:
-                        refused.append(False)
-                event["command_refusal"] = refused
-                event["stop_idempotent"] = True
-                assert all(refused)
+            io.stop()
+            np.testing.assert_array_equal(array(env.targets), frozen)
+            refused = []
+            for command in (
+                lambda: env.step_a1(np.ones(7) * 0.001),
+                lambda: env.command_pose(*env.tool_pose()),
+                lambda: env.step_a3(np.zeros(6), None),
+                lambda: env.set_neck_target([0.0, 0.0]),
+                lambda: env.step(torch.ones((1, 6), device=env.device) * 0.001),
+                lambda: io.execute(None),
+            ):
+                try:
+                    command()
+                except RuntimeError as error:
+                    assert str(error) == "motion_stopped"
+                    refused.append(True)
+                else:
+                    refused.append(False)
+            event["command_refusal"] = refused
+            event["stop_idempotent"] = True
+            assert all(refused)
         report["completed"] = True
     except Exception as error:
         import traceback

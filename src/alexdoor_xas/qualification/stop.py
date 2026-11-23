@@ -5,6 +5,16 @@ from pathlib import Path
 import numpy as np
 from scipy.spatial.transform import Rotation
 
+# Original robot-only protocol, also used by archived traces without protocol.json.
+LOADED_STOP_LIMITS = dict(
+    steady_joint_error_rad=0.02,
+    hold_travel_mm=10.0,
+    rotation_deg=3.0,
+    stop_travel_mm=10.0,
+    final_speed_rad_s=0.01,
+    removal_final_mm=2.0,
+)
+
 
 def stop_continuation_outcome(values, *, expected_ticks, step_dt, violations=()):
     """Score the original complete stop contract, including terminal settling.

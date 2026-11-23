@@ -10,7 +10,7 @@ Run from the source checkout. The pilot uses training and development identities
 | Collect, qualify, replay or roll out in the calibrated simulator | `scripts/isaac-run.sh scripts/pilot_physics.py MODE --help`. Supply the protocol, prepared asset root and mode-specific inputs. The default is Isaac Sim PhysX for these calibrations. |
 | Train/resume temporal ACT-A1 | `scripts/train_temporal_act.py --manifest MANIFEST --output NEW_RUN`. The manifest selects admitted sources. Use `--resume` for a compatible checkpoint. |
 | Review temporal recordings or compare prepared loading and inference | `scripts/verify_temporal_collection.py --help` and `scripts/benchmark_temporal_pipeline.py --source RAW --prepared PREPARED --output NEW_RUN`. The latter compares the same captured inputs. |
-| Check operational coverage and stopping | `scripts/pilot_workspace_survey.py` surveys the working envelope. `scripts/verify_pilot_dynamics.py` and `scripts/verify_loaded_stop.py` measure robot response. `scripts/analyze_loaded_stop.py` reads the saved stop traces. |
+| Check operational coverage and stopping | `scripts/pilot_workspace_survey.py` surveys the working envelope. `scripts/verify_pilot_dynamics.py` and `scripts/verify_loaded_stop.py` measure robot response. `scripts/analyze_loaded_stop.py` scores complete loaded and unloaded trials using the limits in their saved protocol. Early traces without a protocol use the original limits. |
 
 ## What a checkpoint can consume
 

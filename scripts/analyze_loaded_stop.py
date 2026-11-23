@@ -2,15 +2,31 @@
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 from scipy.spatial.transform import Rotation
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from alexdoor_xas.qualification.stop import LOADED_STOP_LIMITS  # noqa: E402
+
 
 def analyze(path):
     report = json.loads((path / "report.json").read_text())
-    data = np.load(path / "trace.npz")
+    cases = [event["case"] for event in report["events"]]
+    if not report["completed"] or sorted(cases) != ["loaded", "unloaded"]:
+        raise ValueError(f"Incomplete loaded and unloaded stop trials in {path}")
+    protocol = path / "protocol.json"
+    criteria = (
+        json.loads(protocol.read_text())["criteria"] if protocol.exists() else LOADED_STOP_LIMITS
+    )
+    for key in LOADED_STOP_LIMITS:
+        if not np.isfinite(criteria[key]) or criteria[key] < 0:
+            raise ValueError(f"Invalid stop criterion {key} in {path}")
+    # Each phase uses the same channels. Decompress them once per run.
+    with np.load(path / "trace.npz") as trace:
+        data = dict(trace)
     calibration = report["runtime"]["calibration"]
     limits = np.array(report["runtime"]["effort_limits"])
     sign = calibration["sign"]
@@ -85,7 +101,7 @@ def analyze(path):
         ).magnitude()
         speeds = np.max(np.abs(data["dq"][m]), axis=1)
         persistent = np.maximum.accumulate(speeds[::-1])[::-1]
-        settled = np.flatnonzero(persistent <= 0.01)
+        settled = np.flatnonzero(persistent <= criteria["final_speed_rad_s"])
         return dict(
             settling_s=(float((settled[0] + 1) / 120) if len(settled) else None),
             travel_max_mm=float(max(distance)),
@@ -114,18 +130,31 @@ def analyze(path):
         total_samples=len(data["q"]),
         available=int(sum(data["rejection"] == "")),
         criteria=dict(
-            hold_tracking=phases["hold_loaded"]["steady_tracking_max_rad"] <= 0.02,
-            hold_travel=hold["travel_max_mm"] <= 10.0,
-            hold_rotation=hold["rotation_max_deg"] <= 3.0,
+            hold_tracking=phases["hold_loaded"]["steady_tracking_max_rad"]
+            <= criteria["steady_joint_error_rad"],
+            hold_travel=hold["travel_max_mm"] <= criteria["hold_travel_mm"],
+            hold_rotation=hold["rotation_max_deg"] <= criteria["rotation_deg"],
             stopped_travel=all(
-                p["travel_max_mm"] <= 10.0 for v in stops.values() for p in v.values()
+                p["travel_max_mm"] <= criteria["stop_travel_mm"]
+                for v in stops.values()
+                for p in v.values()
             ),
             stopped_rotation=all(
-                p["rotation_max_deg"] <= 3.0 for v in stops.values() for p in v.values()
+                p["rotation_max_deg"] <= criteria["rotation_deg"]
+                for v in stops.values()
+                for p in v.values()
             ),
-            stopped_speed=all(v["loaded"]["final_speed_rad_s"] <= 0.01 for v in stops.values()),
-            removal_return=all(v["removed"]["final_mm"] <= 2.0 for v in stops.values()),
-            removal_speed=all(v["removed"]["final_speed_rad_s"] <= 0.01 for v in stops.values()),
+            stopped_speed=all(
+                v["loaded"]["final_speed_rad_s"] <= criteria["final_speed_rad_s"]
+                for v in stops.values()
+            ),
+            removal_return=all(
+                v["removed"]["final_mm"] <= criteria["removal_final_mm"] for v in stops.values()
+            ),
+            removal_speed=all(
+                v["removed"]["final_speed_rad_s"] <= criteria["final_speed_rad_s"]
+                for v in stops.values()
+            ),
         ),
     )
     (path / "analysis.json").write_text(json.dumps(metrics, indent=2, allow_nan=False) + "\n")
