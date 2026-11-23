@@ -438,6 +438,22 @@ def test_excluded_supervision_is_not_required_on_training_host(tmp_path):
     assert audit[0]["retention_verified_here"] is False
 
 
+def test_audit_selects_one_protocol_condition_before_opening_recordings(tmp_path, monkeypatch):
+    from runpy import run_path
+
+    audit = run_path("scripts/pilot_offline.py")["main"]
+    arguments = ["audit", "--protocol", "configs/b1_learned_pilot.json", "--root", str(tmp_path)]
+    asset = "animated-door-1-88abf40"
+    with pytest.raises(SystemExit) as ambiguous:
+        audit([*arguments, "--asset-id", asset])
+    assert ambiguous.value.code == 2
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    episode_id = f"{asset}-nominal-real-pilot"
+    audit([*arguments, "--episode-id", episode_id])
+    [entry] = json.loads((tmp_path / "preflight-label-audit.json").read_text())
+    assert entry["episode_id"] == episode_id and entry["used_for_imitation"] is False
+
+
 def test_remote_train_only_path_never_substitutes_train_for_missing_development():
     import runpy
     from pathlib import Path

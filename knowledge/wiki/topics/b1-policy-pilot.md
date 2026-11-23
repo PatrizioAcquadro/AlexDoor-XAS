@@ -6,7 +6,7 @@ Run from the source checkout. The pilot uses training and development identities
 
 | Workflow | Entry point and inputs |
 |---|---|
-| Audit, prepare, index, materialize, train or evaluate matched pilot data | `scripts/pilot_offline.py MODE --protocol configs/b1_learned_pilot.json --root PILOT_ROOT`. Use `evaluate --selection-protocol configs/b1_pilot_selection.json` for the frozen development selection metrics. |
+| Audit, prepare, index, materialize, train or evaluate matched pilot data | `scripts/pilot_offline.py MODE --protocol configs/b1_learned_pilot.json --root PILOT_ROOT`. Select one audit recording with `audit --episode-id EPISODE_ID`. Use `evaluate --checkpoints-root TRAINING_DIR --selection-protocol configs/b1_pilot_selection.json` for the frozen development selection metrics. |
 | Collect, qualify, replay or roll out in the calibrated simulator | `scripts/isaac-run.sh scripts/pilot_physics.py MODE --help`. Supply the protocol, prepared asset root and mode-specific inputs. The default is Isaac Sim PhysX for these calibrations. |
 | Train/resume temporal ACT-A1 | `scripts/train_temporal_act.py --manifest MANIFEST --output NEW_RUN`. The manifest selects admitted sources. Use `--resume` for a compatible checkpoint. |
 | Review temporal recordings or compare prepared loading and inference | `scripts/verify_temporal_collection.py --help` and `scripts/benchmark_temporal_pipeline.py --source RAW --prepared PREPARED --output NEW_RUN`. The latter compares the same captured inputs. |

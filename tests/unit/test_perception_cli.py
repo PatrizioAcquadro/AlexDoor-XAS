@@ -30,20 +30,17 @@ def test_live_does_not_require_recordings(tmp_path, monkeypatch, complete):
 
     monkeypatch.setattr(live, "run_live", run)
     monkeypatch.setattr(b1, "episode_paths", lambda *a: pytest.fail("live reads recordings"))
-    assert (
-        cli_module().main(
-            [
-                "point2pose-live",
-                "--case",
-                "camera",
-                "--asset",
-                PILOT,
-                "--output",
-                str(tmp_path / "run"),
-            ]
-        )
-        == int(not complete)
-    )
+    assert cli_module().main(
+        [
+            "point2pose-live",
+            "--case",
+            "camera",
+            "--asset",
+            PILOT,
+            "--output",
+            str(tmp_path / "run"),
+        ]
+    ) == int(not complete)
     assert len(calls) == 1 and calls[0][1]["case"] == "camera"
 
 

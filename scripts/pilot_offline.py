@@ -95,6 +95,7 @@ def prepare(root, protocol, *, recipe, export=True, copy_raw=False, urdf=None):
                     raise ValueError("Excluded collection requires an explicit reason")
                 audit.append(
                     dict(
+                        episode_id=entry.get("episode_id"),
                         asset_id=entry["asset_id"],
                         condition=entry.get("condition"),
                         used_for_imitation=False,
@@ -119,6 +120,14 @@ def prepare(root, protocol, *, recipe, export=True, copy_raw=False, urdf=None):
             with h5py.File(path) as source:
                 calibration = json.loads(source["metadata"].attrs["calibration"])
                 metadata = json.loads(source["metadata"].attrs["episode"])
+                if any(
+                    metadata.get(key) != entry[key]
+                    for key in ("episode_id", "asset_id", "split", "condition")
+                    if key in entry
+                ):
+                    raise ValueError(
+                        f"Recording identity differs from the declared episode in {path}"
+                    )
                 candidate = pilot_binding(
                     metadata["inspection"],
                     depth_interval_m=calibration["depth_interval_m"],
@@ -156,6 +165,7 @@ def prepare(root, protocol, *, recipe, export=True, copy_raw=False, urdf=None):
                     raise ValueError("Labels fail observed-state command reconstruction")
                 audit.append(
                     dict(
+                        episode_id=episode.episode_id,
                         asset_id=entry["asset_id"],
                         fk_urdf=str(urdf_path.resolve()),
                         split=entry["split"],
@@ -841,9 +851,21 @@ def evaluate_selection_checkpoints(root, protocol, checkpoints, selection, *, re
         for e in protocol["episodes"]
         if e["split"] == "train" and e.get("use_for_imitation") is not False
     ]
-    if len(suite) != 2 or train_ids != expected_train:
+    dev_ids = [e["episode_id"] for e in suite]
+    declared_dev = [
+        e["episode_id"]
+        for e in protocol["episodes"]
+        if e["split"] == "development" and e.get("use_for_imitation") is not False
+    ]
+    if (
+        train_ids != expected_train
+        or len(dev_ids) != 2
+        or len(set(dev_ids)) != 2
+        or (declared_dev and dev_ids != declared_dev)
+    ):
         raise ValueError(
-            "Selection requires the declared training membership and two development records"
+            "Selection requires the declared training membership and two distinct "
+            "development episodes matching the protocol"
         )
     fit_ids = tuple(metadata.get("normalization_episode_ids", train_ids))
     if not fit_ids or len(set(fit_ids)) != len(fit_ids) or not set(fit_ids) <= set(train_ids):
@@ -1027,9 +1049,9 @@ def main(argv=None):
         type=Path,
         help="Relocated byte-identical robot URDF for Isaac-free preparation on Gilbreth",
     )
-    parser.add_argument(
-        "--asset-id", help="Single declared episode for the read-only preflight audit"
-    )
+    audit_selector = parser.add_mutually_exclusive_group()
+    audit_selector.add_argument("--episode-id", help="Exact protocol episode to audit")
+    audit_selector.add_argument("--asset-id", help="Audit an asset with one declared episode")
     parser.add_argument(
         "--checkpoints-root",
         type=Path,
@@ -1076,6 +1098,22 @@ def main(argv=None):
     if args.mode == "materialize" and (not args.prepared_data or not args.normalization_episode_id):
         parser.error("materialize needs prepared sources and original normalization identities")
     protocol = json.loads(args.protocol.read_text())
+    if args.mode == "audit":
+        if args.episode_id is None and args.asset_id is None:
+            parser.error("audit requires --episode-id or --asset-id")
+        key, value = (
+            ("episode_id", args.episode_id)
+            if args.episode_id is not None
+            else ("asset_id", args.asset_id)
+        )
+        protocol["episodes"] = [e for e in protocol["episodes"] if e.get(key) == value]
+        if len(protocol["episodes"]) != 1:
+            parser.error(
+                f"{key} {value!r} matched {len(protocol['episodes'])} episodes. "
+                "Select one with --episode-id."
+            )
+    elif args.episode_id is not None or args.asset_id is not None:
+        parser.error("--episode-id and --asset-id are audit selectors")
     try:
         args.recipe = protocol_recipe(protocol, args.recipe)
     except ValueError as error:
@@ -1104,9 +1142,6 @@ def main(argv=None):
             normalization_episode_ids=args.normalization_episode_id,
         )
     elif args.mode == "audit":
-        protocol["episodes"] = [e for e in protocol["episodes"] if e["asset_id"] == args.asset_id]
-        if len(protocol["episodes"]) != 1:
-            parser.error("Audit requires one declared identity")
         prepare(args.root, protocol, export=False, recipe=args.recipe, urdf=args.urdf)
     else:
         if args.mode == "prepare":
