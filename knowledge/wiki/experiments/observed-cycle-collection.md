@@ -26,4 +26,8 @@ On the RTX 4090, both native Steel/Warp and guarded beta2 Steel/RTX replayed the
 
 A fresh observed D4-N component with the Warp camera admitted 642/642 motion checks, reached 0.608° and entered hold. The collector received its resource-budget stop before the service deadline. Both stop intervals passed. Recording integrity passed with zero eligible training commands. Release and stabilization were untested in this run.
 
-Two native OVRTX camera checks initialized the scene and timed out on the first D4 RGB-D frame. The retry traced the wait to the renderer during reset. Full observed D4 qualification continues to use the guarded beta2 RTX runtime. The paired reports, camera traces and `observed-native-final/report.json` are under `outputs/generated/native-d4-review-20261123/`.
+Two early native OVRTX probes reached their 120-second deadline during reset. The paired reports, camera traces and Warp component report `observed-native-final/report.json` are under `outputs/generated/native-d4-review-20261123/`.
+
+## Native OVRTX D4-N
+
+The NVIDIA renderer log traced the first-frame wait to the Vulkan driver compiling its ray-tracing pipeline. The pipeline took 221.5 seconds on the cold D4 run and 4.2 seconds in a fresh process with the persistent cache. The 960 × 600 RGB-D frame passed the panel, contact-surround and frame visibility checks. The cold render and fresh-process logs are under `outputs/generated/ovrtx-d4-20261123/{baseline,full}/`.

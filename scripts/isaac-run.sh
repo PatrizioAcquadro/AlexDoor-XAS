@@ -14,12 +14,14 @@ if [[ -z "$profile" ]]; then
         *) profile="$(PYTHONPATH="$root/src:${PYTHONPATH:-}" python3 -c 'from alexdoor_xas.simulation_profile import DEFAULT_PHYSICS_PROFILE; print(DEFAULT_PHYSICS_PROFILE)')" ;;
     esac
 fi
-if [[ "$profile" != newton_steel_warp ]]; then
-    export PYTHONPATH="$root/src:$isaac_lab_dir/source/isaaclab:$isaac_lab_dir/source/isaaclab_physx:${PYTHONPATH:-}"
-fi
 export ISAAC_PHYSICS_PROFILE="$profile"
 case "$profile" in
-    newton_steel_warp)
+    newton_steel|isaacsim_physx)
+        export PYTHONPATH="$root/src:$isaac_lab_dir/source/isaaclab:$isaac_lab_dir/source/isaaclab_physx:${PYTHONPATH:-}"
+        ;;
+esac
+case "$profile" in
+    newton_steel_native|newton_steel_warp)
         native_runtime="$root/outputs/generated/isaac-native-runtime"
         native_python="${ALEXDOOR_NATIVE_PYTHON:-$native_runtime/.venv/bin/python}"
         if [[ ! -x "$native_python" ]]; then

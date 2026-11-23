@@ -11,10 +11,11 @@ from .expert import configure_physics_substeps, probe_config
 from .synthetic_probe import ProbeSetup
 
 NATIVE_PROFILE = "newton_steel_warp"
+NATIVE_STEEL_PROFILE = "newton_steel_native"
 
 
 def native_selected():
-    return os.environ.get("ISAAC_PHYSICS_PROFILE") == NATIVE_PROFILE
+    return os.environ.get("ISAAC_PHYSICS_PROFILE") in (NATIVE_PROFILE, NATIVE_STEEL_PROFILE)
 
 
 def launch_native_steel(cfg):
@@ -33,7 +34,7 @@ def launch_native_steel(cfg):
         use_cuda_graph=True,
     )
     return launch_simulation(
-        (cfg, NewtonWarpRendererCfg()),
+        (cfg, cfg.native_renderer_cfg or NewtonWarpRendererCfg()),
         {"headless": True, "device": cfg.sim.device, "visualizer": "none"},
     )
 

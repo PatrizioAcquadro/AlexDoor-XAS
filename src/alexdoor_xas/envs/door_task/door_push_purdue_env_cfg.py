@@ -25,6 +25,7 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     reset_camera_frames: int = 8
     physics_profile: str | None = DEFAULT_PHYSICS_PROFILE
     native_steel: bool = False
+    native_renderer_cfg: object | None = None
     diagnostic_hinge_stop_deg: float | None = None
     observed_load_feedback: bool = False
     measure_surface_components: bool = False

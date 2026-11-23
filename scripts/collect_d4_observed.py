@@ -15,7 +15,10 @@ from time import perf_counter
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from alexdoor_xas.qualification.b1_runtime import native_selected  # noqa: E402
+from alexdoor_xas.qualification.b1_runtime import (  # noqa: E402
+    NATIVE_STEEL_PROFILE,
+    native_selected,
+)
 from alexdoor_xas.qualification.interruption import (  # noqa: E402
     CollectionBudgetExceeded,
     install_interruption,
@@ -137,7 +140,8 @@ def main():
     if not component and not protocol.get("demonstration_qualification_allowed"):
         parser.error("The protocol does not declare an ordinary full-cycle attempt")
     native = native_selected()
-    if native and not component:
+    native_rtx = os.environ.get("ISAAC_PHYSICS_PROFILE") == NATIVE_STEEL_PROFILE
+    if native and not native_rtx and not component:
         parser.error("The native Warp D4 path supports component diagnostics only")
     args.output.mkdir(parents=True, exist_ok=False)
     started = perf_counter()
@@ -196,6 +200,12 @@ def main():
         if native:
             from alexdoor_xas.qualification.b1_runtime import launch_native_steel
 
+            if native_rtx:
+                from isaaclab_ov.renderers import OVRTXRendererCfg
+
+                cfg.native_renderer_cfg = OVRTXRendererCfg(
+                    log_file_path=str((args.output / "ovrtx.log").resolve()), log_level="info"
+                )
             runtime.enter_context(launch_native_steel(cfg))
         from alexdoor_xas.envs.door_task.door_push_purdue_env import DoorPushPurdueEnv
 
@@ -206,6 +216,7 @@ def main():
             args.output / "runtime.json",
             dict(
                 backend=os.environ.get("ISAAC_PHYSICS_PROFILE", STEEL),
+                renderer=type(env.camera._renderer).__name__ if native else "Isaac RTX",
                 solver=type(
                     env.sim.backend_manager.backend.solver
                     if native

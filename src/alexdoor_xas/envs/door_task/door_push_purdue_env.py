@@ -486,7 +486,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
                     for p in Usd.PrimRange(stage.GetPrimAtPath(ROBOT))
                     if p.GetName() == "HEAD_LINK"
                 )
-                left.renderer_cfg = NewtonWarpRendererCfg()
+                left.renderer_cfg = self.cfg.native_renderer_cfg or NewtonWarpRendererCfg()
             world_body = np.array(UsdGeom.Xformable(body).ComputeLocalToWorldTransform(0)).T
             world_optic = np.array(UsdGeom.Xformable(optic).ComputeLocalToWorldTransform(0)).T
             if self.cfg.native_steel:

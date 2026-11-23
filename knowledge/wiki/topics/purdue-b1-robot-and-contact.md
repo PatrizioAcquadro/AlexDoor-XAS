@@ -29,11 +29,17 @@ iterations, enforces joint limits, and allocates 512 articulated constraint
 rows per world. The upstream defaults are 8 iterations, limits disabled, and
 32 rows. The solver implementation comes from Newton. [Pinned Isaac Lab configuration](https://github.com/isaac-sim/IsaacLab/blob/67fe12806afbdb8bf8e125866661dd201088a54d/source/isaaclab_newton/isaaclab_newton/physics/steel_solver_cfg.py)
 
-The guarded D4 qualification path uses the beta2 Kit runtime with RTX. Bounded
+D4 defaults to the guarded beta2 Kit runtime with RTX. Select
+`ISAAC_PHYSICS_PROFILE=newton_steel_native` to run the full D4 protocol with
+native Newton Steel and the OVRTX camera. The launcher selects the same
+renderer configuration for the simulation and the ZED sensor. The driver
+compiles ray-tracing shaders on its first frame and reuses them from the
+native runtime cache. The run records compilation progress in `ovrtx.log` and
+the instantiated solver and renderer in `runtime.json`. Bounded
 D4 components can explicitly select `ISAAC_PHYSICS_PROFILE=newton_steel_warp`.
 They use the native Warp camera, converted assets and Isaac Lab's
 `ArticulationCfg.enable_joint_wrench` for the solved reaction forces. The
-comparison and optical limitation are in [[../experiments/observed-cycle-collection#Native Steel component comparison]].
+saved-state comparison and observed outcomes are in [[../experiments/observed-cycle-collection#Native Steel component comparison]].
 The beta2 adapter loads the separate Newton wheel site at
 `outputs/generated/isaac-steel-runtime/site` and provides solved joint loads and
 contact rows. Set `NEWTON_SITE` to use another matching wheel site. Pilot

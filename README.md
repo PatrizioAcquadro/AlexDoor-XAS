@@ -49,7 +49,7 @@ Run from the checkout on the RTX workstation. The launcher selects the physics i
 | Entry point | Default runtime |
 |---|---|
 | `collect_perception.py`, `qualify_door.py` | Native Steel/Warp (`newton_steel_warp`) in the dedicated native environment |
-| `collect_d4_observed.py` | Isaac Lab beta2 Newton Steel (`newton_steel`) with RTX RGB-D. Bounded components can explicitly select native Steel/Warp. |
+| `collect_d4_observed.py` | Isaac Lab beta2 Newton Steel (`newton_steel`) with RTX RGB-D. Select `newton_steel_native` for native OVRTX or `newton_steel_warp` for a bounded Warp component. |
 | `pilot_physics.py` and its dynamics, stop and workspace probes | Isaac Sim PhysX (`isaacsim_physx`) with the pilot calibration |
 
 For standard collection and qualification, install the native runtime and converted assets as described in the [Purdue runtime guide](knowledge/wiki/topics/purdue-b1-robot-and-contact.md#install-the-native-b1-runtime). These bounded commands exercise the 4° fixture and write diagnostic results.
@@ -79,7 +79,15 @@ ISAAC_PHYSICS_PROFILE=newton_steel_warp scripts/isaac-run.sh scripts/collect_d4_
   --component-max-sim-s 0.1 --record-tracker-stream --output "$fresh_native_output"
 ```
 
-Full D4 attempts use the guarded RTX path. The [D4 experiment record](knowledge/wiki/experiments/observed-cycle-collection.md#native-steel-component-comparison) explains the measured differences. Run the corpus and synthetic runtime checks separately.
+For a full native D4-N attempt, use the same declared protocol and recipe with a fresh output. The installer enables NVIDIA's OVRTX camera. On a cold shader cache, follow the compilation progress in the run's `ovrtx.log` and allow several minutes for the first frame.
+
+```bash
+ISAAC_PHYSICS_PROFILE=newton_steel_native scripts/isaac-run.sh scripts/collect_d4_observed.py \
+  --protocol "$protocol" --setup "$setup" --operational-recipe "$recipe" \
+  --record-tracker-stream --output "$fresh_native_output"
+```
+
+The [D4 experiment record](knowledge/wiki/experiments/observed-cycle-collection.md#native-steel-component-comparison) explains the measured differences. Run the corpus and synthetic runtime checks separately.
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py
