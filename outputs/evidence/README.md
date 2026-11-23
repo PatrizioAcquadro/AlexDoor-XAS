@@ -94,12 +94,19 @@ The original host and run names are preserved. On the workstation,
 `outputs/generated/storage-reclaim-20261123/REPORT.md` lists the files needed
 for replay and evidence custody.
 
-The `act-a1-diverse-20261019/cold-hdf5/` link mirrors each archived file's
-original campaign-relative path with a `.zst` suffix. Restore an individual
-file in a working directory with `zstd -d ARCHIVE.zst -o episode.hdf5`.
-The adjacent `ARCHIVE.zst.json` gives its original name, SHA-256, size, mode
-and modification time. Training and development inputs in the retained ACT index
-remain directly readable in the checkout.
+The `act-a1-diverse-20261019/cold-hdf5/<case>/` directories hold two kinds
+of recording. The 28 complete episodes use `episode.hdf5.zst`. The 31 historical
+failures use `episode.measurements.hdf5.zst` and retain native measurements,
+calibration, capture timestamps and metadata. Their continuous color, depth and
+depth-validity arrays were removed. Their saved `online-*.npz` snapshots remain
+in the corresponding campaign case directories on the workstation.
+
+To restore one file, run `zstd -d /path/to/ARCHIVE.zst -o RESTORED.hdf5` in a
+working directory. Compare `sha256sum RESTORED.hdf5` with `sha256` in the
+adjacent `ARCHIVE.zst.json`. For a measurements-only file, `original.sha256`
+identifies the retired full recording. The workstation's [cleanup inventory](../generated/cold-act-retention-20261123/applied.csv)
+lists the archive and digest for each case. Training and development inputs in
+the retained ACT index remain directly readable in the checkout.
 
 ## Rebuilding historical prepared data
 
